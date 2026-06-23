@@ -289,7 +289,7 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 px-4 py-10">
-      {gamResult?.leveledUp && <Confetti />}
+      {(gamResult?.leveledUp || score.percent === 100) && <Confetti />}
       <div className="max-w-2xl mx-auto">
 
         {/* Header */}
@@ -416,13 +416,16 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               <div>
                 {(() => {
                   const g = getGrade(score.percent)
+                  const isPerfect = score.percent === 100
                   return (
-                    <div className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center ${g.bg}`}>
+                    <div className={`relative w-14 h-14 rounded-2xl border-2 flex items-center justify-center ${g.bg} ${isPerfect ? 'ring-4 ring-amber-300 ring-offset-1 animate-pulse' : ''}`}>
                       <span className={`text-3xl font-black ${g.text}`}>{g.grade}</span>
                     </div>
                   )
                 })()}
-                <p className="text-gray-400 text-xs mt-1 text-center">{getGrade(score.percent).label}</p>
+                <p className="text-gray-400 text-xs mt-1 text-center">
+                  {score.percent === 100 ? '🌟 Perfect!' : getGrade(score.percent).label}
+                </p>
                 {gamResult?.sessionRank && gamResult.sessionRank.isSessionPB && (
                   <p className="text-amber-500 text-xs font-bold mt-0.5 text-center">🏆 Best session!</p>
                 )}

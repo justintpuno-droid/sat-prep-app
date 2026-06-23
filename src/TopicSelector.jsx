@@ -318,6 +318,14 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return { pct: best, est: Math.round((400 + (best / 100) * 1200) / 10) * 10 }
   }, [history])
 
+  const qMilestone = useMemo(() => {
+    const totalQ = history.reduce((sum, s) => sum + s.score.total, 0)
+    const milestones = [100, 500, 1000, 2000, 5000]
+    const next = milestones.find(m => m > totalQ)
+    if (!next) return null
+    return { next, gap: next - totalQ, totalQ }
+  }, [history])
+
   const [weeklyXPGoal, setWeeklyXPGoal] = useState(() => loadWeeklyXPGoal())
   const [editingWeeklyXP, setEditingWeeklyXP] = useState(false)
   const [weeklyXPInput, setWeeklyXPInput] = useState('')
@@ -508,6 +516,9 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     if (diffReady) {
       return { icon: '🔥', title: 'Ready for Hard mode?', body: `You're hitting ${diffReady}% on Medium questions. Try Beast Mode or filter by Hard to level up!`, color: 'border-orange-100 bg-orange-50' }
     }
+    if (qMilestone && qMilestone.gap <= 50) {
+      return { icon: '💎', title: `${qMilestone.gap} questions to ${qMilestone.next} milestone!`, body: `You're at ${qMilestone.totalQ.toLocaleString()} total questions. So close!`, color: 'border-violet-100 bg-violet-50' }
+    }
     return null
   }, [levelInfo, streak, dailyProgress, dailyDone, daysLeft, diffReady])
 
@@ -667,6 +678,15 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <div className="shrink-0 text-center" title={`Best session: ${bestScore.pct}%`}>
                 <p className="text-base font-black text-amber-500">~{bestScore.est}</p>
                 <p className="text-xs text-gray-400 mt-0.5">best est.</p>
+              </div>
+            </>
+          )}
+          {qMilestone && qMilestone.gap <= 30 && (
+            <>
+              <div className="h-12 w-px bg-gray-100 shrink-0" />
+              <div className="shrink-0 text-center">
+                <p className="text-base font-black text-indigo-500">{qMilestone.gap}</p>
+                <p className="text-xs text-gray-400 mt-0.5">to {qMilestone.next}</p>
               </div>
             </>
           )}
