@@ -327,6 +327,49 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               )
             })()}
 
+            {/* Estimated score trend */}
+            {sessions.length >= 3 && (() => {
+              const eligible = sessions.filter(s => s.score.total >= 5)
+              if (eligible.length < 3) return null
+              const last10 = eligible.slice(-10)
+              const toScore = (p) => Math.round((400 + (p / 100) * 1200) / 10) * 10
+              const scores = last10.map(s => toScore(s.score.percent))
+              const min = Math.min(...scores) - 20
+              const max = Math.max(...scores) + 20
+              const range = max - min || 1
+              const w = 100 / (scores.length - 1)
+              const pts = scores.map((s, i) => `${i * w},${100 - ((s - min) / range) * 100}`).join(' ')
+              const first = scores[0], last = scores[scores.length - 1]
+              const delta = last - first
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Estimated Score Trend</p>
+                    <span className={`text-xs font-bold ${delta > 0 ? 'text-emerald-600' : delta < 0 ? 'text-rose-500' : 'text-gray-400'}`}>
+                      {delta > 0 ? '+' : ''}{delta} pts
+                    </span>
+                  </div>
+                  <svg viewBox={`0 0 100 60`} className="w-full h-20" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="score-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#6366f1" stopOpacity="0.15" />
+                        <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <polygon points={`0,100 ${pts} 100,100`} fill="url(#score-grad)" />
+                    <polyline points={pts} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    {scores.map((s, i) => (
+                      <circle key={i} cx={i * w} cy={100 - ((s - min) / range) * 100} r="2.5" fill="#6366f1" />
+                    ))}
+                  </svg>
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-gray-400">{first}</span>
+                    <span className="text-xs text-indigo-600 font-bold">{last} est.</span>
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* Top stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
               <StatCard label="Sessions" value={sessions.length} />

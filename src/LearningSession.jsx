@@ -44,9 +44,21 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [milestone, setMilestone] = useState(null)
   const [showFormulas, setShowFormulas] = useState(false)
   const [formulaTab, setFormulaTab] = useState('math')
+  const [eliminated, setEliminated] = useState({}) // questionId → eliminated option id
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
   const timer = useTimer()
+
+  function useHint(q) {
+    if (eliminated[q.id] || revealed) return
+    const wrongOpts = (q.options ?? []).filter(o => o.id !== q.answer)
+    if (wrongOpts.length === 0) return
+    const victim = wrongOpts[Math.floor(Math.random() * wrongOpts.length)]
+    setEliminated(prev => ({ ...prev, [q.id]: victim.id }))
+    setSessionXP(prev => Math.max(0, prev - 10))
+    setXpFlash({ amount: -10, correct: false, speed: false, id: Date.now() })
+    setTimeout(() => setXpFlash(null), 900)
+  }
 
   function toggleFlag(id) {
     setFlagged(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
@@ -306,6 +318,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
           selectedAnswer={selected}
           onSelect={handleSelect}
           showFeedback={revealed}
+          eliminatedOption={eliminated[current?.id]}
         />
 
         {/* XP flash */}
@@ -333,6 +346,22 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             <p className={`font-black text-lg ${selected === current.answer ? 'text-emerald-600' : 'text-rose-600'}`}>
               {selected === current.answer ? '✓' : `✗ ${current.answer}`}
             </p>
+          </div>
+        )}
+
+        {!revealed && !isBlitzMode && (current?.options?.length > 1) && (
+          <div className="mt-2 flex justify-end">
+            <button
+              onClick={() => useHint(current)}
+              disabled={!!eliminated[current.id]}
+              className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
+                eliminated[current.id]
+                  ? 'text-gray-300 border-gray-100 cursor-not-allowed'
+                  : 'text-indigo-400 border-indigo-200 hover:bg-indigo-50'
+              }`}
+            >
+              💡 {eliminated[current.id] ? 'Hint used (−10 XP)' : 'Hint (−10 XP)'}
+            </button>
           </div>
         )}
 
