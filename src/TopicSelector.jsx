@@ -318,6 +318,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return { pct: best, est: Math.round((400 + (best / 100) * 1200) / 10) * 10 }
   }, [history])
 
+  const uniqueQCount = useMemo(() => {
+    const seen = new Set()
+    for (const s of history) for (const q of s.questions) seen.add(q.id)
+    return seen.size
+  }, [history])
+
   const qMilestone = useMemo(() => {
     const totalQ = history.reduce((sum, s) => sum + s.score.total, 0)
     const milestones = [100, 500, 1000, 2000, 5000]
@@ -681,6 +687,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               </div>
             </>
           )}
+          {uniqueQCount > 0 && (
+            <>
+              <div className="h-12 w-px bg-gray-100 shrink-0" />
+              <div className="shrink-0 text-center" title="Unique questions practiced">
+                <p className="text-base font-black text-violet-500">{uniqueQCount}</p>
+                <p className="text-xs text-gray-400 mt-0.5">unique Qs</p>
+              </div>
+            </>
+          )}
+
           {qMilestone && qMilestone.gap <= 30 && (
             <>
               <div className="h-12 w-px bg-gray-100 shrink-0" />

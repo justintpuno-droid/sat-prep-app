@@ -165,6 +165,17 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       domainTrends[d.id] = calc(dSess.slice(0, 5)) - calc(dSess.slice(5))
     }
 
+    // Score plateau detection: last 5 sessions all within ±20 points of each other
+    let plateau = null
+    const recentEst = sessions.slice(-5).filter(s => s.score.total >= 5).map(s => Math.round((400 + (s.score.percent / 100) * 1200) / 10) * 10)
+    if (recentEst.length >= 5) {
+      const range = Math.max(...recentEst) - Math.min(...recentEst)
+      if (range <= 40) {
+        const avg = Math.round(recentEst.reduce((a, b) => a + b, 0) / recentEst.length / 10) * 10
+        plateau = { avg, range }
+      }
+    }
+
     // Consistency: standard deviation of recent 10 session accuracies
     let consistency = null
     if (sessions.length >= 5) {
@@ -187,7 +198,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     const biasTotal = Object.values(wrongChoices).reduce((a, b) => a + b, 0)
     const answerBias = biasTotal >= 20 ? wrongChoices : null
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau }
   }, [sessions])
 
   return (
@@ -550,6 +561,19 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                     <p className="text-sm font-bold text-gray-800">{stats.mostImproved.label}</p>
                     <p className="text-xs text-gray-500">+{stats.mostImproved.delta}% · from {stats.mostImproved.op}% → {stats.mostImproved.rp}%</p>
                   </div>
+                </div>
+              )}
+
+              {/* Plateau detection */}
+              {stats.plateau && (
+                <div className="mt-4 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                  <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">📊 Score Plateau Detected</p>
+                  <p className="text-sm text-gray-700">
+                    Your estimated score has stayed around <span className="font-bold">~{stats.plateau.avg}</span> for the last 5 sessions (within ±{Math.round(stats.plateau.range / 2)} pts).
+                  </p>
+                  <p className="text-xs text-amber-700 mt-1.5">
+                    Try Beast Mode for 2× XP, focus-drill your weakest domain, or attempt a Full Practice Test to break through!
+                  </p>
                 </div>
               )}
 
