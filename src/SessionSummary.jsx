@@ -293,6 +293,21 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               </div>
             )}
 
+            {gamResult.personalBests?.length > 0 && (
+              <div className="flex items-start gap-2.5 bg-white/20 rounded-xl px-3 py-2.5 mt-1">
+                <span className="text-xl">🏅</span>
+                <div>
+                  <p className="text-sm font-bold leading-tight">Personal Best{gamResult.personalBests.length > 1 ? 's' : ''}!</p>
+                  {gamResult.personalBests.map(pb => (
+                    <p key={pb.domainId} className="text-xs text-indigo-200 mt-0.5">
+                      {domainById[pb.domainId]?.label ?? pb.domainId}: {pb.curPct}%
+                      {pb.prevBest !== null ? ` (was ${pb.prevBest}%)` : ' — first high score!'}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {gamResult.newAchievements.length > 0 && (
               <div className="space-y-2 pt-1">
                 <p className="text-xs font-semibold text-indigo-200 uppercase tracking-wider">

@@ -220,6 +220,46 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return d === 0 ? 7 : d
   }, [])
 
+  const domainMastery = useMemo(() => {
+    const stats = {}
+    for (const sess of history) {
+      for (const q of sess.questions) {
+        if (!stats[q.domain]) stats[q.domain] = { correct: 0, total: 0 }
+        stats[q.domain].total++
+        if ((sess.answers[q.id] ?? null) === q.answer) stats[q.domain].correct++
+      }
+    }
+    const result = {}
+    for (const [id, s] of Object.entries(stats)) {
+      const p = s.total > 0 ? s.correct / s.total : 0
+      if (s.total >= 100 && p >= 0.85) result[id] = { icon: '🏆', label: 'Master', color: 'text-amber-500' }
+      else if (s.total >= 60 && p >= 0.75) result[id] = { icon: '🏅', label: 'Skilled', color: 'text-indigo-500' }
+      else if (s.total >= 30 && p >= 0.60) result[id] = { icon: '⭐', label: 'Capable', color: 'text-violet-500' }
+      else if (s.total >= 10) result[id] = { icon: '📚', label: 'Learner', color: 'text-emerald-500' }
+    }
+    return result
+  }, [history])
+
+  const nextAchievement = useMemo(() => {
+    const totalQ = history.reduce((t, s) => t + s.score.total, 0)
+    const hardCorrect = history.reduce((t, s) => t + s.questions.filter(q => q.difficulty === 3 && (s.answers[q.id] ?? null) === q.answer).length, 0)
+    const maxStreakSoFar = gam.maxStreak
+    const trackable = [
+      { id: 'century',     label: 'Century',         icon: '💪', cur: totalQ,         goal: 100  },
+      { id: 'five-hundred',label: 'Question Crusher', icon: '🚀', cur: totalQ,         goal: 500  },
+      { id: 'thousand',    label: 'Thousand Club',    icon: '🌟', cur: totalQ,         goal: 1000 },
+      { id: 'hard-worker', label: 'Hard Worker',      icon: '🔥', cur: hardCorrect,    goal: 25   },
+      { id: 'xp-1000',     label: 'Star Scholar',     icon: '⭐', cur: gam.totalXP,    goal: 1000 },
+      { id: 'streak-3',    label: 'On a Roll',        icon: '🔥', cur: maxStreakSoFar, goal: 3    },
+      { id: 'streak-7',    label: 'Week Warrior',     icon: '⚡', cur: maxStreakSoFar, goal: 7    },
+      { id: 'streak-14',   label: 'Dedicated',        icon: '🏆', cur: maxStreakSoFar, goal: 14   },
+    ]
+    return trackable
+      .filter(a => !gam.achievements[a.id] && a.cur < a.goal)
+      .map(a => ({ ...a, pct: Math.round((a.cur / a.goal) * 100) }))
+      .sort((a, b) => b.pct - a.pct)[0] ?? null
+  }, [history, gam])
+
   const weakDomain = useMemo(() => {
     const byDomain = {}
     for (const sess of history) {
@@ -406,6 +446,38 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           )}
         </div>
 
+        {/* 7-day streak calendar */}
+        {history.length > 0 && (() => {
+          const studiedDates = new Set(history.map(s => s.completedAt.slice(0, 10)))
+          const days = Array.from({ length: 7 }, (_, i) => {
+            const d = new Date()
+            d.setDate(d.getDate() - (6 - i))
+            return { key: d.toISOString().slice(0, 10), label: ['Su','Mo','Tu','We','Th','Fr','Sa'][d.getDay()], isToday: i === 6 }
+          })
+          const hasStreak = days.slice(0, 6).some(d => studiedDates.has(d.key))
+          if (!hasStreak && !studiedDates.has(days[6].key)) return null
+          return (
+            <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+              <span className="text-sm text-gray-400 shrink-0">Last 7 days</span>
+              <div className="flex gap-1.5 flex-1 justify-end">
+                {days.map(({ key, label, isToday }) => {
+                  const studied = studiedDates.has(key)
+                  return (
+                    <div key={key} className="flex flex-col items-center gap-0.5">
+                      <div className={`w-7 h-7 rounded-full text-xs flex items-center justify-center font-bold transition-colors ${
+                        studied ? 'bg-emerald-500 text-white' : isToday ? 'border-2 border-dashed border-gray-300 text-gray-300' : 'bg-gray-100 text-gray-300'
+                      }`}>
+                        {studied ? '✓' : ''}
+                      </div>
+                      <span className="text-[9px] text-gray-300">{label}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Daily quote */}
         <div className="rounded-2xl bg-gradient-to-r from-slate-700 to-slate-800 p-4 mb-4 text-white">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1.5">Quote of the Day</p>
@@ -420,6 +492,23 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             <div>
               <p className="text-sm font-bold text-gray-900">{nudge.title}</p>
               <p className="text-xs text-gray-600 mt-0.5">{nudge.body}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Next achievement progress */}
+        {nextAchievement && (
+          <div className="bg-white border-2 border-amber-100 rounded-2xl p-4 mb-4 flex items-center gap-4">
+            <span className="text-2xl shrink-0">{nextAchievement.icon}</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs font-semibold text-gray-700">Next: {nextAchievement.label}</p>
+                <span className="text-xs text-amber-600 font-bold">{nextAchievement.pct}%</span>
+              </div>
+              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-amber-400 rounded-full" style={{ width: `${nextAchievement.pct}%` }} />
+              </div>
+              <p className="text-xs text-gray-400 mt-1">{nextAchievement.cur.toLocaleString()} / {nextAchievement.goal.toLocaleString()}</p>
             </div>
           </div>
         )}
@@ -714,7 +803,14 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                           className="mt-0.5"
                         />
                         <div>
-                          <div className="text-sm font-medium text-gray-800">{domain.label}</div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-medium text-gray-800">{domain.label}</span>
+                            {domainMastery[domain.id] && (
+                              <span className={`text-xs ${domainMastery[domain.id].color}`} title={domainMastery[domain.id].label}>
+                                {domainMastery[domain.id].icon}
+                              </span>
+                            )}
+                          </div>
                           <div className="text-xs text-gray-400">{domain.description}</div>
                         </div>
                       </label>

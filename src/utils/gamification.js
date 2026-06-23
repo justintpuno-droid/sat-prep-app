@@ -219,7 +219,28 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, challengeBonus, challengeCompleted, comebackBonus, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
+  // Personal best detection (compare session domain scores vs. previous history)
+  const personalBests = []
+  const prevHistory = history.slice(0, -1)
+  for (const [domainId, ds] of Object.entries(session.score.byDomain)) {
+    if (ds.total < 5) continue
+    const curPct = Math.round((ds.correct / ds.total) * 100)
+    let prevBest = null
+    for (const s of prevHistory) {
+      const sd = s.score?.byDomain?.[domainId]
+      if (!sd || sd.total < 5) continue
+      const p = Math.round((sd.correct / sd.total) * 100)
+      if (prevBest === null || p > prevBest) prevBest = p
+    }
+    if (prevBest !== null && curPct > prevBest) personalBests.push({ domainId, curPct, prevBest })
+    else if (prevBest === null && curPct >= 85 && prevHistory.some(s => s.score?.byDomain?.[domainId]?.total >= 5)) {
+      // do nothing — no prior sessions with enough questions
+    } else if (prevBest === null && curPct >= 85 && prevHistory.length > 0) {
+      personalBests.push({ domainId, curPct, prevBest: null })
+    }
+  }
+
+  return { xp, challengeBonus, challengeCompleted, comebackBonus, personalBests, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────
