@@ -64,7 +64,7 @@ function computeStreak() {
   return streak
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onFullPractice }) {
   const streak = useMemo(() => computeStreak(), [])
 
   // Start with everything selected
@@ -163,6 +163,32 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank }) {
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">Customize your quiz</h1>
           <p className="mt-1 text-gray-500 text-base">Select the subjects, topics, and difficulties you want to practice.</p>
         </div>
+
+        {/* Quick-start shortcuts */}
+        {(onQuickPractice || onFullPractice) && (
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {onQuickPractice && (
+              <button
+                onClick={onQuickPractice}
+                className="text-left rounded-2xl border-2 border-indigo-100 bg-indigo-50 hover:bg-indigo-100 hover:border-indigo-300 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">⚡</div>
+                <div className="font-bold text-sm text-indigo-900">Quick Practice</div>
+                <div className="text-xs text-indigo-500 mt-0.5">15 random questions</div>
+              </button>
+            )}
+            {onFullPractice && (
+              <button
+                onClick={onFullPractice}
+                className="text-left rounded-2xl border-2 border-violet-100 bg-violet-50 hover:bg-violet-100 hover:border-violet-300 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">📝</div>
+                <div className="font-bold text-sm text-violet-900">Full Practice Test</div>
+                <div className="text-xs text-violet-500 mt-0.5">4 modules · ~2 hr 14 min</div>
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Subjects & Topics */}
         <div className="mb-6">

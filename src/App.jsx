@@ -9,6 +9,8 @@ import QuestionBank from './QuestionBank'
 import AnalyticsScreen from './AnalyticsScreen'
 import { saveToHistory } from './utils/history'
 import { shuffle } from './utils/index'
+import allQuestions from './data/questions'
+import { MATH_DOMAIN_IDS, ENG_DOMAIN_IDS } from './data/taxonomy'
 
 export default function App() {
   const [screen, setScreen] = useState('home')
@@ -39,6 +41,42 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleQuickPractice() {
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Quick Practice',
+      sessionName: null,
+      questions: shuffle(allQuestions).slice(0, 15),
+    })
+    setScreen('learning')
+  }
+
+  function handleFullPractice() {
+    const engPool = allQuestions.filter(q => ENG_DOMAIN_IDS.includes(q.domain))
+    const mathPool = allQuestions.filter(q => MATH_DOMAIN_IDS.includes(q.domain))
+    setSessionConfig({
+      mode: 'quiz',
+      format: 'full-practice',
+      formatLabel: 'Full Practice Test',
+      sessionName: null,
+      phases: [
+        {
+          subject: 'english', label: 'Reading & Writing',
+          mod1Questions: shuffle([...engPool]).slice(0, 27),
+          mod1TimeSec: 1920,
+          adaptive: { pool: engPool, count: 27, timeSec: 1920, thresholdRatio: 18 / 27 },
+        },
+        {
+          subject: 'math', label: 'Math',
+          mod1Questions: shuffle([...mathPool]).slice(0, 22),
+          mod1TimeSec: 2100,
+          adaptive: { pool: mathPool, count: 22, timeSec: 2100, thresholdRatio: 15 / 22 },
+        },
+      ],
+    })
+    setScreen('quiz')
+  }
+
   function handlePracticeFromBank(questions) {
     setSessionConfig({
       mode: 'learning',
@@ -50,7 +88,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onFullPractice={handleFullPractice} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
