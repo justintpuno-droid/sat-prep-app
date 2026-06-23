@@ -32,6 +32,8 @@ export default function QuizSession({ config, onComplete }) {
 
   const [index, setIndex] = useState(0)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [timerHidden, setTimerHidden] = useState(false)
+  const autoRevealedRef = useRef(false)
 
   const [moduleTimeSec, setModuleTimeSec] = useState(phases[0].mod1TimeSec)
   const isTimed = moduleTimeSec > 0
@@ -44,6 +46,14 @@ export default function QuizSession({ config, onComplete }) {
   })
 
   useEffect(() => { timer.start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-reveal timer when under 5 minutes remain (fires once per module)
+  useEffect(() => {
+    if (isTimed && timer.seconds > 0 && timer.seconds < 300 && !autoRevealedRef.current) {
+      autoRevealedRef.current = true
+      setTimerHidden(false)
+    }
+  }, [timer.seconds, isTimed])
 
   const currentPhase = phases[phaseIdx]
   const totalInModule = activeQs.length
@@ -126,6 +136,8 @@ export default function QuizSession({ config, onComplete }) {
   }
 
   function startMod2() {
+    autoRevealedRef.current = false
+    setTimerHidden(false)
     setActiveQs(mod2Info.questions)
     setIndex(0)
     setSubPhase('mod2')
@@ -135,6 +147,8 @@ export default function QuizSession({ config, onComplete }) {
   }
 
   function startNextPhase() {
+    autoRevealedRef.current = false
+    setTimerHidden(false)
     const next = phases[phaseIdx + 1]
     setPhaseIdx(phaseIdx + 1)
     setActiveQs(next.mod1Questions)
@@ -207,9 +221,27 @@ export default function QuizSession({ config, onComplete }) {
           </div>
           <div className="flex items-center gap-3">
             {isTimed ? (
-              <span className={`text-sm font-mono font-semibold tabular-nums ${timerDanger ? 'text-rose-600 animate-pulse' : 'text-gray-600'}`}>
-                ⏱ {formatTime(timer.seconds)}
-              </span>
+              timerHidden ? (
+                <button
+                  onClick={() => setTimerHidden(false)}
+                  className="text-xs text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg px-2.5 py-1 transition-colors"
+                >
+                  ⏱ Show timer
+                </button>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-sm font-mono font-semibold tabular-nums ${timerDanger ? 'text-rose-600 animate-pulse' : 'text-gray-600'}`}>
+                    ⏱ {formatTime(timer.seconds)}
+                  </span>
+                  <button
+                    onClick={() => setTimerHidden(true)}
+                    className="text-xs text-gray-300 hover:text-gray-500 transition-colors leading-none"
+                    title="Hide timer"
+                  >
+                    hide
+                  </button>
+                </div>
+              )
             ) : (
               <span className="text-sm font-mono text-gray-400">{formatTime(timer.seconds)}</span>
             )}
