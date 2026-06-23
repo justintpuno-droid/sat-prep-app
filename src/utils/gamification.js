@@ -172,8 +172,10 @@ export function calcXP(session, streak) {
   else if (session.score.percent >= 80) bonus += 25
   const streakMult = Math.min(2.0, 1 + 0.1 * Math.max(0, streak - 1))
   const modeMult = session.xpMultiplier ?? 1.0
-  const mult = streakMult * modeMult
-  return { base, bonus, streakMult, modeMult, mult, total: Math.round((base + bonus) * mult) }
+  const day = new Date().getDay()
+  const weekendMult = (day === 0 || day === 6) ? 1.5 : 1.0
+  const mult = streakMult * modeMult * weekendMult
+  return { base, bonus, streakMult, modeMult, weekendMult, mult, total: Math.round((base + bonus) * mult) }
 }
 
 export function processSession(session, history, prevGam) {

@@ -239,9 +239,15 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             </span>
             {/* Live XP + combo + hard */}
             <div className="flex items-center gap-1.5">
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isBeastMode ? 'bg-amber-500 text-white' : 'text-amber-600 bg-amber-50'}`}>
-                ⭐ {sessionXP}{isBeastMode ? ' (2×)' : ''}
-              </span>
+              {(() => {
+                const day = new Date().getDay()
+                const isWeekend = day === 0 || day === 6
+                return (
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isBeastMode ? 'bg-amber-500 text-white' : 'text-amber-600 bg-amber-50'}`}>
+                    ⭐ {sessionXP}{isBeastMode ? ' (2×)' : isWeekend ? ' (1.5×)' : ''}
+                  </span>
+                )
+              })()}
               {hardQuestions.length > 0 && hardCorrect > 0 && (
                 <span className="text-xs font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full">
                   🔥 {hardCorrect}/{hardQuestions.length}

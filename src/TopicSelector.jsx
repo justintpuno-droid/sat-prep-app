@@ -1066,6 +1066,17 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
+        {/* Weekend XP bonus banner */}
+        {(() => { const d = new Date().getDay(); return (d === 0 || d === 6) })() && (
+          <div className="flex items-center gap-3 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl px-4 py-3 mb-4 text-white">
+            <span className="text-lg shrink-0">🌟</span>
+            <div>
+              <p className="text-sm font-black">Weekend Bonus: 1.5× XP</p>
+              <p className="text-xs text-indigo-200">Every session earns 50% more XP today — make it count!</p>
+            </div>
+          </div>
+        )}
+
         {/* Quick-start shortcuts */}
         {(onQuickPractice || onFullPractice || onBeastMode || onBlitzMode) && (
           <div className="grid grid-cols-2 gap-3 mb-6">

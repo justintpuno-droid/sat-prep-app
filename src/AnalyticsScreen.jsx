@@ -165,7 +165,18 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       domainTrends[d.id] = calc(dSess.slice(0, 5)) - calc(dSess.slice(5))
     }
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends }
+    // Consistency: standard deviation of recent 10 session accuracies
+    let consistency = null
+    if (sessions.length >= 5) {
+      const recent = sessions.slice(-10).map(s => s.score.percent)
+      const mean = recent.reduce((a, b) => a + b, 0) / recent.length
+      const stdDev = Math.round(Math.sqrt(recent.reduce((s, v) => s + (v - mean) ** 2, 0) / recent.length))
+      const label = stdDev < 8 ? 'Consistent' : stdDev < 16 ? 'Variable' : 'Inconsistent'
+      const color = stdDev < 8 ? 'text-emerald-600' : stdDev < 16 ? 'text-amber-600' : 'text-rose-500'
+      consistency = { stdDev, label, color }
+    }
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency }
   }, [sessions])
 
   return (
@@ -380,6 +391,13 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 sub={`${stats.totalC}/${stats.totalQ} correct`}
               />
               <StatCard label="Time Studied" value={formatTime(stats.totalTime)} />
+              {stats.consistency && (
+                <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
+                  <p className={`text-2xl font-black ${stats.consistency.color}`}>{stats.consistency.label}</p>
+                  <p className="text-xs font-semibold text-gray-500 mt-0.5">Consistency</p>
+                  <p className="text-xs text-gray-400 mt-0.5">±{stats.consistency.stdDev}% std dev</p>
+                </div>
+              )}
             </div>
 
             {/* Recent trend */}
