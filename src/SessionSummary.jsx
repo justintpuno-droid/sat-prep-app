@@ -608,9 +608,10 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
             {filteredQuestions.length === 0 ? (
               <p className="text-xs text-gray-400 text-center py-6">No questions to show</p>
             ) : (
-              filteredQuestions.map((q, i) => (
-                <QuestionRow key={q.id} question={q} userAnswer={answers[q.id] ?? null} index={i} isFlagged={flaggedSet.has(q.id)} timeSpent={questionTimes?.[q.id]} />
-              ))
+              filteredQuestions.map((q, i) => {
+                const isWrong = (answers[q.id] ?? null) !== q.answer
+                return <QuestionRow key={q.id} question={q} userAnswer={answers[q.id] ?? null} index={i} isFlagged={flaggedSet.has(q.id)} timeSpent={questionTimes?.[q.id]} highlight={isWrong && reviewFilter !== 'correct'} />
+              })
             )}
           </div>
         </div>

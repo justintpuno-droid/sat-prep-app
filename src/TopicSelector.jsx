@@ -1407,6 +1407,25 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         </div>
 
+        {/* Adaptive difficulty hint */}
+        {history.length >= 10 && (() => {
+          const diffAcc = { 1: { c: 0, t: 0 }, 2: { c: 0, t: 0 }, 3: { c: 0, t: 0 } }
+          for (const s of history.slice(-15)) {
+            for (const q of s.questions) {
+              if (!diffAcc[q.difficulty]) continue
+              diffAcc[q.difficulty].t++
+              if ((s.answers[q.id] ?? null) === q.answer) diffAcc[q.difficulty].c++
+            }
+          }
+          const pcts = { 1: diffAcc[1].t >= 5 ? Math.round(diffAcc[1].c / diffAcc[1].t * 100) : null, 2: diffAcc[2].t >= 5 ? Math.round(diffAcc[2].c / diffAcc[2].t * 100) : null, 3: diffAcc[3].t >= 5 ? Math.round(diffAcc[3].c / diffAcc[3].t * 100) : null }
+          let msg = null
+          if (pcts[1] !== null && pcts[1] >= 85 && !selectedDifficulties.has(2)) msg = `You're ${pcts[1]}% on Easy — try adding Medium`
+          else if (pcts[2] !== null && pcts[2] >= 80 && !selectedDifficulties.has(3)) msg = `You're ${pcts[2]}% on Medium — try adding Hard`
+          else if (pcts[3] !== null && pcts[3] >= 75) msg = `Great job on Hard (${pcts[3]}%) — keep pushing!`
+          if (!msg) return null
+          return <p className="text-xs text-indigo-500 mt-2">💡 {msg}</p>
+        })()}
+
         {/* Start button */}
         <button
           onClick={handleStart}
