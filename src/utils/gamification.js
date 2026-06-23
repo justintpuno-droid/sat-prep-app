@@ -277,7 +277,11 @@ export function processSession(session, history, prevGam) {
 
 // ─── Daily goal ────────────────────────────────────────────────────────────
 
-export const DAILY_GOAL = 25
+const DAILY_GOAL_KEY = 'sat_prep_daily_goal'
+export const DEFAULT_DAILY_GOAL = 25
+export const DAILY_GOAL = DEFAULT_DAILY_GOAL // keep backward compat export
+export function loadDailyGoal() { try { return parseInt(localStorage.getItem(DAILY_GOAL_KEY) ?? String(DEFAULT_DAILY_GOAL), 10) } catch { return DEFAULT_DAILY_GOAL } }
+export function saveDailyGoal(n) { try { localStorage.setItem(DAILY_GOAL_KEY, String(n)) } catch {} }
 
 export function getDailyProgress(history) {
   const today = new Date().toISOString().slice(0, 10)

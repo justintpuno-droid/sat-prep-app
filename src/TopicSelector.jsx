@@ -3,7 +3,7 @@ import { TAXONOMY } from './data/taxonomy'
 import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory } from './utils/history'
-import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, getTodayChallenge, getChallengeProgress, ACHIEVEMENTS } from './utils/gamification'
+import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, ACHIEVEMENTS } from './utils/gamification'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -279,8 +279,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
   const [examDate, setExamDate] = useState(() => loadExamDate())
   const [editingExam, setEditingExam] = useState(false)
   const daysLeft = useMemo(() => daysUntil(examDate), [examDate])
+  const [customDailyGoal, setCustomDailyGoal] = useState(() => loadDailyGoal())
+  const [editingDailyGoal, setEditingDailyGoal] = useState(false)
+  const [dailyGoalInput, setDailyGoalInput] = useState('')
+  const effectiveDailyGoal = customDailyGoal
   const dailyProgress = useMemo(() => getDailyProgress(history), [history])
-  const dailyDone = dailyProgress >= DAILY_GOAL
+  const dailyDone = dailyProgress >= effectiveDailyGoal
   const achievementsCount = Object.keys(gam.achievements).length
   const estimatedScore = useMemo(() => estimateScore(history), [history])
 
@@ -655,7 +659,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <circle
                   cx="22" cy="22" r="18" fill="none"
                   stroke={dailyDone ? '#10b981' : '#6366f1'} strokeWidth="4"
-                  strokeDasharray={`${Math.min(1, dailyProgress / DAILY_GOAL) * 113.1} 113.1`}
+                  strokeDasharray={`${Math.min(1, dailyProgress / effectiveDailyGoal) * 113.1} 113.1`}
                   strokeLinecap="round"
                 />
               </svg>
@@ -665,7 +669,19 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 </span>
               </div>
             </div>
-            <p className="text-xs text-gray-400 mt-1">{dailyDone ? 'Done!' : `/ ${DAILY_GOAL} Qs`}</p>
+            {editingDailyGoal ? (
+              <div className="flex items-center gap-1 mt-1">
+                <input type="number" value={dailyGoalInput} onChange={e => setDailyGoalInput(e.target.value)}
+                  className="w-12 text-xs border border-gray-300 rounded px-1 py-0.5 text-center" min="5" max="200" />
+                <button onClick={() => { const v = parseInt(dailyGoalInput, 10); if (v >= 5) { setCustomDailyGoal(v); saveDailyGoal(v) } setEditingDailyGoal(false) }}
+                  className="text-xs text-indigo-600 font-semibold">✓</button>
+              </div>
+            ) : (
+              <button onClick={() => { setDailyGoalInput(String(effectiveDailyGoal)); setEditingDailyGoal(true) }}
+                className="text-xs text-gray-400 mt-1 hover:text-indigo-500 transition-colors">
+                {dailyDone ? 'Done!' : `/ ${effectiveDailyGoal} Qs`}
+              </button>
+            )}
           </div>
 
           {totalStudyTime > 0 && (
@@ -786,6 +802,29 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
           )
         })()}
+
+        {/* Recent activity feed */}
+        {history.length >= 2 && (
+          <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Recent Activity</p>
+            <div className="space-y-1.5">
+              {history.slice(0, 4).map(s => {
+                const age = Math.round((Date.now() - new Date(s.completedAt)) / 60000)
+                const ageStr = age < 60 ? `${age}m ago` : age < 1440 ? `${Math.round(age / 60)}h ago` : `${Math.round(age / 1440)}d ago`
+                const icon = s.formatLabel === 'Beast Mode' ? '🔥' : s.formatLabel === 'Blitz Mode' ? '⚡' : s.formatLabel?.includes('Focus') ? '🎯' : '📝'
+                const pctColor = s.score.percent >= 80 ? 'text-emerald-600' : s.score.percent >= 60 ? 'text-amber-600' : 'text-rose-500'
+                return (
+                  <div key={s.id} className="flex items-center gap-2 text-xs">
+                    <span className="shrink-0">{icon}</span>
+                    <span className="text-gray-600 flex-1 truncate">{s.sessionName || s.formatLabel}</span>
+                    <span className={`font-bold shrink-0 ${pctColor}`}>{s.score.percent}%</span>
+                    <span className="text-gray-300 shrink-0">{ageStr}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Last session recap */}
         {history.length > 0 && (() => {
