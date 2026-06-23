@@ -449,6 +449,25 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 </div>
               )}
 
+              {/* Focus area recommendation */}
+              {stats.domainList.filter(d => d.total >= 15).length >= 2 && (() => {
+                const eligible = stats.domainList.filter(d => d.total >= 15).sort((a, b) => a.p - b.p)
+                const focus = eligible[0]
+                const avgPct = Math.round(stats.domainList.reduce((s, d) => s + d.p, 0) / stats.domainList.length)
+                const gap = avgPct - focus.p
+                if (gap < 10) return null
+                return (
+                  <div className="mt-4 bg-indigo-50 border border-indigo-200 rounded-2xl p-4">
+                    <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-1">🎯 Focus Area Recommendation</p>
+                    <p className="text-sm font-bold text-gray-800">{focus.label}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Your accuracy here is {focus.p}% vs. your average of {avgPct}% — a {gap}-point gap.
+                      Closing this gap could add the most points to your SAT score.
+                    </p>
+                  </div>
+                )
+              })()}
+
               {/* Strongest / weakest callout */}
               {stats.domainList.length >= 2 && (() => {
                 const sorted = [...stats.domainList].sort((a, b) => a.p - b.p)
