@@ -1,7 +1,39 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import QuestionCard from './components/QuestionCard'
 import { formatTime, pct } from './utils/index'
 import { domainById, skillById } from './data/taxonomy'
+
+const CONFETTI_COLORS = ['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#f97316']
+
+function Confetti() {
+  const [visible, setVisible] = useState(true)
+  useEffect(() => { const t = setTimeout(() => setVisible(false), 3500); return () => clearTimeout(t) }, [])
+  const pieces = useMemo(() => Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    left: `${(i / 40) * 100 + (Math.random() * 2 - 1)}%`,
+    size: `${7 + Math.floor(Math.random() * 7)}px`,
+    bg: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    delay: `${(Math.random() * 0.7).toFixed(2)}s`,
+    dur: `${(1.8 + Math.random() * 1.4).toFixed(2)}s`,
+    drift: `${Math.round((Math.random() - 0.5) * 160)}px`,
+    rot: `${Math.round(Math.random() * 720)}deg`,
+  })), [])
+
+  if (!visible) return null
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
+      <style>{`@keyframes cffall{0%{transform:translateY(-30px) translateX(0) rotate(0);opacity:1}100%{transform:translateY(110vh) translateX(var(--cf-drift)) rotate(var(--cf-rot));opacity:0}}`}</style>
+      {pieces.map(p => (
+        <div key={p.id} style={{
+          position:'absolute', top:'-16px', left:p.left,
+          width:p.size, height:p.size, background:p.bg, borderRadius:'2px',
+          '--cf-drift':p.drift, '--cf-rot':p.rot,
+          animation:`cffall ${p.dur} ${p.delay} ease-in forwards`,
+        }} />
+      ))}
+    </div>
+  )
+}
 
 function getGrade(pct) {
   if (pct >= 90) return { grade: 'S', text: 'text-violet-600', bg: 'bg-violet-50 border-violet-300', label: 'Outstanding' }
@@ -224,6 +256,7 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 px-4 py-10">
+      {gamResult?.leveledUp && <Confetti />}
       <div className="max-w-2xl mx-auto">
 
         {/* Header */}
