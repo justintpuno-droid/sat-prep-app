@@ -6,6 +6,7 @@ import QuizSession from './QuizSession'
 import SessionSummary from './SessionSummary'
 import SessionHistory from './SessionHistory'
 import QuestionBank from './QuestionBank'
+import AnalyticsScreen from './AnalyticsScreen'
 import { saveToHistory } from './utils/history'
 
 export default function App() {
@@ -48,7 +49,9 @@ export default function App() {
   if (screen === 'summary')
     return <SessionSummary session={completedSession} onNewSession={() => setScreen('home')} onHistory={() => setScreen('history')} onRetry={handleRetry} />
   if (screen === 'history')
-    return <SessionHistory onBack={() => setScreen('home')} onNewSession={() => setScreen('home')} />
+    return <SessionHistory onBack={() => setScreen('home')} onNewSession={() => setScreen('home')} onAnalytics={() => setScreen('analytics')} />
   if (screen === 'question-bank')
     return <QuestionBank onBack={() => setScreen('home')} />
+  if (screen === 'analytics')
+    return <AnalyticsScreen onBack={() => setScreen('history')} />
 }

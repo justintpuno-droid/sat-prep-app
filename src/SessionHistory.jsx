@@ -159,7 +159,7 @@ function HistoryCard({ session, deleteMode, selected, onToggleSelect, onRename }
   )
 }
 
-export default function SessionHistory({ onBack, onNewSession }) {
+export default function SessionHistory({ onBack, onNewSession, onAnalytics }) {
   const [sessions, setSessions] = useState(() => loadHistory())
   const [confirmClear, setConfirmClear] = useState(false)
   const [deleteMode, setDeleteMode] = useState(false)
@@ -219,46 +219,53 @@ export default function SessionHistory({ onBack, onNewSession }) {
             <h1 className="text-2xl font-bold text-gray-900">Session History</h1>
           </div>
 
-          {sessions.length > 0 && (
-            <div className="flex gap-2">
-              {!deleteMode ? (
-                <>
-                  <button
-                    onClick={() => setDeleteMode(true)}
-                    className="text-xs text-gray-500 hover:text-gray-700 border border-gray-200 bg-white rounded-lg px-3 py-1.5 transition-colors"
-                  >
-                    Select
-                  </button>
-                  <button
-                    onClick={() => setConfirmClear(true)}
-                    className="text-xs text-rose-400 hover:text-rose-600 border border-rose-200 rounded-lg px-3 py-1.5 transition-colors"
-                  >
-                    Clear All
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={exitDeleteMode}
-                    className="text-xs text-gray-500 hover:text-gray-700 border border-gray-200 bg-white rounded-lg px-3 py-1.5 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleDeleteSelected}
-                    disabled={selectedIds.size === 0}
-                    className={`text-xs font-semibold rounded-lg px-3 py-1.5 transition-colors ${
-                      selectedIds.size > 0
-                        ? 'bg-rose-500 hover:bg-rose-600 text-white'
-                        : 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                    }`}
-                  >
-                    Delete{selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}
-                  </button>
-                </>
-              )}
-            </div>
-          )}
+          <div className="flex gap-2">
+            {!deleteMode && onAnalytics && (
+              <button
+                onClick={onAnalytics}
+                className="text-xs text-indigo-600 hover:text-indigo-800 border border-indigo-200 bg-indigo-50 rounded-lg px-3 py-1.5 transition-colors font-medium"
+              >
+                Analytics
+              </button>
+            )}
+            {sessions.length > 0 && !deleteMode && (
+              <>
+                <button
+                  onClick={() => setDeleteMode(true)}
+                  className="text-xs text-gray-500 hover:text-gray-700 border border-gray-200 bg-white rounded-lg px-3 py-1.5 transition-colors"
+                >
+                  Select
+                </button>
+                <button
+                  onClick={() => setConfirmClear(true)}
+                  className="text-xs text-rose-400 hover:text-rose-600 border border-rose-200 rounded-lg px-3 py-1.5 transition-colors"
+                >
+                  Clear All
+                </button>
+              </>
+            )}
+            {deleteMode && (
+              <>
+                <button
+                  onClick={exitDeleteMode}
+                  className="text-xs text-gray-500 hover:text-gray-700 border border-gray-200 bg-white rounded-lg px-3 py-1.5 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteSelected}
+                  disabled={selectedIds.size === 0}
+                  className={`text-xs font-semibold rounded-lg px-3 py-1.5 transition-colors ${
+                    selectedIds.size > 0
+                      ? 'bg-rose-500 hover:bg-rose-600 text-white'
+                      : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                  }`}
+                >
+                  Delete{selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Select all / count row in delete mode */}
