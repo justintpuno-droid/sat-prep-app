@@ -88,7 +88,7 @@ function StatRow({ label, correct, total }) {
   )
 }
 
-function QuestionRow({ question, userAnswer, index }) {
+function QuestionRow({ question, userAnswer, index, isFlagged }) {
   const [expanded, setExpanded] = useState(false)
   const isCorrect = userAnswer === question.answer
   const skipped = userAnswer === null || userAnswer === undefined
@@ -104,6 +104,7 @@ function QuestionRow({ question, userAnswer, index }) {
         </span>
         <div className="flex-1 min-w-0">
           <span className="text-xs text-gray-400 mr-2">Q{index + 1}</span>
+          {isFlagged && <span className="text-amber-400 text-xs mr-1" title="Flagged for review">🚩</span>}
           <span className="text-sm text-gray-700 line-clamp-1">
             {question.question.replace(/\n/g, ' ').slice(0, 80)}{question.question.length > 80 ? '…' : ''}
           </span>
@@ -129,8 +130,9 @@ function QuestionRow({ question, userAnswer, index }) {
   )
 }
 
-export default function SessionSummary({ session, onNewSession, onHistory }) {
-  const { mode, format, formatLabel, elapsedSeconds, timeLimit, questions, answers, score, sessionName, phaseData } = session
+export default function SessionSummary({ session, onNewSession, onHistory, onRetry }) {
+  const { mode, format, formatLabel, elapsedSeconds, timeLimit, questions, answers, score, sessionName, phaseData, flaggedIds } = session
+  const flaggedSet = useMemo(() => new Set(flaggedIds ?? []), [flaggedIds])
   const [breakdownTab, setBreakdownTab] = useState('subject')
   const [reviewFilter, setReviewFilter] = useState('all')
 
@@ -165,14 +167,19 @@ export default function SessionSummary({ session, onNewSession, onHistory }) {
     return acc
   }, [questions, answers])
 
-  const filteredQuestions = useMemo(() => {
-    if (reviewFilter === 'correct') return questions.filter(q => (answers[q.id] ?? null) === q.answer)
-    if (reviewFilter === 'incorrect') return questions.filter(q => (answers[q.id] ?? null) !== q.answer)
-    return questions
-  }, [questions, answers, reviewFilter])
-
   const correctCount = questions.filter(q => (answers[q.id] ?? null) === q.answer).length
   const incorrectCount = questions.length - correctCount
+  const wrongQuestions = useMemo(
+    () => questions.filter(q => (answers[q.id] ?? null) !== q.answer),
+    [questions, answers]
+  )
+
+  const filteredQuestions = useMemo(() => {
+    if (reviewFilter === 'correct') return questions.filter(q => (answers[q.id] ?? null) === q.answer)
+    if (reviewFilter === 'incorrect') return wrongQuestions
+    if (reviewFilter === 'flagged') return questions.filter(q => flaggedSet.has(q.id))
+    return questions
+  }, [questions, answers, reviewFilter, wrongQuestions, flaggedSet])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 px-4 py-10">
@@ -290,11 +297,12 @@ export default function SessionSummary({ session, onNewSession, onHistory }) {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">Question Review</h2>
-            <div className="flex gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
               {[
                 { id: 'all', label: 'All', count: questions.length },
                 { id: 'correct', label: 'Correct', count: correctCount },
                 { id: 'incorrect', label: 'Incorrect', count: incorrectCount },
+                ...(flaggedSet.size > 0 ? [{ id: 'flagged', label: '🚩 Flagged', count: flaggedSet.size }] : []),
               ].map(f => (
                 <button
                   key={f.id}
@@ -319,19 +327,29 @@ export default function SessionSummary({ session, onNewSession, onHistory }) {
               <p className="text-xs text-gray-400 text-center py-6">No questions to show</p>
             ) : (
               filteredQuestions.map((q, i) => (
-                <QuestionRow key={q.id} question={q} userAnswer={answers[q.id] ?? null} index={i} />
+                <QuestionRow key={q.id} question={q} userAnswer={answers[q.id] ?? null} index={i} isFlagged={flaggedSet.has(q.id)} />
               ))
             )}
           </div>
         </div>
 
-        <div className="mt-8 flex gap-3">
-          <button onClick={onHistory} className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-sm font-medium text-gray-600 hover:bg-white transition-colors">
-            View History
-          </button>
-          <button onClick={onNewSession} className="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors">
-            New Session →
-          </button>
+        <div className="mt-8 space-y-3">
+          {wrongQuestions.length > 0 && onRetry && (
+            <button
+              onClick={() => onRetry(wrongQuestions)}
+              className="w-full py-3 rounded-xl border-2 border-rose-200 bg-rose-50 text-sm font-semibold text-rose-600 hover:bg-rose-100 transition-colors"
+            >
+              Retry {wrongQuestions.length} wrong answer{wrongQuestions.length !== 1 ? 's' : ''} →
+            </button>
+          )}
+          <div className="flex gap-3">
+            <button onClick={onHistory} className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-sm font-medium text-gray-600 hover:bg-white transition-colors">
+              View History
+            </button>
+            <button onClick={onNewSession} className="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors">
+              New Session →
+            </button>
+          </div>
         </div>
 
       </div>

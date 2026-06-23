@@ -31,10 +31,13 @@ export default function QuizSession({ config, onComplete, onQuit }) {
   const donePhasesRef = useRef([])
 
   const [index, setIndex] = useState(0)
+  const [flagged, setFlagged] = useState(() => new Set())
   const [showConfirm, setShowConfirm] = useState(false)
   const [showQuitConfirm, setShowQuitConfirm] = useState(false)
   const [timerHidden, setTimerHidden] = useState(false)
   const autoRevealedRef = useRef(false)
+  const flaggedRef = useRef(flagged)
+  flaggedRef.current = flagged
 
   // Refs for keyboard handler (avoids stale closures)
   const indexRef = useRef(index)
@@ -106,6 +109,14 @@ export default function QuizSession({ config, onComplete, onQuit }) {
     setAllAnswers(prev => ({ ...prev, [activeQs[index].id]: optId }))
   }
 
+  function toggleFlag(id) {
+    setFlagged(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
   function navigate(dir) {
     setIndex(i => Math.max(0, Math.min(totalInModule - 1, i + dir)))
   }
@@ -164,6 +175,7 @@ export default function QuizSession({ config, onComplete, onQuit }) {
         answers: currentAnswers,
         score: scoreQuestions(allQuestions, currentAnswers),
         phaseData: newDonePhases,
+        flaggedIds: [...flaggedRef.current],
       })
     }
   }
@@ -307,13 +319,16 @@ export default function QuizSession({ config, onComplete, onQuit }) {
             <button
               key={q.id}
               onClick={() => setIndex(i)}
-              className={`w-7 h-7 rounded-md text-xs font-medium transition-all ${
+              className={`w-7 h-7 rounded-md text-xs font-medium transition-all relative ${
                 i === index ? 'bg-indigo-600 text-white'
                 : allAnswers[q.id] !== undefined ? 'bg-indigo-100 text-indigo-700'
                 : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
               }`}
             >
               {i + 1}
+              {flagged.has(q.id) && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-amber-400 rounded-full border border-white" />
+              )}
             </button>
           ))}
         </div>
@@ -325,7 +340,22 @@ export default function QuizSession({ config, onComplete, onQuit }) {
           showFeedback={false}
         />
 
-        <div className="flex gap-3 mt-6">
+        {/* Flag button */}
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={() => toggleFlag(activeQs[index].id)}
+            className={`flex items-center gap-1.5 text-xs transition-colors px-2 py-1 rounded-lg ${
+              flagged.has(activeQs[index].id)
+                ? 'text-amber-500 bg-amber-50'
+                : 'text-gray-300 hover:text-amber-400 hover:bg-amber-50'
+            }`}
+            title={flagged.has(activeQs[index].id) ? 'Remove flag' : 'Flag for review'}
+          >
+            🚩 {flagged.has(activeQs[index].id) ? 'Flagged' : 'Flag'}
+          </button>
+        </div>
+
+        <div className="flex gap-3 mt-3">
           <button
             onClick={() => navigate(-1)}
             disabled={index === 0}

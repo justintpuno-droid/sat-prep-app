@@ -27,6 +27,16 @@ export default function App() {
     setScreen('summary')
   }
 
+  function handleRetry(wrongQuestions) {
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Wrong Answers Drill',
+      sessionName: null,
+      questions: wrongQuestions,
+    })
+    setScreen('learning')
+  }
+
   if (screen === 'home')
     return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} />
   if (screen === 'session-config')
@@ -36,7 +46,7 @@ export default function App() {
   if (screen === 'quiz')
     return <QuizSession config={sessionConfig} onComplete={handleSessionComplete} onQuit={() => setScreen('home')} />
   if (screen === 'summary')
-    return <SessionSummary session={completedSession} onNewSession={() => setScreen('home')} onHistory={() => setScreen('history')} />
+    return <SessionSummary session={completedSession} onNewSession={() => setScreen('home')} onHistory={() => setScreen('history')} onRetry={handleRetry} />
   if (screen === 'history')
     return <SessionHistory onBack={() => setScreen('home')} onNewSession={() => setScreen('home')} />
   if (screen === 'question-bank')
