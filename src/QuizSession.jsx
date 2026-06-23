@@ -51,6 +51,10 @@ export default function QuizSession({ config, onComplete, onQuit }) {
   const subPhaseRef = useRef(subPhase)
   subPhaseRef.current = subPhase
 
+  // Per-question time tracking (mutable ref to avoid re-renders)
+  const qTimesRef = useRef({}) // { [questionId]: totalSeconds }
+  const qStartRef = useRef(null)
+
   const [moduleTimeSec, setModuleTimeSec] = useState(phases[0].mod1TimeSec)
   const isTimed = moduleTimeSec > 0
   const elapsedAccum = useRef(0)
@@ -82,6 +86,21 @@ export default function QuizSession({ config, onComplete, onQuit }) {
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Per-question time tracking: record elapsed seconds on the previous question each time
+  // index or activeQs changes (including mod transitions). Cleanup flushes the last question.
+  useEffect(() => {
+    const qId = activeQs[index]?.id
+    if (!qId) return
+    qStartRef.current = Date.now()
+    return () => {
+      if (qStartRef.current && qId) {
+        const spent = Math.round((Date.now() - qStartRef.current) / 1000)
+        if (spent > 0) qTimesRef.current[qId] = (qTimesRef.current[qId] ?? 0) + spent
+      }
+      qStartRef.current = null
+    }
+  }, [index, activeQs]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-reveal timer when under 5 minutes remain (fires once per module)
   useEffect(() => {
@@ -176,6 +195,7 @@ export default function QuizSession({ config, onComplete, onQuit }) {
         score: scoreQuestions(allQuestions, currentAnswers),
         phaseData: newDonePhases,
         flaggedIds: [...flaggedRef.current],
+        questionTimes: { ...qTimesRef.current },
       })
     }
   }

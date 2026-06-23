@@ -88,7 +88,7 @@ function StatRow({ label, correct, total }) {
   )
 }
 
-function QuestionRow({ question, userAnswer, index, isFlagged }) {
+function QuestionRow({ question, userAnswer, index, isFlagged, timeSpent }) {
   const [expanded, setExpanded] = useState(false)
   const isCorrect = userAnswer === question.answer
   const skipped = userAnswer === null || userAnswer === undefined
@@ -111,6 +111,11 @@ function QuestionRow({ question, userAnswer, index, isFlagged }) {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {skipped && <span className="text-xs text-gray-400">skipped</span>}
+          {timeSpent != null && (
+            <span className={`text-xs font-mono ${timeSpent > 120 ? 'text-rose-400' : timeSpent > 60 ? 'text-amber-500' : 'text-gray-400'}`} title="Time spent">
+              {timeSpent >= 60 ? `${Math.floor(timeSpent / 60)}:${String(timeSpent % 60).padStart(2, '0')}` : `${timeSpent}s`}
+            </span>
+          )}
           <span className={`text-xs ${DIFF_COLOR[question.difficulty]}`}>{DIFF_LABEL[question.difficulty]}</span>
           <span className="text-gray-400 text-xs">{expanded ? '▲' : '▼'}</span>
         </div>
@@ -131,7 +136,7 @@ function QuestionRow({ question, userAnswer, index, isFlagged }) {
 }
 
 export default function SessionSummary({ session, onNewSession, onHistory, onRetry }) {
-  const { mode, format, formatLabel, elapsedSeconds, timeLimit, questions, answers, score, sessionName, phaseData, flaggedIds } = session
+  const { mode, format, formatLabel, elapsedSeconds, timeLimit, questions, answers, score, sessionName, phaseData, flaggedIds, questionTimes } = session
   const flaggedSet = useMemo(() => new Set(flaggedIds ?? []), [flaggedIds])
   const [breakdownTab, setBreakdownTab] = useState('subject')
   const [reviewFilter, setReviewFilter] = useState('all')
@@ -327,7 +332,7 @@ export default function SessionSummary({ session, onNewSession, onHistory, onRet
               <p className="text-xs text-gray-400 text-center py-6">No questions to show</p>
             ) : (
               filteredQuestions.map((q, i) => (
-                <QuestionRow key={q.id} question={q} userAnswer={answers[q.id] ?? null} index={i} isFlagged={flaggedSet.has(q.id)} />
+                <QuestionRow key={q.id} question={q} userAnswer={answers[q.id] ?? null} index={i} isFlagged={flaggedSet.has(q.id)} timeSpent={questionTimes?.[q.id]} />
               ))
             )}
           </div>
