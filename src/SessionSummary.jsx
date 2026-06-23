@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import QuestionCard from './components/QuestionCard'
 import { formatTime, pct } from './utils/index'
 import { domainById, skillById } from './data/taxonomy'
-import { updateSessionMood } from './utils/history'
+import { updateSessionMood, loadHistory } from './utils/history'
 
 function AnimatedXPBar({ gamResult }) {
   const { newLevel, xp, oldXP } = gamResult
@@ -262,6 +262,11 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
     return dist
   }, [questions, answers])
 
+  const lastSession = useMemo(() => {
+    const history = loadHistory()
+    return history.find(s => s.id !== session.id) ?? null
+  }, [session.id])
+
   const correctCount = questions.filter(q => (answers[q.id] ?? null) === q.answer).length
   const incorrectCount = questions.length - correctCount
   const wrongQuestions = useMemo(
@@ -443,6 +448,32 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               {timeLimit && <div className="text-xs text-gray-400">Limit: {formatTime(timeLimit)}</div>}
             </div>
           </div>
+
+          {/* vs. last session comparison */}
+          {lastSession && (
+            <div className="border-t border-gray-100 pt-4 pb-2">
+              <p className="text-xs text-gray-400 font-semibold uppercase tracking-widest mb-2">vs. Last Session</p>
+              <div className="flex gap-4">
+                {[
+                  { label: 'Score', cur: score.percent, prev: lastSession.score.percent, suffix: '%' },
+                  { label: 'Questions', cur: score.total, prev: lastSession.score.total, suffix: '', noColor: true },
+                  { label: 'Accuracy', cur: score.correct, prev: lastSession.score.correct, suffix: ' correct', noColor: true },
+                ].map(({ label, cur, prev, suffix, noColor }) => {
+                  const delta = cur - prev
+                  const color = noColor ? 'text-gray-500' : delta > 0 ? 'text-emerald-600' : delta < 0 ? 'text-rose-500' : 'text-gray-500'
+                  return (
+                    <div key={label} className="flex-1">
+                      <p className="text-xs text-gray-400">{label}</p>
+                      <p className={`text-sm font-bold ${color}`}>
+                        {cur}{suffix}
+                        {delta !== 0 && <span className="text-xs ml-1">{delta > 0 ? '↑' : '↓'}{Math.abs(delta)}</span>}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Breakdown tabs */}
           <div className="border-t border-gray-100 pt-4">
