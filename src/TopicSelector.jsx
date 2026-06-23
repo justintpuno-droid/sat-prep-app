@@ -279,6 +279,23 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       .sort((a, b) => b.pct - a.pct)[0] ?? null
   }, [history, gam])
 
+  const scoreTrajectory = useMemo(() => {
+    if (!goalTarget || !daysLeft || daysLeft <= 0) return null
+    const tenPlus = history.filter(s => s.score.total >= 10)
+    if (tenPlus.length < 6) return null
+    const toScore = (pct) => Math.round((400 + (pct / 100) * 1200) / 10) * 10
+    const avg = (arr) => arr.reduce((sum, s) => sum + s.score.percent, 0) / arr.length
+    const recent = tenPlus.slice(-3)
+    const older = tenPlus.slice(-6, -3)
+    const recentScore = toScore(avg(recent))
+    const olderScore = toScore(avg(older))
+    const gainPer3Sess = recentScore - olderScore
+    const sessionsPerWeek = (history.length / Math.max(1, (Date.now() - new Date(history[0].completedAt)) / 604800000))
+    const weeksLeft = daysLeft / 7
+    const projected = Math.min(1600, Math.round(recentScore + gainPer3Sess * (sessionsPerWeek * weeksLeft / 3)))
+    return { recentScore, projected, onTrack: projected >= goalTarget, gainPer3Sess }
+  }, [history, goalTarget, daysLeft])
+
   const weakDomain = useMemo(() => {
     const byDomain = {}
     for (const sess of history) {
@@ -795,6 +812,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                     </p>
                   )
                 })()}
+                {scoreTrajectory && (
+                  <div className={`mt-2 flex items-center gap-2 text-xs font-semibold px-2 py-1.5 rounded-lg ${scoreTrajectory.onTrack ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-600'}`}>
+                    <span>{scoreTrajectory.onTrack ? '✅' : '⚠️'}</span>
+                    <span>{scoreTrajectory.onTrack ? `On track! Projected: ~${scoreTrajectory.projected}` : `Need to accelerate — projected: ~${scoreTrajectory.projected} (goal: ${goalTarget})`}</span>
+                  </div>
+                )}
               </>
             )}
           </div>
