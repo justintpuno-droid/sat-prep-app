@@ -26,6 +26,15 @@ export function updateSessionName(id, name) {
   } catch { return null }
 }
 
+export function updateSessionMood(id, mood) {
+  try {
+    const history = loadHistory()
+    const updated = history.map(s => s.id === id ? { ...s, mood } : s)
+    localStorage.setItem(KEY, JSON.stringify(updated))
+    return updated
+  } catch { return null }
+}
+
 export function deleteSessions(ids) {
   try {
     const idSet = new Set(ids)

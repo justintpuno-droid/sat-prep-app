@@ -64,6 +64,10 @@ function getHint(achId, stats, gam) {
     case 'xp-1000':      return h('Total XP', gam.totalXP, 1000)
     case 'beast-mode':   return h('Beast Mode sessions', stats.beastSessions, 1)
     case 'blitz-10':     return h('Best Blitz correct', stats.bestBlitzCorrect, 10)
+    case 'sharp':        return h('Sessions with 90%+', stats.ninety, 5)
+    case 'hat-trick':    return h('Consecutive 80%+ sessions', stats.currentHatTrickRun, 3)
+    case 'consistent':   return h('Consecutive 70%+ sessions', stats.currentConsistentRun, 10)
+    case 'grinder':      return h('Day streak', stats.streak, 5)
     default:             return null
   }
 }
@@ -78,7 +82,7 @@ export default function AchievementsScreen({ onBack }) {
   const circ = 2 * Math.PI * 24
 
   const stats = useMemo(() => {
-    let totalQ = 0, hardCorrect = 0, bestCombo = 0, beastSessions = 0, bestBlitzCorrect = 0
+    let totalQ = 0, hardCorrect = 0, bestCombo = 0, beastSessions = 0, bestBlitzCorrect = 0, ninety = 0
     for (const s of history) {
       totalQ += s.score.total
       for (const q of s.questions)
@@ -86,11 +90,20 @@ export default function AchievementsScreen({ onBack }) {
       if (s.maxCombo) bestCombo = Math.max(bestCombo, s.maxCombo)
       if (s.formatLabel === 'Beast Mode') beastSessions++
       if (s.formatLabel === 'Blitz Mode') bestBlitzCorrect = Math.max(bestBlitzCorrect, s.score.correct)
+      if (s.score.percent >= 90) ninety++
     }
     const dates = new Set(history.map(s => s.completedAt.slice(0, 10)))
     const d = new Date(); let streak = 0
     while (dates.has(d.toISOString().slice(0, 10))) { streak++; d.setDate(d.getDate() - 1) }
-    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect }
+    // Compute current consecutive 80%+ and 70%+ runs
+    let currentHatTrickRun = 0, currentConsistentRun = 0
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i].score.percent >= 80) currentHatTrickRun++; else break
+    }
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i].score.percent >= 70) currentConsistentRun++; else break
+    }
+    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun }
   }, [history])
 
   const visibleAchievements = useMemo(() => {

@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import QuestionCard from './components/QuestionCard'
 import { formatTime, pct } from './utils/index'
 import { domainById, skillById } from './data/taxonomy'
+import { updateSessionMood } from './utils/history'
 
 function AnimatedXPBar({ gamResult }) {
   const { newLevel, xp, oldXP } = gamResult
@@ -587,6 +588,38 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
             <p className="text-xs text-gray-400 mt-2">Correct answer: <span className="font-semibold text-emerald-700">{toughestWrong.answer}</span></p>
           </div>
         )}
+
+        {/* Mood picker */}
+        {(() => {
+          const MOODS = [
+            { id: 'fire', emoji: '🔥', label: 'On fire' },
+            { id: 'good', emoji: '😊', label: 'Good' },
+            { id: 'okay', emoji: '😐', label: 'Okay' },
+            { id: 'tired', emoji: '😤', label: 'Tired' },
+            { id: 'rough', emoji: '😵', label: 'Rough' },
+          ]
+          const [mood, setMood] = useState(session.mood ?? null)
+          function pickMood(id) {
+            setMood(id)
+            updateSessionMood(session.id, id)
+          }
+          return (
+            <div className="mt-6 bg-white border border-gray-100 rounded-2xl p-4">
+              <p className="text-xs font-semibold text-gray-400 mb-3">How did this session feel?</p>
+              <div className="flex gap-2">
+                {MOODS.map(m => (
+                  <button key={m.id} onClick={() => pickMood(m.id)}
+                    className={`flex-1 flex flex-col items-center py-2.5 rounded-xl border-2 transition-all ${
+                      mood === m.id ? 'border-indigo-400 bg-indigo-50' : 'border-gray-100 hover:border-gray-300'
+                    }`}>
+                    <span className="text-xl">{m.emoji}</span>
+                    <span className="text-xs text-gray-500 mt-0.5">{m.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
 
         <div className="mt-8 space-y-3">
           {wrongQuestions.length > 0 && onRetry && (
