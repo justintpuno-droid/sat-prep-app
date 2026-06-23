@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import QuestionCard from './components/QuestionCard'
 import { useTimer } from './hooks/useTimer'
 import { formatTime, scoreQuestions } from './utils/index'
@@ -33,14 +33,13 @@ export default function LearningSession({ config, onComplete, onQuit }) {
 
   function finish() {
     timer.pause()
-    // Only score questions the student actually answered — skip unanswered ones
     const answered = questions.filter(q => answers[q.id] !== undefined)
     onComplete({
       id: Date.now().toString(),
       completedAt: new Date().toISOString(),
       mode: 'learning',
       format: 'custom',
-      formatLabel: 'Learning Mode',
+      formatLabel: config.formatLabel ?? 'Learning Mode',
       sessionName: config.sessionName ?? null,
       elapsedSeconds: timer.elapsed,
       questions: answered,
@@ -48,6 +47,39 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       score: scoreQuestions(answered, answers),
     })
   }
+
+  // Keep refs current so the keyboard handler never goes stale
+  const revealedRef = useRef(revealed)
+  revealedRef.current = revealed
+  const showQuitConfirmRef = useRef(showQuitConfirm)
+  showQuitConfirmRef.current = showQuitConfirm
+  const currentRef = useRef(current)
+  currentRef.current = current
+  const isLastRef = useRef(isLast)
+  isLastRef.current = isLast
+  const finishRef = useRef(finish)
+  finishRef.current = finish
+
+  // Keyboard shortcuts: A/B/C/D to select answer, Enter to advance
+  useEffect(() => {
+    function handleKey(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
+      if (showQuitConfirmRef.current) return
+      const key = e.key.toUpperCase()
+      if (!revealedRef.current && ['A', 'B', 'C', 'D'].includes(key)) {
+        const q = currentRef.current
+        if (q) {
+          setAnswers(prev => ({ ...prev, [q.id]: key }))
+          setRevealed(true)
+        }
+      } else if (revealedRef.current && e.key === 'Enter') {
+        if (isLastRef.current) finishRef.current()
+        else { setIndex(i => i + 1); setRevealed(false) }
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!current) return null
 

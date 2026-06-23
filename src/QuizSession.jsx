@@ -36,6 +36,18 @@ export default function QuizSession({ config, onComplete, onQuit }) {
   const [timerHidden, setTimerHidden] = useState(false)
   const autoRevealedRef = useRef(false)
 
+  // Refs for keyboard handler (avoids stale closures)
+  const indexRef = useRef(index)
+  indexRef.current = index
+  const activeQsRef = useRef(activeQs)
+  activeQsRef.current = activeQs
+  const showConfirmRef = useRef(showConfirm)
+  showConfirmRef.current = showConfirm
+  const showQuitConfirmRef = useRef(showQuitConfirm)
+  showQuitConfirmRef.current = showQuitConfirm
+  const subPhaseRef = useRef(subPhase)
+  subPhaseRef.current = subPhase
+
   const [moduleTimeSec, setModuleTimeSec] = useState(phases[0].mod1TimeSec)
   const isTimed = moduleTimeSec > 0
   const elapsedAccum = useRef(0)
@@ -47,6 +59,26 @@ export default function QuizSession({ config, onComplete, onQuit }) {
   })
 
   useEffect(() => { timer.start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keyboard shortcuts: A/B/C/D to answer, ←/→ to navigate
+  useEffect(() => {
+    function handleKey(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
+      if (showConfirmRef.current || showQuitConfirmRef.current) return
+      if (subPhaseRef.current !== 'mod1' && subPhaseRef.current !== 'mod2') return
+      const key = e.key.toUpperCase()
+      if (['A', 'B', 'C', 'D'].includes(key)) {
+        const q = activeQsRef.current[indexRef.current]
+        if (q) setAllAnswers(prev => ({ ...prev, [q.id]: key }))
+      } else if (e.key === 'ArrowLeft') {
+        setIndex(i => Math.max(0, i - 1))
+      } else if (e.key === 'ArrowRight') {
+        setIndex(i => Math.min(activeQsRef.current.length - 1, i + 1))
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-reveal timer when under 5 minutes remain (fires once per module)
   useEffect(() => {
