@@ -328,6 +328,25 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return seen.size
   }, [history])
 
+  const examReadiness = useMemo(() => {
+    if (history.length < 5) return null
+    const recent10 = history.filter(s => s.score.total >= 5).slice(-10)
+    if (recent10.length < 5) return null
+    const pcts = recent10.map(s => s.score.percent)
+    const mean = pcts.reduce((a, b) => a + b, 0) / pcts.length
+    const stdDev = Math.sqrt(pcts.reduce((s, v) => s + (v - mean) ** 2, 0) / pcts.length)
+    const older = pcts.slice(0, Math.floor(pcts.length / 2))
+    const newer = pcts.slice(Math.floor(pcts.length / 2))
+    const trend = (newer.reduce((a, b) => a + b, 0) / newer.length) - (older.reduce((a, b) => a + b, 0) / older.length)
+    const accuracyScore = mean
+    const trendScore = Math.max(0, Math.min(100, 50 + trend * 2))
+    const consistencyScore = Math.max(0, 100 - stdDev * 3)
+    const score = Math.round(0.5 * accuracyScore + 0.3 * trendScore + 0.2 * consistencyScore)
+    const label = score >= 85 ? 'Test Ready!' : score >= 70 ? 'Almost there' : score >= 55 ? 'Making progress' : 'Keep studying'
+    const color = score >= 85 ? 'text-emerald-600' : score >= 70 ? 'text-indigo-600' : score >= 55 ? 'text-amber-600' : 'text-rose-500'
+    return { score, label, color }
+  }, [history])
+
   const qMilestone = useMemo(() => {
     const totalQ = history.reduce((sum, s) => sum + s.score.total, 0)
     const milestones = [100, 500, 1000, 2000, 5000]
@@ -733,6 +752,25 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </>
           )}
         </div>
+
+        {/* Exam readiness composite score */}
+        {examReadiness && (
+          <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-4">
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-0.5">Exam Readiness</p>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-2xl font-black ${examReadiness.color}`}>{examReadiness.score}</span>
+                <span className="text-xs text-gray-400">/ 100</span>
+                <span className={`text-xs font-semibold ${examReadiness.color}`}>{examReadiness.label}</span>
+              </div>
+              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mt-2">
+                <div className={`h-full rounded-full transition-all duration-700 ${
+                  examReadiness.score >= 85 ? 'bg-emerald-500' : examReadiness.score >= 70 ? 'bg-indigo-500' : examReadiness.score >= 55 ? 'bg-amber-500' : 'bg-rose-500'
+                }`} style={{ width: `${examReadiness.score}%` }} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Onboarding checklist (shown for first ~5 sessions) */}
         {history.length < 5 && (() => {

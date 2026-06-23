@@ -198,10 +198,33 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     const biasTotal = Object.values(wrongChoices).reduce((a, b) => a + b, 0)
     const answerBias = biasTotal >= 20 ? wrongChoices : null
 
+    // Wrong answer position analysis: do wrong answers cluster at start/middle/end?
+    let positionAnalysis = null
+    {
+      let early = { c: 0, t: 0 }, late = { c: 0, t: 0 }
+      for (const s of sessions) {
+        const n = s.questions.length
+        if (n < 6) continue
+        s.questions.forEach((q, i) => {
+          const bucket = i < n / 3 ? 'early' : i < 2 * n / 3 ? null : 'late'
+          if (!bucket) return
+          const data = bucket === 'early' ? early : late
+          data.t++
+          if ((s.answers?.[q.id] ?? null) === q.answer) data.c++
+        })
+      }
+      if (early.t >= 15 && late.t >= 15) {
+        const ep = pct(early.c, early.t), lp = pct(late.c, late.t)
+        const diff = ep - lp
+        if (diff >= 8) positionAnalysis = { early: ep, late: lp, gap: diff, issue: 'end-fatigue' }
+        else if (diff <= -8) positionAnalysis = { early: ep, late: lp, gap: -diff, issue: 'start-slow' }
+      }
+    }
+
     // Questions per minute efficiency
     const qPerMin = totalTime > 0 ? (totalQ / (totalTime / 60)).toFixed(1) : null
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis }
   }, [sessions])
 
   return (
@@ -534,6 +557,38 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 </div>
               )
             })()}
+
+            {/* Wrong answer position analysis */}
+            {stats.positionAnalysis && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-2">
+                  {stats.positionAnalysis.issue === 'end-fatigue' ? '⚡ Pacing Insight' : '🐢 Warm-up Pattern'}
+                </p>
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="text-center">
+                    <p className="text-xl font-black text-gray-800">{stats.positionAnalysis.early}%</p>
+                    <p className="text-xs text-gray-500">First third</p>
+                  </div>
+                  <div className="flex-1 flex items-center gap-1">
+                    <div className="flex-1 h-1 bg-gray-200 rounded-full" />
+                    <span className="text-xs text-amber-600 font-bold shrink-0">
+                      {stats.positionAnalysis.issue === 'end-fatigue' ? `↘ ${stats.positionAnalysis.gap}%` : `↗ ${stats.positionAnalysis.gap}%`}
+                    </span>
+                    <div className="flex-1 h-1 bg-gray-200 rounded-full" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xl font-black text-gray-800">{stats.positionAnalysis.late}%</p>
+                    <p className="text-xs text-gray-500">Last third</p>
+                  </div>
+                </div>
+                <p className="text-xs text-amber-700 leading-snug">
+                  {stats.positionAnalysis.issue === 'end-fatigue'
+                    ? `Your accuracy drops ${stats.positionAnalysis.gap}% by the end of sessions — try short breaks every 10 questions.`
+                    : `You take time to warm up — first-third accuracy is ${stats.positionAnalysis.gap}% lower. Start each session with 2 easy questions first.`
+                  }
+                </p>
+              </div>
+            )}
 
             {/* Top practiced domains */}
             {stats.domainList.length >= 3 && (() => {
