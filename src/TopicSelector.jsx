@@ -244,6 +244,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
   }, [])
 
   const totalStudyTime = useMemo(() => history.reduce((sum, s) => sum + (s.elapsedSeconds ?? 0), 0), [history])
+  const bestScore = useMemo(() => {
+    if (history.length === 0) return null
+    const best = Math.max(...history.map(s => s.score.percent))
+    return { pct: best, est: Math.round((400 + (best / 100) * 1200) / 10) * 10 }
+  }, [history])
 
   const [weeklyXPGoal, setWeeklyXPGoal] = useState(() => loadWeeklyXPGoal())
   const [editingWeeklyXP, setEditingWeeklyXP] = useState(false)
@@ -584,6 +589,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <div className="shrink-0 text-center">
                 <p className="text-base font-black text-gray-700">{Math.round(totalStudyTime / 60)}m</p>
                 <p className="text-xs text-gray-400 mt-0.5">studied</p>
+              </div>
+            </>
+          )}
+
+          {bestScore && (
+            <>
+              <div className="h-12 w-px bg-gray-100 shrink-0" />
+              <div className="shrink-0 text-center" title={`Best session: ${bestScore.pct}%`}>
+                <p className="text-base font-black text-amber-500">~{bestScore.est}</p>
+                <p className="text-xs text-gray-400 mt-0.5">best est.</p>
               </div>
             </>
           )}

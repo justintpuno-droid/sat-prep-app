@@ -176,7 +176,18 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       consistency = { stdDev, label, color }
     }
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency }
+    // Wrong answer choice bias
+    const wrongChoices = { A: 0, B: 0, C: 0, D: 0 }
+    for (const s of sessions) {
+      for (const q of s.questions) {
+        const chosen = s.answers?.[q.id]
+        if (chosen && chosen !== q.answer) wrongChoices[chosen] = (wrongChoices[chosen] ?? 0) + 1
+      }
+    }
+    const biasTotal = Object.values(wrongChoices).reduce((a, b) => a + b, 0)
+    const answerBias = biasTotal >= 20 ? wrongChoices : null
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias }
   }, [sessions])
 
   return (
@@ -470,6 +481,38 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 </div>
               </div>
             )}
+
+            {/* Wrong answer bias */}
+            {stats.answerBias && (() => {
+              const opts = ['A', 'B', 'C', 'D']
+              const total = Object.values(stats.answerBias).reduce((a, b) => a + b, 0)
+              const maxV = Math.max(...opts.map(o => stats.answerBias[o] ?? 0))
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">Wrong Answer Patterns</p>
+                  <p className="text-xs text-gray-400 mb-4">Which option you choose when you're wrong</p>
+                  <div className="flex items-end gap-3 h-16">
+                    {opts.map(o => {
+                      const v = stats.answerBias[o] ?? 0
+                      const h = Math.max(4, Math.round((v / maxV) * 64))
+                      const pctVal = Math.round((v / total) * 100)
+                      const isMost = v === maxV
+                      return (
+                        <div key={o} className="flex-1 flex flex-col items-center gap-1">
+                          <span className={`text-xs font-bold ${isMost ? 'text-rose-500' : 'text-gray-400'}`}>{pctVal}%</span>
+                          <div className={`w-full rounded-t-lg ${isMost ? 'bg-rose-400' : 'bg-gray-200'}`} style={{ height: `${h}px` }} />
+                          <span className={`text-xs font-black ${isMost ? 'text-rose-500' : 'text-gray-500'}`}>{o}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {(() => {
+                    const most = opts.reduce((a, o) => (stats.answerBias[o] ?? 0) > (stats.answerBias[a] ?? 0) ? o : a, 'A')
+                    return <p className="text-xs text-rose-500 mt-3">You pick "{most}" most often when wrong — be extra careful with this choice</p>
+                  })()}
+                </div>
+              )
+            })()}
 
             {/* Domain breakdown */}
             <div className="bg-white rounded-2xl border border-gray-200 p-5">
