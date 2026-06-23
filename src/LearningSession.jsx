@@ -143,6 +143,10 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <p className="text-xs text-gray-400 mb-5">Question {index + 1} of {questions.length}</p>
 
+        {!revealed && (
+          <p className="text-xs text-gray-300 mb-3 hidden sm:block">⌨ Press A–D to answer · Enter to continue</p>
+        )}
+
         <QuestionCard
           question={current}
           selectedAnswer={selected}

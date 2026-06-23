@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { loadHistory } from './utils/history'
-import { pct, formatTime } from './utils/index'
+import { pct, formatTime, shuffle } from './utils/index'
 import { domainById } from './data/taxonomy'
 
 function barColor(p) {
@@ -33,7 +33,7 @@ function computeStreak(sessions) {
   return streak
 }
 
-export default function AnalyticsScreen({ onBack }) {
+export default function AnalyticsScreen({ onBack, onDrillWeak }) {
   const sessions = useMemo(() => loadHistory(), [])
 
   const stats = useMemo(() => {
@@ -58,7 +58,22 @@ export default function AnalyticsScreen({ onBack }) {
     const trend = sessions.slice(0, 15).reverse()
     const streak = computeStreak(sessions)
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak }
+    // Weak questions: most frequently missed across all sessions (deduplicated by question ID)
+    const qStats = {}
+    for (const sess of sessions) {
+      for (const q of sess.questions) {
+        if (!qStats[q.id]) qStats[q.id] = { question: q, wrong: 0, total: 0 }
+        qStats[q.id].total++
+        if ((sess.answers[q.id] ?? null) !== q.answer) qStats[q.id].wrong++
+      }
+    }
+    const weakQuestions = Object.values(qStats)
+      .filter(s => s.wrong > 0)
+      .sort((a, b) => (b.wrong / b.total) - (a.wrong / a.total) || b.wrong - a.wrong)
+      .slice(0, 25)
+      .map(s => s.question)
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions }
   }, [sessions])
 
   return (
@@ -88,6 +103,22 @@ export default function AnalyticsScreen({ onBack }) {
                   <p className="font-bold text-amber-700">{stats.streak}-day study streak!</p>
                   <p className="text-xs text-amber-600">Keep it going — consistency beats cramming.</p>
                 </div>
+              </div>
+            )}
+
+            {/* Drill weak questions */}
+            {onDrillWeak && stats.weakQuestions.length > 0 && (
+              <div className="bg-rose-50 border-2 border-rose-200 rounded-2xl px-5 py-4 mb-4 flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-bold text-rose-700 text-sm">Practice your weak spots</p>
+                  <p className="text-xs text-rose-500 mt-0.5">{stats.weakQuestions.length} question{stats.weakQuestions.length !== 1 ? 's' : ''} you've missed most</p>
+                </div>
+                <button
+                  onClick={() => onDrillWeak(shuffle(stats.weakQuestions))}
+                  className="shrink-0 text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-xl px-4 py-2 transition-colors"
+                >
+                  Drill now →
+                </button>
               </div>
             )}
 

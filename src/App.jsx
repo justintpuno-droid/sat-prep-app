@@ -64,5 +64,5 @@ export default function App() {
   if (screen === 'question-bank')
     return <QuestionBank onBack={() => setScreen('home')} onPractice={handlePracticeFromBank} />
   if (screen === 'analytics')
-    return <AnalyticsScreen onBack={() => setScreen('history')} />
+    return <AnalyticsScreen onBack={() => setScreen('history')} onDrillWeak={qs => { setSessionConfig({ mode: 'learning', formatLabel: 'Weak Spot Drill', sessionName: null, questions: qs }); setScreen('learning') }} />
 }

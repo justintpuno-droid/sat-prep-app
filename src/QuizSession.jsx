@@ -384,11 +384,12 @@ export default function QuizSession({ config, onComplete, onQuit }) {
           showFeedback={false}
         />
 
-        {/* Flag button */}
-        <div className="mt-4 flex justify-end">
+        {/* Flag + keyboard hint row */}
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-xs text-gray-300 hidden sm:block">⌨ A–D to answer · ← → to navigate</span>
           <button
             onClick={() => toggleFlag(activeQs[index].id)}
-            className={`flex items-center gap-1.5 text-xs transition-colors px-2 py-1 rounded-lg ${
+            className={`flex items-center gap-1.5 text-xs transition-colors px-2 py-1 rounded-lg ml-auto ${
               flagged.has(activeQs[index].id)
                 ? 'text-amber-500 bg-amber-50'
                 : 'text-gray-300 hover:text-amber-400 hover:bg-amber-50'
