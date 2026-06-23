@@ -438,11 +438,15 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               <p className="text-gray-500 text-sm">{score.correct} of {score.total} correct</p>
               <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${modeColor}`}>{formatLabel}</span>
               <div className="text-sm text-gray-500">⏱ {formatTime(elapsedSeconds)}</div>
-              {questions.length > 0 && (
-                <div className="text-xs text-gray-400">
-                  ~{Math.round(elapsedSeconds / questions.length)}s / question
-                </div>
-              )}
+              {questions.length > 0 && (() => {
+                const avgS = Math.round(elapsedSeconds / questions.length)
+                const slow = avgS > 90
+                return (
+                  <div className={`text-xs ${slow ? 'text-amber-500 font-semibold' : 'text-gray-400'}`}>
+                    ~{avgS}s / question {slow ? '⚠️ pacing' : ''}
+                  </div>
+                )
+              })()}
               {maxCombo >= 3 && (
                 <div className="text-xs font-semibold text-orange-500">
                   🔥 Best combo: {maxCombo}×
@@ -578,7 +582,15 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
         {/* Question review */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">Question Review</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">Question Review</h2>
+              {reviewFilter === 'all' && wrongQuestions.length > 0 && (
+                <button onClick={() => setReviewFilter('incorrect')}
+                  className="text-xs text-rose-500 hover:text-rose-700 font-medium transition-colors">
+                  Skip to wrong ({wrongQuestions.length}) →
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap gap-1.5">
               {[
                 { id: 'all', label: 'All', count: questions.length },

@@ -328,6 +328,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return seen.size
   }, [history])
 
+  const totalFlagged = useMemo(() => {
+    let count = 0
+    for (const s of history) count += (s.flaggedIds ?? []).length
+    return count
+  }, [history])
+
   const examReadiness = useMemo(() => {
     if (history.length < 5) return null
     const recent10 = history.filter(s => s.score.total >= 5).slice(-10)
@@ -638,8 +644,13 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 </button>
               )}
               {onHistory && (
-                <button onClick={onHistory} className="text-xs text-gray-400 hover:text-gray-700 border border-gray-200 bg-white rounded-lg px-3 py-1.5 transition-colors">
+                <button onClick={onHistory} className="relative text-xs text-gray-400 hover:text-gray-700 border border-gray-200 bg-white rounded-lg px-3 py-1.5 transition-colors">
                   History
+                  {totalFlagged > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold leading-none" title={`${totalFlagged} flagged question${totalFlagged !== 1 ? 's' : ''} pending review`}>
+                      {totalFlagged > 9 ? '9+' : totalFlagged}
+                    </span>
+                  )}
                 </button>
               )}
             </div>
