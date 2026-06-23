@@ -34,6 +34,27 @@ export default function LearningSession({ config, onComplete, onQuit }) {
 
   useEffect(() => { timer.start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Keyboard shortcuts: 1–4 / A–D to answer, Space/Enter to advance
+  useEffect(() => {
+    function handleKey(e) {
+      if (showFormulas || showQuitConfirm) return
+      const tag = e.target?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return
+      const key = e.key.toUpperCase()
+      const optionMap = { '1': 'A', '2': 'B', '3': 'C', '4': 'D', 'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D' }
+      if (!revealed && optionMap[key]) {
+        const opts = current?.options ?? []
+        const target = opts.find(o => o.id === optionMap[key])
+        if (target) { e.preventDefault(); handleSelect(target.id) }
+      } else if (revealed && (e.key === ' ' || e.key === 'Enter') && !isBlitzMode) {
+        e.preventDefault()
+        handleNext()
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [revealed, current, showFormulas, showQuitConfirm, isBlitzMode]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (!isBlitzMode) return
     const iv = setInterval(() => {
@@ -251,7 +272,12 @@ export default function LearningSession({ config, onComplete, onQuit }) {
 
       {/* Body */}
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <p className="text-xs text-gray-400 mb-5">Question {index + 1} of {questions.length}</p>
+        <div className="flex items-center gap-3 mb-5">
+          <p className="text-xs text-gray-400">Question {index + 1} of {questions.length}</p>
+          {!revealed && !isBlitzMode && (
+            <span className="text-xs text-gray-300">1–4 to answer · Enter to next</span>
+          )}
+        </div>
 
         {!revealed && (
           <p className="text-xs text-gray-300 mb-3 hidden sm:block">⌨ Press A–D to answer · Enter to continue</p>
