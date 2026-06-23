@@ -238,13 +238,25 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl p-5 mb-4 text-white">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-semibold uppercase tracking-widest text-indigo-200">XP Earned</p>
-              <p className="text-3xl font-black">+{gamResult.xp.total}</p>
+              <p className="text-3xl font-black">+{gamResult.newXP - gamResult.oldXP}</p>
             </div>
-            <div className="flex gap-3 text-xs text-indigo-200 mb-4">
+            <div className="flex flex-wrap gap-3 text-xs text-indigo-200 mb-4">
               <span>Base: +{gamResult.xp.base}</span>
               {gamResult.xp.bonus > 0 && <span>Bonus: +{gamResult.xp.bonus}</span>}
-              {gamResult.xp.mult > 1.05 && <span>Streak {Math.round(gamResult.xp.mult * 10) / 10}×</span>}
+              {gamResult.xp.streakMult > 1.05 && <span>Streak {Math.round(gamResult.xp.streakMult * 10) / 10}×</span>}
+              {gamResult.xp.modeMult > 1.05 && <span className="text-rose-300 font-bold">2× Beast Mode!</span>}
+              {gamResult.challengeBonus > 0 && <span>+{gamResult.challengeBonus} challenge</span>}
+              {gamResult.comebackBonus > 0 && <span className="text-amber-300 font-bold">+{gamResult.comebackBonus} comeback!</span>}
             </div>
+            {gamResult.comebackBonus > 0 && (
+              <div className="flex items-center gap-2.5 bg-white/20 rounded-xl px-3 py-2.5 mb-3">
+                <span className="text-xl">🔄</span>
+                <div>
+                  <p className="text-sm font-bold leading-tight">Welcome Back!</p>
+                  <p className="text-xs text-indigo-200">+{gamResult.comebackBonus} XP comeback bonus</p>
+                </div>
+              </div>
+            )}
 
             {gamResult.leveledUp ? (
               <div className="bg-white/20 rounded-xl p-3 mb-3 flex items-center gap-3">

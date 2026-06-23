@@ -19,6 +19,14 @@ export function pct(correct, total) {
   return total === 0 ? 0 : Math.round((correct / total) * 100)
 }
 
+export function getGrade(pct) {
+  if (pct >= 90) return { grade: 'S', text: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' }
+  if (pct >= 80) return { grade: 'A', text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' }
+  if (pct >= 70) return { grade: 'B', text: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200' }
+  if (pct >= 60) return { grade: 'C', text: 'text-amber-500', bg: 'bg-amber-50/60', border: 'border-amber-200' }
+  return { grade: 'D', text: 'text-rose-500', bg: 'bg-rose-50', border: 'border-rose-200' }
+}
+
 export function scoreQuestions(questions, answers) {
   const byDomain = {}
   let correct = 0

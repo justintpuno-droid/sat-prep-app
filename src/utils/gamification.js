@@ -159,8 +159,10 @@ export function calcXP(session, streak) {
   let bonus = 50
   if (session.score.percent === 100 && session.score.total >= 10) bonus += 50
   else if (session.score.percent >= 80) bonus += 25
-  const mult = Math.min(2.0, 1 + 0.1 * Math.max(0, streak - 1))
-  return { base, bonus, mult, total: Math.round((base + bonus) * mult) }
+  const streakMult = Math.min(2.0, 1 + 0.1 * Math.max(0, streak - 1))
+  const modeMult = session.xpMultiplier ?? 1.0
+  const mult = streakMult * modeMult
+  return { base, bonus, streakMult, modeMult, mult, total: Math.round((base + bonus) * mult) }
 }
 
 export function processSession(session, history, prevGam) {
@@ -182,11 +184,22 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  const newXP = oldXP + xp.total + challengeBonus
+  // Comeback bonus: first session of the day after missing yesterday
+  let comebackBonus = 0
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterdayStr = yesterday.toISOString().slice(0, 10)
+  const todaySessions = history.filter(s => s.completedAt.startsWith(today))
+  const studiedYesterday = history.some(s => s.completedAt.startsWith(yesterdayStr))
+  if (todaySessions.length === 1 && !studiedYesterday && history.length > 1) {
+    comebackBonus = 100
+  }
+
+  const newXP = oldXP + xp.total + challengeBonus + comebackBonus
   const oldLevel = getLevelInfo(oldXP)
   const newLevel = getLevelInfo(newXP)
 
-  const totalXPEarned = xp.total + challengeBonus
+  const totalXPEarned = xp.total + challengeBonus + comebackBonus
   const xpLog = [...(prevGam.xpLog ?? []), { date: today, xp: totalXPEarned }].slice(-90)
 
   const gam = {
@@ -206,7 +219,7 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, challengeBonus, challengeCompleted, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
+  return { xp, challengeBonus, challengeCompleted, comebackBonus, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────

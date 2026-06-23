@@ -49,6 +49,18 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleBeastMode() {
+    const hardQs = allQuestions.filter(q => q.difficulty === 3)
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Beast Mode',
+      sessionName: null,
+      questions: shuffle(hardQs).slice(0, 20),
+      xpMultiplier: 2.0,
+    })
+    setScreen('learning')
+  }
+
   function handleQuickPractice() {
     setSessionConfig({
       mode: 'learning',
@@ -107,7 +119,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')

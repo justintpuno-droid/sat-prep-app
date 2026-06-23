@@ -69,6 +69,23 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     const trend = sessions.slice(0, 15).reverse()
     const streak = computeStreak(sessions)
 
+    // Difficulty breakdown
+    const byDiff = { 1: { correct: 0, total: 0 }, 2: { correct: 0, total: 0 }, 3: { correct: 0, total: 0 } }
+    for (const sess of sessions) {
+      for (const q of sess.questions) {
+        const ok = (sess.answers[q.id] ?? null) === q.answer
+        byDiff[q.difficulty].total++
+        if (ok) byDiff[q.difficulty].correct++
+      }
+    }
+    const diffList = [
+      { d: 1, label: 'Easy',   color: 'bg-emerald-500', text: 'text-emerald-600' },
+      { d: 2, label: 'Medium', color: 'bg-amber-500',   text: 'text-amber-600'   },
+      { d: 3, label: 'Hard',   color: 'bg-rose-500',    text: 'text-rose-600'    },
+    ].filter(({ d }) => byDiff[d].total > 0).map(({ d, label, color, text }) => ({
+      label, color, text, ...byDiff[d], p: pct(byDiff[d].correct, byDiff[d].total)
+    }))
+
     // Weak questions: most frequently missed across all sessions (deduplicated by question ID)
     const qStats = {}
     for (const sess of sessions) {
@@ -84,7 +101,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       .slice(0, 25)
       .map(s => s.question)
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList }
   }, [sessions])
 
   return (
@@ -174,6 +191,48 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               </div>
             </div>
 
+            {/* XP history chart */}
+            {(() => {
+              const today = new Date()
+              const days = Array.from({ length: 14 }, (_, i) => {
+                const d = new Date(today)
+                d.setDate(d.getDate() - (13 - i))
+                return d.toISOString().slice(0, 10)
+              })
+              const byDay = {}
+              for (const { date, xp } of (gam.xpLog ?? [])) byDay[date] = (byDay[date] ?? 0) + xp
+              const values = days.map(d => byDay[d] ?? 0)
+              const max = Math.max(...values, 1)
+              const totalRecent = values.reduce((a, b) => a + b, 0)
+              if (totalRecent === 0) return null
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">XP Earned — Last 14 Days</p>
+                    <span className="text-xs font-bold text-indigo-600">+{totalRecent.toLocaleString()} XP</span>
+                  </div>
+                  <div className="flex items-end gap-1 h-16">
+                    {values.map((v, i) => {
+                      const h = v > 0 ? Math.max(4, Math.round((v / max) * 64)) : 2
+                      const isToday = days[i] === today.toISOString().slice(0, 10)
+                      return (
+                        <div key={days[i]} className="flex-1 flex flex-col items-center gap-1" title={`${days[i]}: +${v} XP`}>
+                          <div
+                            className={`w-full rounded-t-md transition-all ${v > 0 ? (isToday ? 'bg-indigo-600' : 'bg-indigo-300') : 'bg-gray-100'}`}
+                            style={{ height: `${h}px` }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-gray-300">14d ago</span>
+                    <span className="text-xs text-indigo-600 font-medium">Today</span>
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* Top stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
               <StatCard label="Sessions" value={sessions.length} />
@@ -203,6 +262,33 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                       </div>
                     )
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* Difficulty breakdown */}
+            {stats.diffList.length > 0 && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">Accuracy by Difficulty</p>
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  {stats.diffList.map(({ label, color, text, correct, total, p }) => (
+                    <div key={label} className="text-center">
+                      <p className={`text-2xl font-black ${text}`}>{p}%</p>
+                      <p className="text-xs text-gray-500 font-medium">{label}</p>
+                      <p className="text-xs text-gray-400">{correct}/{total}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  {stats.diffList.map(({ label, color, p }) => (
+                    <div key={label} className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500 w-14 shrink-0">{label}</span>
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className={`h-full ${color} rounded-full`} style={{ width: `${p}%` }} />
+                      </div>
+                      <span className="text-xs text-gray-500 w-8 text-right">{p}%</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

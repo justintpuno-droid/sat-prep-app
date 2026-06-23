@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { loadHistory, clearHistory, updateSessionName, deleteSessions } from './utils/history'
-import { formatTime, pct } from './utils/index'
+import { formatTime, pct, getGrade } from './utils/index'
 import { domainById } from './data/taxonomy'
 
 function scoreColor(p) {
@@ -119,9 +119,19 @@ function HistoryCard({ session, deleteMode, selected, onToggleSelect, onRename, 
               <p className="text-xs text-gray-400">{formatDate(session.completedAt)}</p>
             </div>
 
-            <div className="text-right shrink-0">
-              <p className={`text-xl font-black ${scoreColor(session.score.percent)}`}>{session.score.percent}%</p>
-              <p className="text-xs text-gray-400">{session.score.correct}/{session.score.total} · {formatTime(session.elapsedSeconds)}</p>
+            <div className="text-right shrink-0 flex items-center gap-2">
+              {(() => {
+                const g = getGrade(session.score.percent)
+                return (
+                  <div className={`w-9 h-9 rounded-xl border flex items-center justify-center ${g.bg} ${g.border}`}>
+                    <span className={`text-base font-black ${g.text}`}>{g.grade}</span>
+                  </div>
+                )
+              })()}
+              <div>
+                <p className={`text-xl font-black ${scoreColor(session.score.percent)}`}>{session.score.percent}%</p>
+                <p className="text-xs text-gray-400">{session.score.correct}/{session.score.total} · {formatTime(session.elapsedSeconds)}</p>
+              </div>
             </div>
           </div>
           <p className="text-xs text-gray-400 mt-2 truncate">{getDomainNames(session)}</p>

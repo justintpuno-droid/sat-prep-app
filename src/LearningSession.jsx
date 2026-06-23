@@ -5,6 +5,7 @@ import { formatTime, scoreQuestions } from './utils/index'
 
 export default function LearningSession({ config, onComplete, onQuit }) {
   const { questions } = config
+  const isBeastMode = config.formatLabel === 'Beast Mode'
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState({})
   const [revealed, setRevealed] = useState(false)
@@ -79,6 +80,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       score: scoreQuestions(answered, answers),
       flaggedIds: [...flagged],
       maxCombo: maxComboRef.current,
+      xpMultiplier: config.xpMultiplier ?? 1.0,
     })
   }
 
@@ -120,9 +122,9 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const progress = (index / questions.length) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100">
+    <div className={`min-h-screen ${isBeastMode ? 'bg-gradient-to-br from-slate-900 via-rose-950 to-slate-900' : 'bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100'}`}>
       {/* Sticky header */}
-      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-200">
+      <div className={`sticky top-0 z-10 backdrop-blur-sm border-b ${isBeastMode ? 'bg-slate-900/90 border-rose-900' : 'bg-white/90 border-gray-200'}`}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
@@ -132,14 +134,19 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             >
               ✕
             </button>
-            <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full">Learning</span>
-            <span className="text-sm text-gray-600">
-              <span className="text-emerald-600 font-bold">{correctCount}</span>
-              <span className="text-gray-400"> / {answeredCount} correct</span>
+            {isBeastMode
+              ? <span className="text-xs font-black bg-rose-500 text-white px-2.5 py-1 rounded-full animate-pulse">🔥 BEAST MODE</span>
+              : <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full">Learning</span>
+            }
+            <span className={`text-sm ${isBeastMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <span className="text-emerald-400 font-bold">{correctCount}</span>
+              <span className={isBeastMode ? 'text-gray-500' : 'text-gray-400'}> / {answeredCount} correct</span>
             </span>
             {/* Live XP + combo */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">⭐ {sessionXP}</span>
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isBeastMode ? 'bg-amber-500 text-white' : 'text-amber-600 bg-amber-50'}`}>
+                ⭐ {sessionXP}{isBeastMode ? ' (2×)' : ''}
+              </span>
               {combo >= 3 && (
                 <span className="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full animate-pulse">
                   🔥 {combo}×

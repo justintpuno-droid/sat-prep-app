@@ -71,6 +71,31 @@ function estimateScore(sessions) {
   return Math.round((400 + (avg / 100) * 1200) / 10) * 10
 }
 
+const QUOTES = [
+  { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+  { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
+  { text: "Every expert was once a beginner.", author: "Helen Hayes" },
+  { text: "Small daily improvements lead to staggering long-term results.", author: "Robin Sharma" },
+  { text: "Success is the sum of small efforts repeated day in and day out.", author: "Robert Collier" },
+  { text: "The harder you work for something, the greater you'll feel when you achieve it.", author: "Anonymous" },
+  { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+  { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+  { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+  { text: "Push yourself, because no one else is going to do it for you.", author: "Anonymous" },
+  { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+  { text: "Dream big and dare to fail.", author: "Norman Vaughan" },
+  { text: "With the right preparation, any score is possible.", author: "SAT Prep Wisdom" },
+  { text: "Consistency beats talent when talent doesn't work consistently.", author: "Anonymous" },
+  { text: "Your future self will thank you for every study session today.", author: "Anonymous" },
+]
+
+function getTodayQuote() {
+  const d = new Date()
+  const start = new Date(d.getFullYear(), 0, 0)
+  const idx = Math.floor((d - start) / 86400000)
+  return QUOTES[idx % QUOTES.length]
+}
+
 const GOAL_KEY = 'sat_prep_goal'
 function loadGoalData() { try { return JSON.parse(localStorage.getItem(GOAL_KEY)) ?? {} } catch { return {} } }
 function loadGoal() { return loadGoalData().target ?? null }
@@ -155,7 +180,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onFullPractice, onAchievements, onFocusPractice }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onFullPractice, onAchievements, onFocusPractice, onBeastMode }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const gam = useMemo(() => loadGamification(), [])
@@ -181,6 +206,19 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
   const challengeProgress = useMemo(() => getChallengeProgress(todaySessions, todayChallenge), [todaySessions, todayChallenge])
   const challengeDone = challengeProgress >= todayChallenge.goal
   const challengeAlreadyCredited = gam.dailyChallengeDate === new Date().toISOString().slice(0, 10)
+
+  const todayQuote = useMemo(() => getTodayQuote(), [])
+  const weekQs = useMemo(() => {
+    const mon = new Date()
+    const day = mon.getDay()
+    mon.setDate(mon.getDate() - (day === 0 ? 6 : day - 1))
+    const monStr = mon.toISOString().slice(0, 10)
+    return history.filter(s => s.completedAt.slice(0, 10) >= monStr).reduce((sum, s) => sum + s.score.total, 0)
+  }, [history])
+  const daysIntoWeek = useMemo(() => {
+    const d = new Date().getDay()
+    return d === 0 ? 7 : d
+  }, [])
 
   const weakDomain = useMemo(() => {
     const byDomain = {}
@@ -368,6 +406,13 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           )}
         </div>
 
+        {/* Daily quote */}
+        <div className="rounded-2xl bg-gradient-to-r from-slate-700 to-slate-800 p-4 mb-4 text-white">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1.5">Quote of the Day</p>
+          <p className="text-sm font-medium leading-snug">"{todayQuote.text}"</p>
+          <p className="text-xs text-slate-400 mt-1.5">— {todayQuote.author}</p>
+        </div>
+
         {/* Motivational nudge */}
         {nudge && (
           <div className={`rounded-2xl border-2 p-4 mb-4 flex items-start gap-3 ${nudge.color}`}>
@@ -531,6 +576,18 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                     </span>
                   )}
                 </div>
+                {daysLeft > 0 && weekQs > 0 && (() => {
+                  const dailyAvg = Math.round(weekQs / daysIntoWeek)
+                  const projected = dailyAvg * daysLeft
+                  return (
+                    <p className="text-xs text-gray-400 mt-2">
+                      At ~{dailyAvg} Qs/day, you'll answer ~{projected.toLocaleString()} questions before your exam.
+                      {goalTarget && estimatedScore && estimatedScore < goalTarget && dailyAvg < 30 && (
+                        <span className="text-indigo-600 font-medium"> Try for 30/day to close the gap faster.</span>
+                      )}
+                    </p>
+                  )
+                })()}
               </>
             )}
           </div>
@@ -573,7 +630,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
         )}
 
         {/* Quick-start shortcuts */}
-        {(onQuickPractice || onFullPractice) && (
+        {(onQuickPractice || onFullPractice || onBeastMode) && (
           <div className="grid grid-cols-2 gap-3 mb-6">
             {onQuickPractice && (
               <button
@@ -593,6 +650,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <div className="text-xl mb-1.5">📝</div>
                 <div className="font-bold text-sm text-violet-900">Full Practice Test</div>
                 <div className="text-xs text-violet-500 mt-0.5">4 modules · ~2 hr 14 min</div>
+              </button>
+            )}
+            {onBeastMode && (
+              <button
+                onClick={onBeastMode}
+                className="text-left rounded-2xl border-2 border-rose-200 bg-gradient-to-br from-rose-50 to-orange-50 hover:from-rose-100 hover:to-orange-100 hover:border-rose-400 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">🔥</div>
+                <div className="font-bold text-sm text-rose-900">Beast Mode</div>
+                <div className="text-xs text-rose-500 mt-0.5">Hard only · 2× XP</div>
               </button>
             )}
           </div>
