@@ -268,6 +268,12 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
     [questions, answers]
   )
 
+  const toughestWrong = useMemo(() => {
+    return wrongQuestions
+      .filter(q => q.difficulty === 3)
+      .slice(0, 1)[0] ?? null
+  }, [wrongQuestions])
+
   const filteredQuestions = useMemo(() => {
     if (reviewFilter === 'correct') return questions.filter(q => (answers[q.id] ?? null) === q.answer)
     if (reviewFilter === 'incorrect') return wrongQuestions
@@ -573,6 +579,14 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
             )}
           </div>
         </div>
+
+        {toughestWrong && (
+          <div className="mt-6 bg-rose-50 border border-rose-200 rounded-2xl p-4">
+            <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mb-2">💪 Toughest Question Missed</p>
+            <p className="text-sm text-gray-700 leading-snug line-clamp-3">{toughestWrong.question}</p>
+            <p className="text-xs text-gray-400 mt-2">Correct answer: <span className="font-semibold text-emerald-700">{toughestWrong.answer}</span></p>
+          </div>
+        )}
 
         <div className="mt-8 space-y-3">
           {wrongQuestions.length > 0 && onRetry && (

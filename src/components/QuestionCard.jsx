@@ -28,8 +28,18 @@ export default function QuestionCard({ question, selectedAnswer, onSelect, showF
   return (
     <div className={`border-l-4 pl-3 -ml-1 ${diffAccent}`}>
       {question.stimulus && (
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-5 text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-          {question.stimulus}
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Passage</span>
+            {(() => {
+              const words = question.stimulus.split(/\s+/).length
+              const mins = Math.max(1, Math.round(words / 200))
+              return <span className="text-xs text-slate-400">~{mins} min read</span>
+            })()}
+          </div>
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+            {question.stimulus}
+          </div>
         </div>
       )}
       <p className="text-gray-900 font-medium text-base leading-relaxed mb-4 whitespace-pre-line">
