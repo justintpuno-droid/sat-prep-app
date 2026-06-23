@@ -137,8 +137,25 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
           <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-700 transition-colors mb-2 flex items-center gap-1">
             ← Back
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-          <p className="text-sm text-gray-500 mt-0.5">All-time performance across {sessions.length} session{sessions.length !== 1 ? 's' : ''}</p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
+              <p className="text-sm text-gray-500 mt-0.5">All-time performance across {sessions.length} session{sessions.length !== 1 ? 's' : ''}</p>
+            </div>
+            {sessions.length > 0 && (
+              <button
+                onClick={() => {
+                  const recentPct = stats?.overallPct ?? 0
+                  const text = `📚 SAT Prep Progress\nLevel ${levelInfo.level} ${levelInfo.title} · ${gam.totalXP.toLocaleString()} XP\n${stats?.streak > 0 ? `🔥 ${stats.streak}-day streak\n` : ''}📊 ${recentPct}% overall accuracy\n⭐ ${achievementsCount}/${ACHIEVEMENTS.length} achievements\n#SATPrep`
+                  navigator.clipboard.writeText(text).catch(() => {})
+                  alert('Progress copied to clipboard!')
+                }}
+                className="shrink-0 text-xs text-indigo-600 border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 rounded-xl px-3 py-1.5 transition-colors"
+              >
+                Share 📋
+              </button>
+            )}
+          </div>
         </div>
 
         {sessions.length === 0 ? (

@@ -455,6 +455,43 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           )}
         </div>
 
+        {/* Onboarding checklist (shown for first ~5 sessions) */}
+        {history.length < 5 && (() => {
+          const hasBeastMode = history.some(s => s.formatLabel === 'Beast Mode')
+          const hasGoal = goalTarget !== null
+          const hasAchievement = achievementsCount > 0
+          const steps = [
+            { done: history.length >= 1, label: 'Complete your first session' },
+            { done: hasGoal, label: 'Set a target SAT score' },
+            { done: hasBeastMode, label: 'Try Beast Mode 🔥' },
+            { done: hasAchievement, label: 'Unlock your first achievement 🏆' },
+            { done: streak >= 2, label: 'Study 2 days in a row 🔥' },
+          ]
+          const done = steps.filter(s => s.done).length
+          if (done === steps.length) return null
+          return (
+            <div className="bg-gradient-to-br from-indigo-50 to-violet-50 border-2 border-indigo-100 rounded-2xl p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-indigo-400">Getting Started</p>
+                <span className="text-xs text-indigo-600 font-semibold">{done}/{steps.length}</span>
+              </div>
+              <div className="h-1.5 bg-indigo-100 rounded-full overflow-hidden mb-3">
+                <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${(done / steps.length) * 100}%` }} />
+              </div>
+              <div className="space-y-2">
+                {steps.map((step, i) => (
+                  <div key={i} className="flex items-center gap-2.5">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${step.done ? 'bg-indigo-600 border-indigo-600' : 'border-gray-300'}`}>
+                      {step.done && <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                    </div>
+                    <span className={`text-xs ${step.done ? 'line-through text-gray-400' : 'text-gray-700'}`}>{step.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* 7-day streak calendar */}
         {history.length > 0 && (() => {
           const studiedDates = new Set(history.map(s => s.completedAt.slice(0, 10)))
