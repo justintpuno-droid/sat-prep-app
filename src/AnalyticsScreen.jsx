@@ -198,7 +198,10 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     const biasTotal = Object.values(wrongChoices).reduce((a, b) => a + b, 0)
     const answerBias = biasTotal >= 20 ? wrongChoices : null
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau }
+    // Questions per minute efficiency
+    const qPerMin = totalTime > 0 ? (totalQ / (totalTime / 60)).toFixed(1) : null
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin }
   }, [sessions])
 
   return (
@@ -420,6 +423,13 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                   <p className="text-xs text-gray-400 mt-0.5">±{stats.consistency.stdDev}% std dev</p>
                 </div>
               )}
+              {stats.qPerMin && (
+                <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
+                  <p className="text-2xl font-black text-indigo-600">{stats.qPerMin}</p>
+                  <p className="text-xs font-semibold text-gray-500 mt-0.5">Qs / min</p>
+                  <p className="text-xs text-gray-400 mt-0.5">avg speed</p>
+                </div>
+              )}
             </div>
 
             {/* Recent trend */}
@@ -521,6 +531,30 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                     const most = opts.reduce((a, o) => (stats.answerBias[o] ?? 0) > (stats.answerBias[a] ?? 0) ? o : a, 'A')
                     return <p className="text-xs text-rose-500 mt-3">You pick "{most}" most often when wrong — be extra careful with this choice</p>
                   })()}
+                </div>
+              )
+            })()}
+
+            {/* Top practiced domains */}
+            {stats.domainList.length >= 3 && (() => {
+              const top = [...stats.domainList].sort((a, b) => b.total - a.total).slice(0, 5)
+              const maxT = top[0]?.total || 1
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">Where You Spend Your Time</p>
+                  <div className="space-y-2.5">
+                    {top.map((d, i) => (
+                      <div key={d.id}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-700 truncate max-w-[60%]">{i === 0 ? '🥇 ' : i === 1 ? '🥈 ' : i === 2 ? '🥉 ' : ''}{d.label}</span>
+                          <span className="text-xs text-gray-400">{d.total} Qs</span>
+                        </div>
+                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${Math.round((d.total / maxT) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )
             })()}

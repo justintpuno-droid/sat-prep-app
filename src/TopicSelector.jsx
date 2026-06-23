@@ -607,8 +607,8 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <span className="text-2xl">📚</span>
               <span className="text-sm font-semibold tracking-widest text-indigo-500 uppercase">SAT Prep</span>
               {streak > 0 && (
-                <span className="flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                  🔥 {streak}-day streak
+                <span className="flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full" title={gam.maxStreak > streak ? `Best streak: ${gam.maxStreak} days` : 'Personal best streak!'}>
+                  🔥 {streak}d {gam.maxStreak > streak ? <span className="opacity-60 font-normal">(best {gam.maxStreak}d)</span> : '🏆'}
                 </span>
               )}
             </div>
