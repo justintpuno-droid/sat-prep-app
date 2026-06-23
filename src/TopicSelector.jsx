@@ -114,6 +114,10 @@ function getDomainOfDay() {
   return domains[idx % domains.length]
 }
 
+const WEEKLY_XP_KEY = 'sat_prep_weekly_xp_goal'
+function loadWeeklyXPGoal() { try { return parseInt(localStorage.getItem(WEEKLY_XP_KEY) ?? '500', 10) } catch { return 500 } }
+function saveWeeklyXPGoal(v) { try { localStorage.setItem(WEEKLY_XP_KEY, String(v)) } catch {} }
+
 const GOAL_KEY = 'sat_prep_goal'
 function loadGoalData() { try { return JSON.parse(localStorage.getItem(GOAL_KEY)) ?? {} } catch { return {} } }
 function loadGoal() { return loadGoalData().target ?? null }
@@ -238,6 +242,32 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     const d = new Date().getDay()
     return d === 0 ? 7 : d
   }, [])
+
+  const [weeklyXPGoal, setWeeklyXPGoal] = useState(() => loadWeeklyXPGoal())
+  const [editingWeeklyXP, setEditingWeeklyXP] = useState(false)
+  const [weeklyXPInput, setWeeklyXPInput] = useState('')
+  const weekXP = useMemo(() => {
+    const mon = new Date()
+    const day = mon.getDay()
+    mon.setDate(mon.getDate() - (day === 0 ? 6 : day - 1))
+    const monStr = mon.toISOString().slice(0, 10)
+    // Approximate XP from sessions this week using stored totalXP delta - not tracked per session, so use question count as proxy
+    // Each correct answer ≈ 10 XP, each wrong ≈ 5 XP
+    let xp = 0
+    for (const s of history) {
+      if (s.completedAt.slice(0, 10) < monStr) continue
+      xp += s.score.correct * 10 + (s.score.total - s.score.correct) * 5
+    }
+    return xp
+  }, [history])
+
+  const recentAchievements = useMemo(() => {
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000
+    return Object.entries(gam.achievements)
+      .filter(([, v]) => new Date(v.unlockedAt).getTime() > cutoff)
+      .map(([id]) => ACHIEVEMENTS.find(a => a.id === id))
+      .filter(Boolean)
+  }, [gam])
 
   const domainMastery = useMemo(() => {
     const stats = {}
@@ -654,6 +684,17 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           <p className="text-xs text-slate-400 mt-1.5">— {todayQuote.author}</p>
         </div>
 
+        {/* Recently unlocked achievements */}
+        {recentAchievements.length > 0 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+            <span className="text-xl shrink-0">🏆</span>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-amber-700">Achievement{recentAchievements.length > 1 ? 's' : ''} Unlocked!</p>
+              <p className="text-xs text-amber-600 truncate">{recentAchievements.map(a => `${a.icon} ${a.title}`).join(' · ')}</p>
+            </div>
+          </div>
+        )}
+
         {/* Test day checklist — shown when exam is within 7 days */}
         {daysLeft !== null && daysLeft >= 0 && daysLeft <= 7 && (
           <div className="rounded-2xl bg-gradient-to-br from-rose-600 to-rose-800 p-4 mb-4 text-white">
@@ -738,6 +779,41 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               {Math.min(challengeProgress, todayChallenge.goal)}/{todayChallenge.goal}
             </span>
           </div>
+        </div>
+
+        {/* Weekly XP goal tracker */}
+        <div className="bg-white rounded-2xl border-2 border-gray-200 p-4 mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Weekly XP Goal</p>
+            {editingWeeklyXP ? (
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number" value={weeklyXPInput} onChange={e => setWeeklyXPInput(e.target.value)}
+                  className="w-20 text-xs border border-gray-300 rounded-lg px-2 py-1 text-center"
+                  min="50" max="5000" step="50"
+                />
+                <button onClick={() => { const v = parseInt(weeklyXPInput, 10); if (v >= 50) { setWeeklyXPGoal(v); saveWeeklyXPGoal(v) } setEditingWeeklyXP(false) }}
+                  className="text-xs text-indigo-600 font-semibold">Save</button>
+                <button onClick={() => setEditingWeeklyXP(false)} className="text-xs text-gray-400">✕</button>
+              </div>
+            ) : (
+              <button onClick={() => { setWeeklyXPInput(String(weeklyXPGoal)); setEditingWeeklyXP(true) }}
+                className="text-xs text-indigo-500 hover:text-indigo-700 border border-indigo-200 rounded-lg px-2 py-0.5 transition-colors">
+                Edit
+              </button>
+            )}
+          </div>
+          <div className="flex items-end justify-between mb-2">
+            <span className={`text-2xl font-black ${weekXP >= weeklyXPGoal ? 'text-emerald-600' : 'text-indigo-600'}`}>{weekXP.toLocaleString()}</span>
+            <span className="text-sm text-gray-400">/ {weeklyXPGoal.toLocaleString()} XP</span>
+          </div>
+          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div className={`h-full rounded-full transition-all duration-500 ${weekXP >= weeklyXPGoal ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+              style={{ width: `${Math.min(100, Math.round((weekXP / weeklyXPGoal) * 100))}%` }} />
+          </div>
+          <p className="text-xs text-gray-400 mt-1.5">
+            {weekXP >= weeklyXPGoal ? '✅ Weekly goal reached!' : `${(weeklyXPGoal - weekXP).toLocaleString()} XP to go this week`}
+          </p>
         </div>
 
         {/* SAT score goal tracker */}
