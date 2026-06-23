@@ -69,8 +69,27 @@ function barColor(p) {
 }
 
 function ScoreRing({ percent }) {
-  const color = percent >= 80 ? 'text-emerald-500' : percent >= 60 ? 'text-amber-500' : 'text-rose-500'
-  return <div className={`text-5xl font-black ${color}`}>{percent}%</div>
+  const r = 38
+  const circ = 2 * Math.PI * r
+  const fill = (percent / 100) * circ
+  const hex = percent >= 80 ? '#10b981' : percent >= 60 ? '#f59e0b' : '#f43f5e'
+  return (
+    <div className="relative inline-flex items-center justify-center">
+      <svg width="104" height="104" className="-rotate-90" aria-hidden>
+        <circle cx="52" cy="52" r={r} fill="none" stroke="#f3f4f6" strokeWidth="8" />
+        <circle
+          cx="52" cy="52" r={r} fill="none"
+          stroke={hex} strokeWidth="8"
+          strokeDasharray={`${fill} ${circ}`}
+          strokeLinecap="round"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-2xl font-black leading-none" style={{ color: hex }}>{percent}%</span>
+        <span className="text-xs text-gray-400 mt-0.5">score</span>
+      </div>
+    </div>
+  )
 }
 
 function StatRow({ label, correct, total }) {

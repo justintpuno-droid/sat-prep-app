@@ -132,9 +132,11 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             )}
             <button
               onClick={finish}
-              className="text-xs text-gray-400 hover:text-gray-700 border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+              disabled={answeredCount === 0}
+              className="text-xs text-gray-400 hover:text-gray-700 border border-gray-200 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              title={answeredCount === 0 ? 'Answer at least one question first' : undefined}
             >
-              End Session
+              Finish & Review
             </button>
           </div>
         </div>
