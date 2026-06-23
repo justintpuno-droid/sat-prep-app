@@ -1407,6 +1407,13 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         </div>
 
+        {/* Question bank stats */}
+        <div className="flex items-center gap-2 text-xs text-gray-400 mb-3">
+          <span>📚 {questions.length.toLocaleString()} questions in bank</span>
+          <span>·</span>
+          <span>{matchingCount.toLocaleString()} matching your filters</span>
+        </div>
+
         {/* Adaptive difficulty hint */}
         {history.length >= 10 && (() => {
           const diffAcc = { 1: { c: 0, t: 0 }, 2: { c: 0, t: 0 }, 3: { c: 0, t: 0 } }

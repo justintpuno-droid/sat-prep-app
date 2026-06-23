@@ -66,6 +66,16 @@ export default function LearningSession({ config, onComplete, onQuit }) {
 
   useEffect(() => { timer.start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Auto-pause when tab is hidden (prevents timer drift and XP inflation)
+  useEffect(() => {
+    function handleVisibility() {
+      if (document.hidden) timer.pause()
+      else if (!revealed || !isLast) timer.start()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [timer, revealed, isLast]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Keyboard shortcuts: 1–4 / A–D to answer, Space/Enter to advance
   useEffect(() => {
     function handleKey(e) {
