@@ -614,6 +614,32 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           <p className="text-xs text-slate-400 mt-1.5">— {todayQuote.author}</p>
         </div>
 
+        {/* Test day checklist — shown when exam is within 7 days */}
+        {daysLeft !== null && daysLeft >= 0 && daysLeft <= 7 && (
+          <div className="rounded-2xl bg-gradient-to-br from-rose-600 to-rose-800 p-4 mb-4 text-white">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-lg">📅</span>
+              <p className="font-black text-sm">{daysLeft === 0 ? 'SAT Day Is Here!' : `${daysLeft} Day${daysLeft !== 1 ? 's' : ''} Until Your SAT!`}</p>
+            </div>
+            <div className="space-y-1.5">
+              {[
+                { label: 'Admission ticket printed', key: 'ticket' },
+                { label: 'Photo ID ready', key: 'id' },
+                { label: 'Pencils & eraser packed', key: 'pencils' },
+                { label: 'Approved calculator', key: 'calc' },
+                { label: 'Snacks & water bottle', key: 'snacks' },
+                { label: 'Sleep 8+ hours tonight', key: 'sleep' },
+              ].map(({ label, key }) => (
+                <div key={key} className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded border-2 border-rose-300 shrink-0" />
+                  <span className="text-xs text-rose-100">{label}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-rose-300 mt-3">💡 Light review only — trust your preparation!</p>
+          </div>
+        )}
+
         {/* Motivational nudge */}
         {nudge && (
           <div className={`rounded-2xl border-2 p-4 mb-4 flex items-start gap-3 ${nudge.color}`}>
