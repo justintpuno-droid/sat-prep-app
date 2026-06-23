@@ -89,6 +89,16 @@ const QUOTES = [
   { text: "Your future self will thank you for every study session today.", author: "Anonymous" },
 ]
 
+function scoreMilestone(score) {
+  if (score >= 1500) return { label: 'Top 1%', color: 'text-amber-600 bg-amber-50' }
+  if (score >= 1400) return { label: 'Top 5%', color: 'text-violet-600 bg-violet-50' }
+  if (score >= 1340) return { label: 'Top 10%', color: 'text-indigo-600 bg-indigo-50' }
+  if (score >= 1200) return { label: 'Top 25%', color: 'text-emerald-600 bg-emerald-50' }
+  if (score >= 1060) return { label: 'Above avg', color: 'text-emerald-600 bg-emerald-50' }
+  if (score >= 1000) return { label: 'Near avg', color: 'text-amber-600 bg-amber-50' }
+  return { label: 'Building up', color: 'text-gray-500 bg-gray-100' }
+}
+
 function getTodayQuote() {
   const d = new Date()
   const start = new Date(d.getFullYear(), 0, 0)
@@ -648,7 +658,13 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                     {estimatedScore && (
                       <div className="mb-2">
                         <span className="text-xs text-gray-400">Estimated current</span>
-                        <div className="text-2xl font-black text-gray-900">~{estimatedScore}</div>
+                        <div className="flex items-baseline gap-2">
+                          <div className="text-2xl font-black text-gray-900">~{estimatedScore}</div>
+                          {(() => {
+                            const m = scoreMilestone(estimatedScore)
+                            return <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${m.color}`}>{m.label}</span>
+                          })()}
+                        </div>
                       </div>
                     )}
                     {goalTarget && (

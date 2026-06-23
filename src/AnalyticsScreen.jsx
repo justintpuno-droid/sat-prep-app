@@ -126,7 +126,19 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       }
     }
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved }
+    // Time of day analysis
+    const tod = { morning: { correct: 0, total: 0 }, afternoon: { correct: 0, total: 0 }, evening: { correct: 0, total: 0 } }
+    for (const s of sessions) {
+      const h = new Date(s.completedAt).getHours()
+      const bucket = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'
+      tod[bucket].correct += s.score.correct; tod[bucket].total += s.score.total
+    }
+    const timeOfDay = Object.entries(tod)
+      .filter(([, b]) => b.total >= 10)
+      .map(([name, b]) => ({ name, emoji: name === 'morning' ? '🌅' : name === 'afternoon' ? '☀️' : '🌙', label: name.charAt(0).toUpperCase() + name.slice(1), p: pct(b.correct, b.total), ...b }))
+      .sort((a, b) => b.p - a.p)
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay }
   }, [sessions])
 
   return (
@@ -329,6 +341,29 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                         <div className={`h-full ${color} rounded-full`} style={{ width: `${p}%` }} />
                       </div>
                       <span className="text-xs text-gray-500 w-8 text-right">{p}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Time of day analysis */}
+            {stats.timeOfDay?.length >= 2 && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">Accuracy by Time of Day</p>
+                <div className="space-y-3">
+                  {stats.timeOfDay.map((t, i) => (
+                    <div key={t.name}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-gray-700">{t.emoji} {t.label} {i === 0 && <span className="text-xs text-emerald-600 font-semibold">· Best time</span>}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-400">{t.correct}/{t.total}</span>
+                          <span className={`text-sm font-bold ${textColor(t.p)}`}>{t.p}%</span>
+                        </div>
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className={`h-full ${barColor(t.p)} rounded-full`} style={{ width: `${t.p}%` }} />
+                      </div>
                     </div>
                   ))}
                 </div>
