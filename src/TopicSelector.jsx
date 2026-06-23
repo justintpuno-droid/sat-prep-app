@@ -556,6 +556,29 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           )
         })()}
 
+        {/* Last session recap */}
+        {history.length > 0 && (() => {
+          const last = history[history.length - 1]
+          const g = last.score.percent >= 90 ? { text: 'text-amber-500', label: 'Excellent' } : last.score.percent >= 80 ? { text: 'text-emerald-600', label: 'Great' } : last.score.percent >= 60 ? { text: 'text-amber-600', label: 'Good' } : { text: 'text-rose-500', label: 'Keep going' }
+          const age = Math.round((Date.now() - new Date(last.completedAt)) / 60000)
+          const ageStr = age < 60 ? `${age}m ago` : age < 1440 ? `${Math.round(age / 60)}h ago` : `${Math.round(age / 1440)}d ago`
+          return (
+            <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400 truncate">{last.formatLabel}</span>
+                  <span className="text-xs text-gray-300">·</span>
+                  <span className="text-xs text-gray-400">{ageStr}</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-0.5">{last.score.total} questions · {g.label}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className={`text-xl font-black ${g.text}`}>{last.score.percent}%</p>
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Power Day banner */}
         {powerDay && (
           <div className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-4 mb-4 text-white flex items-center gap-3">

@@ -23,6 +23,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [xpFlash, setXpFlash] = useState(null)
   const [milestone, setMilestone] = useState(null)
   const [showFormulas, setShowFormulas] = useState(false)
+  const [formulaTab, setFormulaTab] = useState('math')
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
   const timer = useTimer()
@@ -224,15 +225,13 @@ export default function LearningSession({ config, onComplete, onQuit }) {
                 </button>
               </div>
             )}
-            {hasMathQuestions && (
-              <button
-                onClick={() => setShowFormulas(true)}
-                className="text-xs text-indigo-400 hover:text-indigo-600 border border-indigo-200 rounded-lg px-2.5 py-1.5 transition-colors"
-                title="Math formula reference"
-              >
-                📐
-              </button>
-            )}
+            <button
+              onClick={() => setShowFormulas(true)}
+              className="text-xs text-indigo-400 hover:text-indigo-600 border border-indigo-200 rounded-lg px-2.5 py-1.5 transition-colors"
+              title="SAT reference sheet"
+            >
+              📋
+            </button>
             <button
               onClick={finish}
               disabled={answeredCount === 0}
@@ -327,16 +326,24 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         </div>
       )}
 
-      {/* Math formula cheat sheet */}
+      {/* SAT reference sheet */}
       {showFormulas && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 px-4 pb-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between rounded-t-2xl">
-              <h3 className="font-bold text-gray-900">📐 SAT Math Reference</h3>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
+            <div className="bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between rounded-t-2xl">
+              <h3 className="font-bold text-gray-900">📋 SAT Quick Reference</h3>
               <button onClick={() => setShowFormulas(false)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
             </div>
-            <div className="p-5 space-y-4 text-sm">
-              {[
+            <div className="flex gap-1 px-5 pt-3 pb-0">
+              {['math', 'english'].map(t => (
+                <button key={t} onClick={() => setFormulaTab(t)}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${formulaTab === t ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                  {t === 'math' ? '📐 Math' : '📖 English'}
+                </button>
+              ))}
+            </div>
+            <div className="p-5 space-y-4 text-sm overflow-y-auto">
+              {formulaTab === 'math' && [
                 { section: 'Algebra', items: [
                   ['Slope', 'm = (y₂−y₁)/(x₂−x₁)'],
                   ['Slope-intercept', 'y = mx + b'],
@@ -369,6 +376,40 @@ export default function LearningSession({ config, onComplete, onQuit }) {
                       <div key={label} className="flex items-baseline justify-between gap-3 py-1 border-b border-gray-50">
                         <span className="text-gray-600">{label}</span>
                         <span className="font-mono text-indigo-700 text-xs shrink-0">{formula}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {formulaTab === 'english' && [
+                { section: 'Reading Strategy', items: [
+                  ['Main idea', 'Read 1st & last sentence of each paragraph first'],
+                  ['Tone', 'Look for emotion words; narrow to positive/negative'],
+                  ['Evidence', 'Find the line numbers; read 2 lines above & below'],
+                  ['Vocabulary', 'Use context — surrounding sentences define the word'],
+                  ['Wrong answer tells', 'Too extreme, too narrow, out of scope, opposite'],
+                ]},
+                { section: 'Writing Strategy', items: [
+                  ['Subject-verb', 'Find the true subject (not a prepositional phrase)'],
+                  ['Pronoun', 'Pronoun must agree in number and gender with antecedent'],
+                  ['Modifier', 'Modifier must be next to the word it modifies'],
+                  ['Parallelism', 'Items in a list must have the same grammatical form'],
+                  ['Punctuation', 'FANBOYS join clauses with comma; semicolon = period'],
+                  ['Conciseness', 'Choose the shortest answer that is grammatically correct'],
+                ]},
+                { section: 'Common Traps', items: [
+                  ['Inference', 'Must be directly supported — never assume beyond the text'],
+                  ['Chronology', 'The passage may not be in chronological order'],
+                  ['Graph questions', 'Read the title, axes, legend before choosing an answer'],
+                ]},
+              ].map(({ section, items }) => (
+                <div key={section}>
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">{section}</p>
+                  <div className="space-y-1">
+                    {items.map(([label, tip]) => (
+                      <div key={label} className="py-1.5 border-b border-gray-50">
+                        <p className="text-xs font-semibold text-gray-700">{label}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{tip}</p>
                       </div>
                     ))}
                   </div>
