@@ -60,7 +60,7 @@ export default function App() {
   if (screen === 'summary')
     return <SessionSummary session={completedSession} onNewSession={() => setScreen('home')} onHistory={() => setScreen('history')} onRetry={handleRetry} />
   if (screen === 'history')
-    return <SessionHistory onBack={() => setScreen('home')} onNewSession={() => setScreen('home')} onAnalytics={() => setScreen('analytics')} />
+    return <SessionHistory onBack={() => setScreen('home')} onNewSession={() => setScreen('home')} onAnalytics={() => setScreen('analytics')} onReview={s => { setCompletedSession(s); setScreen('summary') }} />
   if (screen === 'question-bank')
     return <QuestionBank onBack={() => setScreen('home')} onPractice={handlePracticeFromBank} />
   if (screen === 'analytics')

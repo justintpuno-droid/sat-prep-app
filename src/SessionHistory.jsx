@@ -18,7 +18,7 @@ function getDomainNames(session) {
   return ids.map(id => domainById[id]?.label ?? id).join(', ')
 }
 
-function HistoryCard({ session, deleteMode, selected, onToggleSelect, onRename }) {
+function HistoryCard({ session, deleteMode, selected, onToggleSelect, onRename, onReview }) {
   const [expanded, setExpanded] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editName, setEditName] = useState('')
@@ -153,13 +153,23 @@ function HistoryCard({ session, deleteMode, selected, onToggleSelect, onRename }
               </div>
             )
           })}
+          {onReview && (
+            <div className="pt-2">
+              <button
+                onClick={() => onReview(session)}
+                className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                Review questions →
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
   )
 }
 
-export default function SessionHistory({ onBack, onNewSession, onAnalytics }) {
+export default function SessionHistory({ onBack, onNewSession, onAnalytics, onReview }) {
   const [sessions, setSessions] = useState(() => loadHistory())
   const [confirmClear, setConfirmClear] = useState(false)
   const [deleteMode, setDeleteMode] = useState(false)
@@ -299,6 +309,7 @@ export default function SessionHistory({ onBack, onNewSession, onAnalytics }) {
                 selected={selectedIds.has(s.id)}
                 onToggleSelect={() => toggleSelect(s.id)}
                 onRename={handleRename}
+                onReview={onReview}
               />
             ))}
           </div>
