@@ -243,6 +243,8 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return d === 0 ? 7 : d
   }, [])
 
+  const totalStudyTime = useMemo(() => history.reduce((sum, s) => sum + (s.elapsedSeconds ?? 0), 0), [history])
+
   const [weeklyXPGoal, setWeeklyXPGoal] = useState(() => loadWeeklyXPGoal())
   const [editingWeeklyXP, setEditingWeeklyXP] = useState(false)
   const [weeklyXPInput, setWeeklyXPInput] = useState('')
@@ -562,6 +564,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
             <p className="text-xs text-gray-400 mt-1">{dailyDone ? 'Done!' : `/ ${DAILY_GOAL} Qs`}</p>
           </div>
+
+          {totalStudyTime > 0 && (
+            <>
+              <div className="h-12 w-px bg-gray-100 shrink-0" />
+              <div className="shrink-0 text-center">
+                <p className="text-base font-black text-gray-700">{Math.round(totalStudyTime / 60)}m</p>
+                <p className="text-xs text-gray-400 mt-0.5">studied</p>
+              </div>
+            </>
+          )}
 
           {onAchievements && (
             <>
