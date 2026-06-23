@@ -179,11 +179,22 @@ function HistoryCard({ session, deleteMode, selected, onToggleSelect, onRename, 
   )
 }
 
+const FILTERS = [
+  { id: 'all',   label: 'All', fn: () => true },
+  { id: 'beast', label: '🔴 Beast', fn: s => s.formatLabel === 'Beast Mode' },
+  { id: 'blitz', label: '⚡ Blitz', fn: s => s.formatLabel === 'Blitz Mode' },
+  { id: 'aces',  label: '100%', fn: s => s.score.percent === 100 },
+  { id: 'high',  label: '≥80%', fn: s => s.score.percent >= 80 },
+]
+
 export default function SessionHistory({ onBack, onNewSession, onAnalytics, onAchievements, onReview }) {
-  const [sessions, setSessions] = useState(() => loadHistory())
+  const [allSessions, setAllSessions] = useState(() => loadHistory())
+  const [activeFilter, setActiveFilter] = useState('all')
   const [confirmClear, setConfirmClear] = useState(false)
   const [deleteMode, setDeleteMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState(new Set())
+
+  const sessions = allSessions.filter(FILTERS.find(f => f.id === activeFilter)?.fn ?? (() => true))
 
   function toggleSelect(id) {
     setSelectedIds(prev => {
@@ -208,19 +219,19 @@ export default function SessionHistory({ onBack, onNewSession, onAnalytics, onAc
 
   function handleDeleteSelected() {
     const updated = deleteSessions([...selectedIds])
-    if (updated !== null) setSessions(updated)
+    if (updated !== null) setAllSessions(updated)
     exitDeleteMode()
   }
 
   function handleClearAll() {
     clearHistory()
-    setSessions([])
+    setAllSessions([])
     setConfirmClear(false)
   }
 
   function handleRename(id, name) {
     const updated = updateSessionName(id, name)
-    if (updated !== null) setSessions(updated)
+    if (updated !== null) setAllSessions(updated)
   }
 
   const allSelected = sessions.length > 0 && selectedIds.size === sessions.length
@@ -295,6 +306,25 @@ export default function SessionHistory({ onBack, onNewSession, onAnalytics, onAc
             )}
           </div>
         </div>
+
+        {/* Filter chips */}
+        {!deleteMode && allSessions.length > 0 && (
+          <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
+            {FILTERS.map(f => {
+              const count = allSessions.filter(f.fn).length
+              if (count === 0 && f.id !== 'all') return null
+              return (
+                <button key={f.id} onClick={() => setActiveFilter(f.id)}
+                  className={`shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
+                    activeFilter === f.id ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-gray-500 hover:border-indigo-300'
+                  }`}>
+                  {f.label}
+                  {f.id !== 'all' && <span className="ml-1 opacity-70">({count})</span>}
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {/* Select all / count row in delete mode */}
         {deleteMode && sessions.length > 0 && (

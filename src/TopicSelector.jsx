@@ -259,6 +259,46 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return result
   }, [history])
 
+  const domainStats = useMemo(() => {
+    const stats = {}
+    for (const sess of history) {
+      for (const q of sess.questions) {
+        if (!stats[q.domain]) stats[q.domain] = { correct: 0, total: 0, sessions: [] }
+        stats[q.domain].total++
+        if ((sess.answers[q.id] ?? null) === q.answer) stats[q.domain].correct++
+      }
+    }
+    const result = {}
+    for (const [id, s] of Object.entries(stats)) {
+      if (s.total < 3) continue
+      const overall = Math.round((s.correct / s.total) * 100)
+      result[id] = { pct: overall }
+    }
+    // Compute trend: recent 3 sessions accuracy vs older 3
+    const recentSessions = history.slice(-6)
+    const olderSessions = history.slice(-12, -6)
+    for (const id of Object.keys(result)) {
+      const calc = (sesses) => {
+        let c = 0, t = 0
+        for (const sess of sesses) {
+          for (const q of sess.questions) {
+            if (q.domain !== id) continue
+            t++
+            if ((sess.answers[q.id] ?? null) === q.answer) c++
+          }
+        }
+        return t >= 3 ? Math.round((c / t) * 100) : null
+      }
+      const r = calc(recentSessions), o = calc(olderSessions)
+      if (r !== null && o !== null) {
+        const delta = r - o
+        result[id].trend = delta >= 5 ? '↑' : delta <= -5 ? '↓' : null
+        result[id].trendColor = delta >= 5 ? 'text-emerald-500' : delta <= -5 ? 'text-rose-500' : 'text-gray-400'
+      }
+    }
+    return result
+  }, [history])
+
   const nextAchievement = useMemo(() => {
     const totalQ = history.reduce((t, s) => t + s.score.total, 0)
     const hardCorrect = history.reduce((t, s) => t + s.questions.filter(q => q.difficulty === 3 && (s.answers[q.id] ?? null) === q.answer).length, 0)
@@ -997,11 +1037,21 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                           className="mt-0.5"
                         />
                         <div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="text-sm font-medium text-gray-800">{domain.label}</span>
                             {domainMastery[domain.id] && (
                               <span className={`text-xs ${domainMastery[domain.id].color}`} title={domainMastery[domain.id].label}>
                                 {domainMastery[domain.id].icon}
+                              </span>
+                            )}
+                            {domainStats[domain.id] && (
+                              <span className="flex items-center gap-0.5 text-xs text-gray-400">
+                                {domainStats[domain.id].pct}%
+                                {domainStats[domain.id].trend && (
+                                  <span className={`font-bold ${domainStats[domain.id].trendColor}`}>
+                                    {domainStats[domain.id].trend}
+                                  </span>
+                                )}
                               </span>
                             )}
                           </div>
