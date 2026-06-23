@@ -120,10 +120,10 @@ export default function QuestionBank({ onBack, onPractice }) {
           <p className="text-sm text-gray-500 mt-0.5">{allQuestions.length} questions available</p>
         </div>
 
-        <div className="flex gap-6 items-start">
+        <div className="flex flex-col gap-4 lg:flex-row lg:gap-6 lg:items-start">
 
           {/* ── Left sidebar ─────────────────────────────────────────────── */}
-          <aside className="w-56 shrink-0 sticky top-6">
+          <aside className="w-full lg:w-56 lg:shrink-0 lg:sticky lg:top-6">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
 
               {/* Section */}
@@ -167,7 +167,7 @@ export default function QuestionBank({ onBack, onPractice }) {
                     {allDomainsSelected ? 'Clear' : 'All'}
                   </button>
                 </div>
-                <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-y-2 gap-x-4 lg:grid-cols-1">
                   {visibleDomains.map(domain => (
                     <label key={domain.id} className="flex items-start gap-2.5 cursor-pointer">
                       <input
@@ -258,7 +258,8 @@ export default function QuestionBank({ onBack, onPractice }) {
             </div>
 
             {/* Questions table */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto mb-4">
+            <div className="min-w-[540px]">
 
               {/* Table header */}
               <div className="grid items-center gap-3 px-4 py-2.5 bg-gray-700 text-xs font-semibold text-gray-300 uppercase tracking-wide"
@@ -341,6 +342,7 @@ export default function QuestionBank({ onBack, onPractice }) {
                   )
                 })
               )}
+            </div>
             </div>
 
             {/* Pagination */}

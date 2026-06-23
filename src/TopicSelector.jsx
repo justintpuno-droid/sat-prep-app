@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { TAXONOMY } from './data/taxonomy'
 import questions from './data/questions'
+import { loadHistory } from './utils/history'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -50,7 +51,22 @@ function Checkbox({ checked, indeterminate = false, onChange, className = '' }) 
   )
 }
 
+function computeStreak() {
+  const sessions = loadHistory()
+  const dates = new Set(sessions.map(s => s.completedAt.slice(0, 10)))
+  const today = new Date().toISOString().slice(0, 10)
+  let streak = 0
+  const d = new Date(today)
+  while (dates.has(d.toISOString().slice(0, 10))) {
+    streak++
+    d.setDate(d.getDate() - 1)
+  }
+  return streak
+}
+
 export default function TopicSelector({ onStart, onHistory, onQuestionBank }) {
+  const streak = useMemo(() => computeStreak(), [])
+
   // Start with everything selected
   const allDomainIds = useMemo(
     () => TAXONOMY.flatMap(s => s.domains.map(d => d.id)),
@@ -122,9 +138,14 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank }) {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <span className="text-2xl">📚</span>
               <span className="text-sm font-semibold tracking-widest text-indigo-500 uppercase">SAT Prep</span>
+              {streak > 0 && (
+                <span className="flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                  🔥 {streak}-day streak
+                </span>
+              )}
             </div>
             <div className="flex gap-2">
               {onQuestionBank && (
