@@ -131,10 +131,20 @@ function QuestionRow({ question, userAnswer, index }) {
 
 export default function SessionSummary({ session, onNewSession, onHistory }) {
   const { mode, format, formatLabel, elapsedSeconds, timeLimit, questions, answers, score, sessionName, phaseData } = session
-  const [breakdownTab, setBreakdownTab] = useState('domain')
+  const [breakdownTab, setBreakdownTab] = useState('subject')
   const [reviewFilter, setReviewFilter] = useState('all')
 
   const modeColor = mode === 'learning' ? 'bg-indigo-100 text-indigo-700' : 'bg-violet-100 text-violet-700'
+
+  const bySubject = useMemo(() => {
+    const acc = {}
+    for (const q of questions) {
+      if (!acc[q.subject]) acc[q.subject] = { correct: 0, total: 0 }
+      acc[q.subject].total++
+      if ((answers[q.id] ?? null) === q.answer) acc[q.subject].correct++
+    }
+    return acc
+  }, [questions, answers])
 
   const bySkill = useMemo(() => {
     const acc = {}
@@ -207,8 +217,9 @@ export default function SessionSummary({ session, onNewSession, onHistory }) {
           <div className="border-t border-gray-100 pt-4">
             <div className="flex gap-1 mb-4 bg-gray-100 rounded-xl p-1">
               {[
-                { id: 'domain', label: 'Domain' },
-                { id: 'skill', label: 'Skill' },
+                { id: 'subject',    label: 'Subject' },
+                { id: 'domain',     label: 'Domain' },
+                { id: 'skill',      label: 'Skill' },
                 { id: 'difficulty', label: 'Difficulty' },
               ].map(tab => (
                 <button
@@ -222,6 +233,19 @@ export default function SessionSummary({ session, onNewSession, onHistory }) {
                 </button>
               ))}
             </div>
+
+            {breakdownTab === 'subject' && (
+              <div className="space-y-3">
+                {[
+                  { id: 'math',    label: 'Math' },
+                  { id: 'english', label: 'Reading & Writing' },
+                ].map(({ id, label }) => {
+                  const stats = bySubject[id]
+                  if (!stats || stats.total === 0) return null
+                  return <StatRow key={id} label={label} correct={stats.correct} total={stats.total} />
+                })}
+              </div>
+            )}
 
             {breakdownTab === 'domain' && (
               <div className="space-y-3">
