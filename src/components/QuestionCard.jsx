@@ -1,3 +1,9 @@
+const DIFF_ACCENT = {
+  1: 'border-l-emerald-400',
+  2: 'border-l-amber-400',
+  3: 'border-l-rose-400',
+}
+
 // Shared between LearningSession (showFeedback=true after answer) and QuizSession (showFeedback=false)
 export default function QuestionCard({ question, selectedAnswer, onSelect, showFeedback = false }) {
   function optionStyle(id) {
@@ -17,8 +23,10 @@ export default function QuestionCard({ question, selectedAnswer, onSelect, showF
     return null
   }
 
+  const diffAccent = DIFF_ACCENT[question.difficulty] ?? ''
+
   return (
-    <div>
+    <div className={`border-l-4 pl-3 -ml-1 ${diffAccent}`}>
       {question.stimulus && (
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-5 text-sm text-gray-700 leading-relaxed whitespace-pre-line">
           {question.stimulus}

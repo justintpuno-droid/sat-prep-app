@@ -199,6 +199,15 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
     return acc
   }, [questions, answers])
 
+  const answerDist = useMemo(() => {
+    const dist = { A: 0, B: 0, C: 0, D: 0 }
+    for (const q of questions) {
+      const ans = answers[q.id]
+      if (ans && dist[ans] !== undefined) dist[ans]++
+    }
+    return dist
+  }, [questions, answers])
+
   const correctCount = questions.filter(q => (answers[q.id] ?? null) === q.answer).length
   const incorrectCount = questions.length - correctCount
   const wrongQuestions = useMemo(
@@ -392,6 +401,7 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
                 { id: 'domain',     label: 'Domain' },
                 { id: 'skill',      label: 'Skill' },
                 { id: 'difficulty', label: 'Difficulty' },
+                { id: 'answers',    label: 'Answers' },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -452,6 +462,29 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
                     </div>
                   )
                 })}
+              </div>
+            )}
+
+            {breakdownTab === 'answers' && (
+              <div>
+                <p className="text-xs text-gray-400 mb-3">How often you chose each answer</p>
+                <div className="grid grid-cols-4 gap-3">
+                  {['A','B','C','D'].map(opt => {
+                    const count = answerDist[opt] ?? 0
+                    const total = questions.length
+                    const w = total > 0 ? (count / total) * 100 : 0
+                    return (
+                      <div key={opt} className="text-center">
+                        <div className="h-16 bg-gray-100 rounded-lg overflow-hidden flex items-end">
+                          <div className="w-full bg-indigo-400 rounded-lg transition-all duration-500" style={{ height: `${w}%` }} />
+                        </div>
+                        <p className="text-sm font-bold text-gray-700 mt-1">{opt}</p>
+                        <p className="text-xs text-gray-400">{count}×</p>
+                      </div>
+                    )
+                  })}
+                </div>
+                <p className="text-xs text-gray-300 mt-3 text-center">Even distribution across A–D is a good sign of careful reading vs. guessing</p>
               </div>
             )}
           </div>
