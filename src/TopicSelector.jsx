@@ -294,6 +294,25 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       .sort((a, b) => a.pct - b.pct)[0] ?? null
   }, [history])
 
+  const powerDay = useMemo(() => {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const todaySess = history.filter(s => s.completedAt.startsWith(todayStr))
+    if (todaySess.length < 3) return false
+    return todaySess.reduce((sum, s) => sum + s.score.percent, 0) / todaySess.length >= 80
+  }, [history])
+
+  const diffReady = useMemo(() => {
+    if (history.length < 5) return null
+    const recent = history.slice(-5)
+    let medC = 0, medT = 0, hardT = 0
+    for (const s of recent) for (const q of s.questions) {
+      if (q.difficulty === 2) { medT++; if ((s.answers[q.id] ?? null) === q.answer) medC++ }
+      if (q.difficulty === 3) hardT++
+    }
+    const medPct = medT >= 10 ? Math.round((medC / medT) * 100) : null
+    return medPct !== null && medPct >= 80 && hardT < 20 ? medPct : null
+  }, [history])
+
   const nudge = useMemo(() => {
     if (daysLeft !== null && daysLeft <= 7 && daysLeft > 0) {
       return { icon: '📅', title: `SAT in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}!`, body: 'Crunch time — focus on your weak spots and do at least one full session today.', color: 'border-rose-100 bg-rose-50' }
@@ -311,8 +330,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     if (dailyDone) {
       return { icon: '✅', title: 'Daily goal complete!', body: `${dailyProgress} questions answered today. Great work — keep the streak going!`, color: 'border-emerald-100 bg-emerald-50' }
     }
+    if (diffReady) {
+      return { icon: '🔥', title: 'Ready for Hard mode?', body: `You're hitting ${diffReady}% on Medium questions. Try Beast Mode or filter by Hard to level up!`, color: 'border-orange-100 bg-orange-50' }
+    }
     return null
-  }, [levelInfo, streak, dailyProgress, dailyDone, daysLeft])
+  }, [levelInfo, streak, dailyProgress, dailyDone, daysLeft, diffReady])
 
   // Start with everything selected
   const allDomainIds = useMemo(
@@ -533,6 +555,17 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
           )
         })()}
+
+        {/* Power Day banner */}
+        {powerDay && (
+          <div className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-4 mb-4 text-white flex items-center gap-3">
+            <span className="text-2xl">⚡</span>
+            <div>
+              <p className="font-black text-sm">Power Day!</p>
+              <p className="text-xs text-emerald-100">3+ sessions at 80%+ average. You're absolutely crushing it today!</p>
+            </div>
+          </div>
+        )}
 
         {/* Daily quote */}
         <div className="rounded-2xl bg-gradient-to-r from-slate-700 to-slate-800 p-4 mb-4 text-white">

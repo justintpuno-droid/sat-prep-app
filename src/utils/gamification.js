@@ -72,6 +72,12 @@ export const ACHIEVEMENTS = [
   { id: 'speed',        icon: '💨', title: 'Speed Demon',      desc: 'Avg under 45s/question in a quiz (10+ Qs)' },
   // XP milestone
   { id: 'xp-1000',      icon: '⭐', title: 'Star Scholar',     desc: 'Accumulate 1,000 total XP' },
+  // Special modes
+  { id: 'beast-mode',   icon: '🔥', title: 'Beast Tamer',      desc: 'Complete a Beast Mode session' },
+  { id: 'blitz-10',     icon: '⚡', title: 'Blitz Champion',   desc: 'Get 10+ correct in a Blitz session' },
+  { id: 'beast-ace',    icon: '🦁', title: 'Beast King',       desc: 'Score 80%+ in a Beast Mode session' },
+  { id: 'domain-day',   icon: '✨', title: 'Domain Master',    desc: 'Complete a Domain of the Day session' },
+  { id: 'comeback-kid', icon: '🔄', title: 'Comeback Kid',     desc: 'Earn the comeback bonus (study after missing a day)' },
 ]
 
 const CHECKS = {
@@ -121,6 +127,11 @@ const CHECKS = {
   'comeback':     (h) => h.some(s => s.formatLabel === 'Wrong Answers Drill' && s.score.percent >= 80),
   'speed':        (h) => h.some(s => s.mode === 'quiz' && s.score.total >= 10 && (s.elapsedSeconds / s.score.total) < 45),
   'xp-1000':      (_h, g) => g.totalXP >= 1000,
+  'beast-mode':   (h) => h.some(s => s.formatLabel === 'Beast Mode'),
+  'blitz-10':     (h) => h.some(s => s.formatLabel === 'Blitz Mode' && s.score.correct >= 10),
+  'beast-ace':    (h) => h.some(s => s.formatLabel === 'Beast Mode' && s.score.percent >= 80),
+  'domain-day':   (h) => h.some(s => s.formatLabel === 'Domain of the Day'),
+  'comeback-kid': (_h, _g, ctx) => ctx?.comebackBonus > 0,
 }
 
 // ─── Storage ───────────────────────────────────────────────────────────────
@@ -211,9 +222,10 @@ export function processSession(session, history, prevGam) {
   }
 
   const newAchievements = []
+  const achCtx = { comebackBonus, challengeBonus, milestoneBonus }
   for (const ach of ACHIEVEMENTS) {
     if (gam.achievements[ach.id]) continue
-    if (CHECKS[ach.id]?.(history, gam)) {
+    if (CHECKS[ach.id]?.(history, gam, achCtx)) {
       gam.achievements[ach.id] = { unlockedAt: new Date().toISOString() }
       newAchievements.push(ach)
     }
