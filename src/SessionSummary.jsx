@@ -247,7 +247,18 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               {gamResult.xp.modeMult > 1.05 && <span className="text-rose-300 font-bold">2× Beast Mode!</span>}
               {gamResult.challengeBonus > 0 && <span>+{gamResult.challengeBonus} challenge</span>}
               {gamResult.comebackBonus > 0 && <span className="text-amber-300 font-bold">+{gamResult.comebackBonus} comeback!</span>}
+              {gamResult.milestoneBonus > 0 && <span className="text-emerald-300 font-bold">+{gamResult.milestoneBonus} milestone!</span>}
             </div>
+            {gamResult.sessionMilestone && (
+              <div className="flex items-center gap-2.5 bg-white/20 rounded-xl px-3 py-2.5 mb-3">
+                <span className="text-2xl">🎊</span>
+                <div>
+                  <p className="text-sm font-bold leading-tight">Session #{gamResult.sessionMilestone} Milestone!</p>
+                  <p className="text-xs text-indigo-200">+{gamResult.milestoneBonus} XP milestone bonus</p>
+                </div>
+              </div>
+            )}
+
             {gamResult.comebackBonus > 0 && (
               <div className="flex items-center gap-2.5 bg-white/20 rounded-xl px-3 py-2.5 mb-3">
                 <span className="text-xl">🔄</span>

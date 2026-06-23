@@ -6,6 +6,7 @@ import { formatTime, scoreQuestions } from './utils/index'
 export default function LearningSession({ config, onComplete, onQuit }) {
   const { questions } = config
   const isBeastMode = config.formatLabel === 'Beast Mode'
+  const hasMathQuestions = questions.some(q => q.subject === 'math')
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState({})
   const [revealed, setRevealed] = useState(false)
@@ -17,6 +18,8 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [maxCombo, setMaxCombo] = useState(0)
   const [xpFlash, setXpFlash] = useState(null)
   const [milestone, setMilestone] = useState(null)
+  const [showFormulas, setShowFormulas] = useState(false)
+  const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
   const timer = useTimer()
 
@@ -37,7 +40,9 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     setAnswers(prev => ({ ...prev, [current.id]: optId }))
     setRevealed(true)
     const isCorrect = optId === current.answer
-    const xpGain = isCorrect ? (10 + (current.difficulty === 3 ? 10 : 0)) : 5
+    const elapsedSec = (Date.now() - questionStartRef.current) / 1000
+    const speedBonus = isCorrect && elapsedSec < 30 ? 5 : 0
+    const xpGain = (isCorrect ? (10 + (current.difficulty === 3 ? 10 : 0)) : 5) + speedBonus
     setSessionXP(prev => prev + xpGain)
     const newCombo = isCorrect ? combo + 1 : 0
     setCombo(newCombo)
@@ -55,13 +60,13 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       setMilestone({ ...msg, id: Date.now() })
       setTimeout(() => setMilestone(null), 2000)
     }
-    setXpFlash({ amount: xpGain, correct: isCorrect, id: Date.now() })
+    setXpFlash({ amount: xpGain, correct: isCorrect, speed: speedBonus > 0, id: Date.now() })
     setTimeout(() => setXpFlash(null), 900)
   }
 
   function handleNext() {
     if (isLast) finish()
-    else { setIndex(i => i + 1); setRevealed(false) }
+    else { setIndex(i => i + 1); setRevealed(false); questionStartRef.current = Date.now() }
   }
 
   function finish() {
@@ -174,6 +179,15 @@ export default function LearningSession({ config, onComplete, onQuit }) {
                 </button>
               </div>
             )}
+            {hasMathQuestions && (
+              <button
+                onClick={() => setShowFormulas(true)}
+                className="text-xs text-indigo-400 hover:text-indigo-600 border border-indigo-200 rounded-lg px-2.5 py-1.5 transition-colors"
+                title="Math formula reference"
+              >
+                📐
+              </button>
+            )}
             <button
               onClick={finish}
               disabled={answeredCount === 0}
@@ -209,7 +223,9 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         {/* XP flash */}
         {xpFlash && (
           <div key={xpFlash.id} className="flex justify-end mb-2">
-            <span className="text-sm font-black text-amber-500 animate-bounce">+{xpFlash.amount} XP</span>
+            <span className="text-sm font-black text-amber-500 animate-bounce">
+              +{xpFlash.amount} XP{xpFlash.speed ? ' ⚡' : ''}
+            </span>
           </div>
         )}
 
@@ -255,6 +271,58 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             <div className="text-3xl mb-1">{milestone.icon}</div>
             <p className="font-black text-lg leading-tight">{milestone.text}</p>
             <p className="text-xs text-gray-300 mt-0.5">{milestone.sub}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Math formula cheat sheet */}
+      {showFormulas && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 px-4 pb-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between rounded-t-2xl">
+              <h3 className="font-bold text-gray-900">📐 SAT Math Reference</h3>
+              <button onClick={() => setShowFormulas(false)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
+            </div>
+            <div className="p-5 space-y-4 text-sm">
+              {[
+                { section: 'Algebra', items: [
+                  ['Slope', 'm = (y₂−y₁)/(x₂−x₁)'],
+                  ['Slope-intercept', 'y = mx + b'],
+                  ['Quadratic formula', 'x = [−b ± √(b²−4ac)] / 2a'],
+                  ['Percent change', '(new − old) / old × 100'],
+                  ['Simple interest', 'I = Prt'],
+                ]},
+                { section: 'Geometry', items: [
+                  ['Pythagorean', 'a² + b² = c²'],
+                  ['Circle area', 'A = πr²'],
+                  ['Circle circumference', 'C = 2πr'],
+                  ['Triangle area', 'A = ½bh'],
+                  ['Rectangle area', 'A = lw'],
+                  ['Volume of cylinder', 'V = πr²h'],
+                ]},
+                { section: 'Statistics', items: [
+                  ['Mean', 'sum ÷ count'],
+                  ['Median', 'middle value when sorted'],
+                  ['Rate', 'd = r × t'],
+                ]},
+                { section: 'Special triangles', items: [
+                  ['30-60-90', 'sides: 1 : √3 : 2'],
+                  ['45-45-90', 'sides: 1 : 1 : √2'],
+                ]},
+              ].map(({ section, items }) => (
+                <div key={section}>
+                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">{section}</p>
+                  <div className="space-y-1">
+                    {items.map(([label, formula]) => (
+                      <div key={label} className="flex items-baseline justify-between gap-3 py-1 border-b border-gray-50">
+                        <span className="text-gray-600">{label}</span>
+                        <span className="font-mono text-indigo-700 text-xs shrink-0">{formula}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

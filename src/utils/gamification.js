@@ -195,11 +195,11 @@ export function processSession(session, history, prevGam) {
     comebackBonus = 100
   }
 
-  const newXP = oldXP + xp.total + challengeBonus + comebackBonus
+  const newXP = oldXP + xp.total + challengeBonus + comebackBonus + milestoneBonus
   const oldLevel = getLevelInfo(oldXP)
   const newLevel = getLevelInfo(newXP)
 
-  const totalXPEarned = xp.total + challengeBonus + comebackBonus
+  const totalXPEarned = xp.total + challengeBonus + comebackBonus + milestoneBonus
   const xpLog = [...(prevGam.xpLog ?? []), { date: today, xp: totalXPEarned }].slice(-90)
 
   const gam = {
@@ -218,6 +218,12 @@ export function processSession(session, history, prevGam) {
       newAchievements.push(ach)
     }
   }
+
+  // Session milestone bonus
+  const sessionCount = history.length
+  const milestoneNumbers = [5, 10, 25, 50, 100, 200, 500]
+  const sessionMilestone = milestoneNumbers.includes(sessionCount) ? sessionCount : null
+  const milestoneBonus = sessionMilestone ? 150 : 0
 
   // Session rank vs. historical average
   const prevHistory = history.slice(0, -1)
@@ -252,7 +258,7 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, challengeBonus, challengeCompleted, comebackBonus, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
+  return { xp, challengeBonus, challengeCompleted, comebackBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────
