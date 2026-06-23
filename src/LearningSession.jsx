@@ -6,7 +6,11 @@ import { formatTime, scoreQuestions } from './utils/index'
 export default function LearningSession({ config, onComplete, onQuit }) {
   const { questions } = config
   const isBeastMode = config.formatLabel === 'Beast Mode'
+  const isBlitzMode = config.formatLabel === 'Blitz Mode'
   const hasMathQuestions = questions.some(q => q.subject === 'math')
+
+  const [blitzSeconds, setBlitzSeconds] = useState(60)
+  const blitzFinishedRef = useRef(false)
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState({})
   const [revealed, setRevealed] = useState(false)
@@ -28,6 +32,21 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   }
 
   useEffect(() => { timer.start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!isBlitzMode) return
+    const iv = setInterval(() => {
+      setBlitzSeconds(s => {
+        if (s <= 1) {
+          clearInterval(iv)
+          if (!blitzFinishedRef.current) { blitzFinishedRef.current = true; finishRef.current() }
+          return 0
+        }
+        return s - 1
+      })
+    }, 1000)
+    return () => clearInterval(iv)
+  }, [isBlitzMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const current = questions[index]
   const selected = answers[current?.id]
@@ -62,6 +81,14 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     }
     setXpFlash({ amount: xpGain, correct: isCorrect, speed: speedBonus > 0, id: Date.now() })
     setTimeout(() => setXpFlash(null), 900)
+
+    if (isBlitzMode) {
+      setTimeout(() => {
+        if (blitzFinishedRef.current) return
+        if (isLastRef.current) { blitzFinishedRef.current = true; finishRef.current() }
+        else { setIndex(i => i + 1); setRevealed(false); questionStartRef.current = Date.now() }
+      }, 650)
+    }
   }
 
   function handleNext() {
@@ -127,9 +154,9 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const progress = (index / questions.length) * 100
 
   return (
-    <div className={`min-h-screen ${isBeastMode ? 'bg-gradient-to-br from-slate-900 via-rose-950 to-slate-900' : 'bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100'}`}>
+    <div className={`min-h-screen ${isBeastMode ? 'bg-gradient-to-br from-slate-900 via-rose-950 to-slate-900' : isBlitzMode ? 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100' : 'bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100'}`}>
       {/* Sticky header */}
-      <div className={`sticky top-0 z-10 backdrop-blur-sm border-b ${isBeastMode ? 'bg-slate-900/90 border-rose-900' : 'bg-white/90 border-gray-200'}`}>
+      <div className={`sticky top-0 z-10 backdrop-blur-sm border-b ${isBeastMode ? 'bg-slate-900/90 border-rose-900' : isBlitzMode ? 'bg-white/90 border-orange-200' : 'bg-white/90 border-gray-200'}`}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
@@ -141,6 +168,8 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             </button>
             {isBeastMode
               ? <span className="text-xs font-black bg-rose-500 text-white px-2.5 py-1 rounded-full animate-pulse">🔥 BEAST MODE</span>
+              : isBlitzMode
+              ? <span className="text-xs font-black bg-orange-500 text-white px-2.5 py-1 rounded-full">⚡ BLITZ</span>
               : <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full">Learning</span>
             }
             <span className={`text-sm ${isBeastMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -160,7 +189,11 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {timerHidden ? (
+            {isBlitzMode ? (
+              <span className={`text-lg font-black font-mono ${blitzSeconds <= 10 ? 'text-rose-500 animate-pulse' : 'text-orange-500'}`}>
+                {blitzSeconds}s
+              </span>
+            ) : timerHidden ? (
               <button
                 onClick={() => setTimerHidden(false)}
                 className="text-xs text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg px-2.5 py-1 transition-colors"
@@ -230,7 +263,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         )}
 
         {/* Feedback */}
-        {revealed && (
+        {revealed && !isBlitzMode && (
           <div className={`mt-5 rounded-xl p-4 ${selected === current.answer ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
             <p className={`font-semibold text-sm mb-1 ${selected === current.answer ? 'text-emerald-700' : 'text-rose-600'}`}>
               {selected === current.answer ? '✓ Correct!' : `✗ Incorrect — correct answer: ${current.answer}`}
@@ -240,8 +273,15 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             )}
           </div>
         )}
+        {revealed && isBlitzMode && (
+          <div className={`mt-3 rounded-xl p-3 text-center ${selected === current.answer ? 'bg-emerald-100' : 'bg-rose-100'}`}>
+            <p className={`font-black text-lg ${selected === current.answer ? 'text-emerald-600' : 'text-rose-600'}`}>
+              {selected === current.answer ? '✓' : `✗ ${current.answer}`}
+            </p>
+          </div>
+        )}
 
-        {revealed && (
+        {revealed && !isBlitzMode && (
           <div className="mt-4 flex items-center gap-3">
             <button
               onClick={() => toggleFlag(current.id)}

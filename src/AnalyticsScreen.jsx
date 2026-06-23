@@ -101,7 +101,32 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       .slice(0, 25)
       .map(s => s.question)
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList }
+    // Most improved domain (recent 5 sessions vs. prior)
+    let mostImproved = null
+    if (sessions.length >= 10) {
+      const calcPcts = (sesses) => {
+        const byD = {}
+        for (const s of sesses)
+          for (const [d, ds] of Object.entries(s.score.byDomain)) {
+            if (!byD[d]) byD[d] = { correct: 0, total: 0 }
+            byD[d].correct += ds.correct; byD[d].total += ds.total
+          }
+        const result = {}
+        for (const [d, ds] of Object.entries(byD))
+          if (ds.total >= 5) result[d] = pct(ds.correct, ds.total)
+        return result
+      }
+      const recentPcts = calcPcts(sessions.slice(-5))
+      const olderPcts = calcPcts(sessions.slice(0, -5))
+      let bestDelta = 5
+      for (const [id, rp] of Object.entries(recentPcts)) {
+        if (olderPcts[id] == null) continue
+        const delta = rp - olderPcts[id]
+        if (delta > bestDelta) { mostImproved = { id, label: domainById[id]?.label ?? id, rp, op: olderPcts[id], delta }; bestDelta = delta }
+      }
+    }
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved }
   }, [sessions])
 
   return (
@@ -312,6 +337,18 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                   </div>
                 ))}
               </div>
+
+              {/* Most improved callout */}
+              {stats.mostImproved && (
+                <div className="mt-4 bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-center gap-3">
+                  <span className="text-2xl">📈</span>
+                  <div>
+                    <p className="text-xs font-semibold text-emerald-600">Most Improved (last 5 sessions)</p>
+                    <p className="text-sm font-bold text-gray-800">{stats.mostImproved.label}</p>
+                    <p className="text-xs text-gray-500">+{stats.mostImproved.delta}% · from {stats.mostImproved.op}% → {stats.mostImproved.rp}%</p>
+                  </div>
+                </div>
+              )}
 
               {/* Strongest / weakest callout */}
               {stats.domainList.length >= 2 && (() => {

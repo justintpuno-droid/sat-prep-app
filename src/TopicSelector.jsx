@@ -188,7 +188,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onFullPractice, onAchievements, onFocusPractice, onBeastMode }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const gam = useMemo(() => loadGamification(), [])
@@ -745,7 +745,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
         )}
 
         {/* Quick-start shortcuts */}
-        {(onQuickPractice || onFullPractice || onBeastMode) && (
+        {(onQuickPractice || onFullPractice || onBeastMode || onBlitzMode) && (
           <div className="grid grid-cols-2 gap-3 mb-6">
             {onQuickPractice && (
               <button
@@ -775,6 +775,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <div className="text-xl mb-1.5">🔥</div>
                 <div className="font-bold text-sm text-rose-900">Beast Mode</div>
                 <div className="text-xs text-rose-500 mt-0.5">Hard only · 2× XP</div>
+              </button>
+            )}
+            {onBlitzMode && (
+              <button
+                onClick={onBlitzMode}
+                className="text-left rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 hover:border-amber-400 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">⚡</div>
+                <div className="font-bold text-sm text-amber-900">Blitz Mode</div>
+                <div className="text-xs text-amber-600 mt-0.5">60 sec · rapid fire</div>
               </button>
             )}
           </div>

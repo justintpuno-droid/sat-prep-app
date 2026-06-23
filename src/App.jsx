@@ -61,6 +61,16 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleBlitzMode() {
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Blitz Mode',
+      sessionName: null,
+      questions: shuffle(allQuestions).slice(0, 40),
+    })
+    setScreen('learning')
+  }
+
   function handleQuickPractice() {
     setSessionConfig({
       mode: 'learning',
@@ -121,7 +131,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
