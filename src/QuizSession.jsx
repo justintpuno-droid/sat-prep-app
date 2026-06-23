@@ -364,7 +364,8 @@ export default function QuizSession({ config, onComplete, onQuit }) {
         {/* Jump to next unanswered */}
         {unanswered > 0 && (() => {
           const next = activeQs.findIndex((q, i) => i !== index && allAnswers[q.id] === undefined)
-          return next !== -1 ? (
+          if (next === -1) return null
+          return (
             <div className="flex items-center gap-2 mb-5">
               <span className="text-xs text-gray-400">{unanswered} unanswered</span>
               <button
@@ -374,7 +375,7 @@ export default function QuizSession({ config, onComplete, onQuit }) {
                 Jump to next →
               </button>
             </div>
-          ) : <div className="mb-5" />
+          )
         })()}
 
         <QuestionCard

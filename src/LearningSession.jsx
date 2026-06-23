@@ -8,9 +8,14 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState({})
   const [revealed, setRevealed] = useState(false)
+  const [flagged, setFlagged] = useState(() => new Set())
   const [showQuitConfirm, setShowQuitConfirm] = useState(false)
   const [timerHidden, setTimerHidden] = useState(false)
   const timer = useTimer()
+
+  function toggleFlag(id) {
+    setFlagged(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  }
 
   useEffect(() => { timer.start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -45,6 +50,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       questions: answered,
       answers,
       score: scoreQuestions(answered, answers),
+      flaggedIds: [...flagged],
     })
   }
 
@@ -167,12 +173,25 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         )}
 
         {revealed && (
-          <button
-            onClick={handleNext}
-            className="mt-4 w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors"
-          >
-            {isLast ? 'Finish Session' : 'Next Question →'}
-          </button>
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              onClick={() => toggleFlag(current.id)}
+              className={`flex items-center gap-1.5 text-xs transition-colors px-2 py-1 rounded-lg shrink-0 ${
+                flagged.has(current.id)
+                  ? 'text-amber-500 bg-amber-50'
+                  : 'text-gray-300 hover:text-amber-400 hover:bg-amber-50'
+              }`}
+              title={flagged.has(current.id) ? 'Remove flag' : 'Flag for review'}
+            >
+              🚩 {flagged.has(current.id) ? 'Flagged' : 'Flag'}
+            </button>
+            <button
+              onClick={handleNext}
+              className="flex-1 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors"
+            >
+              {isLast ? 'Finish Session' : 'Next Question →'}
+            </button>
+          </div>
         )}
       </div>
 
