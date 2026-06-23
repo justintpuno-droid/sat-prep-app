@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(npx playwright *)",
+      "Bash(ls /Users/justinpuno/sat-prep-app/node_modules | grep playwright 2>/dev/null || echo \"none\" *)",
+      "Read(//Users/justinpuno/.nvm/versions/node/v24.16.0/lib/node_modules/**)",
+      "Bash(npm install *)",
+      "Bash(node /tmp/sat-screenshot.mjs)",
+      "Bash(cp /tmp/sat-screenshot.mjs /Users/justinpuno/sat-prep-app/sat-screenshot.mjs)",
+      "Bash(node sat-screenshot.mjs)",
+      "Bash(npm run *)",
+      "Bash(node -e ' *)",
+      "Bash(node -e 'import\\('\\\\''/Users/justinpuno/sat-prep-app/src/data/questions.js'\\\\''\\).then\\(m => { *)",
+      "Bash(node --input-type=module)"
+    ]
+  }
+}

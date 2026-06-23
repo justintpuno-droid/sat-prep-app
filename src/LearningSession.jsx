@@ -1,0 +1,117 @@
+import { useState, useEffect } from 'react'
+import QuestionCard from './components/QuestionCard'
+import { useTimer } from './hooks/useTimer'
+import { formatTime, scoreQuestions } from './utils/index'
+
+export default function LearningSession({ config, onComplete }) {
+  const { questions } = config
+  const [index, setIndex] = useState(0)
+  const [answers, setAnswers] = useState({})
+  const [revealed, setRevealed] = useState(false)
+  const timer = useTimer()
+
+  useEffect(() => { timer.start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const current = questions[index]
+  const selected = answers[current?.id]
+  const answeredCount = questions.filter(q => answers[q.id] !== undefined).length
+  const correctCount = questions.filter(q => answers[q.id] === q.answer).length
+  const isLast = index === questions.length - 1
+
+  function handleSelect(optId) {
+    if (revealed) return
+    setAnswers(prev => ({ ...prev, [current.id]: optId }))
+    setRevealed(true)
+  }
+
+  function handleNext() {
+    if (isLast) finish()
+    else { setIndex(i => i + 1); setRevealed(false) }
+  }
+
+  function finish() {
+    timer.pause()
+    // Only score questions the student actually answered — skip unanswered ones
+    const answered = questions.filter(q => answers[q.id] !== undefined)
+    onComplete({
+      id: Date.now().toString(),
+      completedAt: new Date().toISOString(),
+      mode: 'learning',
+      format: 'custom',
+      formatLabel: 'Learning Mode',
+      sessionName: config.sessionName ?? null,
+      elapsedSeconds: timer.elapsed,
+      questions: answered,
+      answers,
+      score: scoreQuestions(answered, answers),
+    })
+  }
+
+  if (!current) return null
+
+  const progress = (index / questions.length) * 100
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-200">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full">Learning</span>
+            <span className="text-sm text-gray-600">
+              <span className="text-emerald-600 font-bold">{correctCount}</span>
+              <span className="text-gray-400"> / {answeredCount} correct</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-mono text-gray-500">⏱ {formatTime(timer.seconds)}</span>
+            <button
+              onClick={finish}
+              className="text-xs text-gray-400 hover:text-gray-700 border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+            >
+              End Session
+            </button>
+          </div>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 pb-2">
+          <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-full bg-indigo-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <p className="text-xs text-gray-400 mb-5">Question {index + 1} of {questions.length}</p>
+
+        <QuestionCard
+          question={current}
+          selectedAnswer={selected}
+          onSelect={handleSelect}
+          showFeedback={revealed}
+        />
+
+        {/* Feedback */}
+        {revealed && (
+          <div className={`mt-5 rounded-xl p-4 ${selected === current.answer ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
+            <p className={`font-semibold text-sm mb-1 ${selected === current.answer ? 'text-emerald-700' : 'text-rose-600'}`}>
+              {selected === current.answer ? '✓ Correct!' : `✗ Incorrect — correct answer: ${current.answer}`}
+            </p>
+            {current.explanation && (
+              <p className="text-sm text-gray-600 leading-relaxed">{current.explanation}</p>
+            )}
+          </div>
+        )}
+
+        {revealed && (
+          <button
+            onClick={handleNext}
+            className="mt-4 w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors"
+          >
+            {isLast ? 'Finish Session' : 'Next Question →'}
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
