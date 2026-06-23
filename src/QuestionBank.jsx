@@ -33,7 +33,7 @@ const SKILL_MAP = Object.fromEntries(
 )
 const ALL_DOMAIN_IDS = new Set(TAXONOMY.flatMap(s => s.domains.map(d => d.id)))
 
-export default function QuestionBank({ onBack }) {
+export default function QuestionBank({ onBack, onPractice }) {
   const [section, setSection] = useState('all')
   const [selectedDomains, setSelectedDomains] = useState(() => new Set(ALL_DOMAIN_IDS))
   const [diffFilter, setDiffFilter] = useState(new Set([1, 2, 3]))
@@ -222,8 +222,18 @@ export default function QuestionBank({ onBack }) {
                 </select>
               </div>
 
-              <div className="ml-auto text-xs text-gray-400">
-                {filtered.length} question{filtered.length !== 1 ? 's' : ''}
+              <div className="ml-auto flex items-center gap-3">
+                <span className="text-xs text-gray-400">
+                  {filtered.length} question{filtered.length !== 1 ? 's' : ''}
+                </span>
+                {onPractice && filtered.length > 0 && (
+                  <button
+                    onClick={() => onPractice(filtered)}
+                    className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg px-3 py-1.5 transition-colors whitespace-nowrap"
+                  >
+                    Practice {filtered.length} →
+                  </button>
+                )}
               </div>
             </div>
 

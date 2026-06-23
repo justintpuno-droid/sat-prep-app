@@ -314,7 +314,7 @@ export default function QuizSession({ config, onComplete, onQuit }) {
 
       {/* Body */}
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="flex flex-wrap gap-1.5 mb-5">
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {activeQs.map((q, i) => (
             <button
               key={q.id}
@@ -332,6 +332,22 @@ export default function QuizSession({ config, onComplete, onQuit }) {
             </button>
           ))}
         </div>
+
+        {/* Jump to next unanswered */}
+        {unanswered > 0 && (() => {
+          const next = activeQs.findIndex((q, i) => i !== index && allAnswers[q.id] === undefined)
+          return next !== -1 ? (
+            <div className="flex items-center gap-2 mb-5">
+              <span className="text-xs text-gray-400">{unanswered} unanswered</span>
+              <button
+                onClick={() => setIndex(next)}
+                className="text-xs text-indigo-500 hover:text-indigo-700 font-medium transition-colors"
+              >
+                Jump to next →
+              </button>
+            </div>
+          ) : <div className="mb-5" />
+        })()}
 
         <QuestionCard
           question={activeQs[index]}

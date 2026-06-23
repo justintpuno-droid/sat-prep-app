@@ -38,6 +38,16 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handlePracticeFromBank(questions) {
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Question Bank Practice',
+      sessionName: null,
+      questions,
+    })
+    setScreen('learning')
+  }
+
   if (screen === 'home')
     return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} />
   if (screen === 'session-config')
@@ -51,7 +61,7 @@ export default function App() {
   if (screen === 'history')
     return <SessionHistory onBack={() => setScreen('home')} onNewSession={() => setScreen('home')} onAnalytics={() => setScreen('analytics')} />
   if (screen === 'question-bank')
-    return <QuestionBank onBack={() => setScreen('home')} />
+    return <QuestionBank onBack={() => setScreen('home')} onPractice={handlePracticeFromBank} />
   if (screen === 'analytics')
     return <AnalyticsScreen onBack={() => setScreen('history')} />
 }
