@@ -402,6 +402,19 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return medPct !== null && medPct >= 80 && hardT < 20 ? medPct : null
   }, [history])
 
+  const recommendation = useMemo(() => {
+    if (history.length === 0) return null
+    const today = new Date().toISOString().slice(0, 10)
+    const studiedToday = history.some(s => s.completedAt.startsWith(today))
+    const day = new Date().getDay()
+    const isWeekend = day === 0 || day === 6
+    if (!studiedToday && streak >= 3) return { label: 'Beast Mode 🔥', desc: `Keep your ${streak}-day streak with 2× XP`, type: 'beast' }
+    if (weakDomain && history.length >= 5) return { label: `Focus: ${weakDomain.label}`, desc: `${weakDomain.pct}% accuracy — biggest score opportunity`, type: 'focus', domainId: weakDomain.id }
+    if (isWeekend && history.length >= 3) return { label: 'Full Practice Test', desc: 'Weekend is perfect for a timed practice run', type: 'full' }
+    if (dailyDone) return { label: 'Blitz Mode ⚡', desc: 'Goal done! Bonus questions for extra XP', type: 'blitz' }
+    return { label: 'Quick Practice', desc: '10 questions — fast and focused', type: 'quick' }
+  }, [history, streak, weakDomain, dailyDone])
+
   const nudge = useMemo(() => {
     if (daysLeft !== null && daysLeft <= 7 && daysLeft > 0) {
       return { icon: '📅', title: `SAT in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}!`, body: 'Crunch time — focus on your weak spots and do at least one full session today.', color: 'border-rose-100 bg-rose-50' }
@@ -730,6 +743,29 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               ))}
             </div>
             <p className="text-xs text-rose-300 mt-3">💡 Light review only — trust your preparation!</p>
+          </div>
+        )}
+
+        {/* Next Up recommendation */}
+        {recommendation && (
+          <div className="bg-indigo-600 rounded-2xl p-4 mb-4 flex items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-indigo-200 uppercase tracking-widest mb-0.5">Next Up</p>
+              <p className="text-sm font-black text-white">{recommendation.label}</p>
+              <p className="text-xs text-indigo-300 mt-0.5">{recommendation.desc}</p>
+            </div>
+            <button
+              onClick={() => {
+                if (recommendation.type === 'beast') onBeastMode?.()
+                else if (recommendation.type === 'blitz') onBlitzMode?.()
+                else if (recommendation.type === 'focus') onFocusPractice?.(recommendation.domainId)
+                else if (recommendation.type === 'full') onFullPractice?.()
+                else onQuickPractice?.()
+              }}
+              className="shrink-0 bg-white text-indigo-600 font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-indigo-50 transition-colors"
+            >
+              Start →
+            </button>
           </div>
         )}
 
