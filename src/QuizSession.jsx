@@ -13,7 +13,7 @@ function buildMod2(pool, usedIds, gotHardMod2, count) {
   return shuffle(filtered.length >= Math.min(3, count) ? filtered : source).slice(0, count)
 }
 
-export default function QuizSession({ config, onComplete }) {
+export default function QuizSession({ config, onComplete, onQuit }) {
   const { format, formatLabel, sessionName, phases } = config
 
   const [phaseIdx, setPhaseIdx] = useState(0)
@@ -32,6 +32,7 @@ export default function QuizSession({ config, onComplete }) {
 
   const [index, setIndex] = useState(0)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false)
   const [timerHidden, setTimerHidden] = useState(false)
   const autoRevealedRef = useRef(false)
 
@@ -216,6 +217,13 @@ export default function QuizSession({ config, onComplete }) {
       <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowQuitConfirm(true)}
+              className="text-gray-300 hover:text-gray-500 text-lg leading-none transition-colors"
+              title="Quit quiz"
+            >
+              ✕
+            </button>
             <span className="text-xs font-semibold bg-violet-100 text-violet-700 px-2.5 py-1 rounded-full">{moduleLabel}</span>
             <span className="text-sm text-gray-500">Q {index + 1}/{totalInModule}</span>
           </div>
@@ -310,6 +318,31 @@ export default function QuizSession({ config, onComplete }) {
           )}
         </div>
       </div>
+
+      {/* Quit confirm modal */}
+      {showQuitConfirm && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full">
+            <div className="text-2xl mb-3">🚪</div>
+            <h3 className="font-bold text-gray-900 text-lg mb-1">Quit quiz?</h3>
+            <p className="text-gray-500 text-sm mb-6">Your progress won't be saved and you'll return to the home screen.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowQuitConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                Keep going
+              </button>
+              <button
+                onClick={onQuit}
+                className="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-sm font-semibold text-white transition-colors"
+              >
+                Quit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Submit confirm modal */}
       {showConfirm && (

@@ -32,9 +32,9 @@ export default function App() {
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
-    return <LearningSession config={sessionConfig} onComplete={handleSessionComplete} />
+    return <LearningSession config={sessionConfig} onComplete={handleSessionComplete} onQuit={() => setScreen('home')} />
   if (screen === 'quiz')
-    return <QuizSession config={sessionConfig} onComplete={handleSessionComplete} />
+    return <QuizSession config={sessionConfig} onComplete={handleSessionComplete} onQuit={() => setScreen('home')} />
   if (screen === 'summary')
     return <SessionSummary session={completedSession} onNewSession={() => setScreen('home')} onHistory={() => setScreen('history')} />
   if (screen === 'history')

@@ -3,11 +3,12 @@ import QuestionCard from './components/QuestionCard'
 import { useTimer } from './hooks/useTimer'
 import { formatTime, scoreQuestions } from './utils/index'
 
-export default function LearningSession({ config, onComplete }) {
+export default function LearningSession({ config, onComplete, onQuit }) {
   const { questions } = config
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState({})
   const [revealed, setRevealed] = useState(false)
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false)
   const timer = useTimer()
 
   useEffect(() => { timer.start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -57,6 +58,13 @@ export default function LearningSession({ config, onComplete }) {
       <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowQuitConfirm(true)}
+              className="text-gray-300 hover:text-gray-500 text-lg leading-none transition-colors"
+              title="Quit session"
+            >
+              ✕
+            </button>
             <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full">Learning</span>
             <span className="text-sm text-gray-600">
               <span className="text-emerald-600 font-bold">{correctCount}</span>
@@ -112,6 +120,31 @@ export default function LearningSession({ config, onComplete }) {
           </button>
         )}
       </div>
+
+      {/* Quit confirm modal */}
+      {showQuitConfirm && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full">
+            <div className="text-2xl mb-3">🚪</div>
+            <h3 className="font-bold text-gray-900 text-lg mb-1">Quit session?</h3>
+            <p className="text-gray-500 text-sm mb-6">Your progress won't be saved and you'll return to the home screen.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowQuitConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl border-2 border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                Keep going
+              </button>
+              <button
+                onClick={onQuit}
+                className="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-sm font-semibold text-white transition-colors"
+              >
+                Quit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
