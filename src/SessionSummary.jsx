@@ -3,6 +3,14 @@ import QuestionCard from './components/QuestionCard'
 import { formatTime, pct } from './utils/index'
 import { domainById, skillById } from './data/taxonomy'
 
+function getGrade(pct) {
+  if (pct >= 90) return { grade: 'S', text: 'text-violet-600', bg: 'bg-violet-50 border-violet-300', label: 'Outstanding' }
+  if (pct >= 80) return { grade: 'A', text: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-300', label: 'Great work' }
+  if (pct >= 70) return { grade: 'B', text: 'text-indigo-600', bg: 'bg-indigo-50 border-indigo-300', label: 'Good job' }
+  if (pct >= 60) return { grade: 'C', text: 'text-amber-600', bg: 'bg-amber-50 border-amber-300', label: 'Keep going' }
+  return { grade: 'D', text: 'text-rose-600', bg: 'bg-rose-50 border-rose-300', label: 'Keep practicing' }
+}
+
 const DIFF_LABEL = { 1: 'Easy', 2: 'Medium', 3: 'Hard' }
 const DIFF_COLOR = { 1: 'text-emerald-600', 2: 'text-amber-600', 3: 'text-rose-600' }
 const DIFF_BAR   = { 1: 'bg-emerald-500',   2: 'bg-amber-500',   3: 'bg-rose-500'   }
@@ -300,11 +308,22 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
         {/* Score card */}
         <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 mb-4">
           <div className="flex items-center justify-between mb-6">
-            <div>
+            <div className="flex items-center gap-4">
               <ScoreRing percent={score.percent} />
-              <p className="text-gray-500 text-sm mt-1">{score.correct} of {score.total} correct</p>
+              <div>
+                {(() => {
+                  const g = getGrade(score.percent)
+                  return (
+                    <div className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center ${g.bg}`}>
+                      <span className={`text-3xl font-black ${g.text}`}>{g.grade}</span>
+                    </div>
+                  )
+                })()}
+                <p className="text-gray-400 text-xs mt-1 text-center">{getGrade(score.percent).label}</p>
+              </div>
             </div>
             <div className="text-right space-y-1.5">
+              <p className="text-gray-500 text-sm">{score.correct} of {score.total} correct</p>
               <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${modeColor}`}>{formatLabel}</span>
               <div className="text-sm text-gray-500">⏱ {formatTime(elapsedSeconds)}</div>
               {questions.length > 0 && (

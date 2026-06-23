@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { TAXONOMY } from './data/taxonomy'
+import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory } from './utils/history'
-import { loadGamification, getLevelInfo, getDailyProgress, DAILY_GOAL, getTodayChallenge, getChallengeProgress } from './utils/gamification'
+import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, getTodayChallenge, getChallengeProgress } from './utils/gamification'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -71,8 +72,18 @@ function estimateScore(sessions) {
 }
 
 const GOAL_KEY = 'sat_prep_goal'
-function loadGoal() { try { return JSON.parse(localStorage.getItem(GOAL_KEY))?.target ?? null } catch { return null } }
-function saveGoal(t) { try { localStorage.setItem(GOAL_KEY, JSON.stringify({ target: t })) } catch {} }
+function loadGoalData() { try { return JSON.parse(localStorage.getItem(GOAL_KEY)) ?? {} } catch { return {} } }
+function loadGoal() { return loadGoalData().target ?? null }
+function loadExamDate() { return loadGoalData().examDate ?? null }
+function saveGoalData(data) { try { localStorage.setItem(GOAL_KEY, JSON.stringify({ ...loadGoalData(), ...data })) } catch {} }
+function saveGoal(t) { saveGoalData({ target: t }) }
+function saveExamDate(d) { saveGoalData({ examDate: d }) }
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null
+  const diff = new Date(dateStr + 'T12:00:00') - new Date()
+  return Math.ceil(diff / 86400000)
+}
 
 function StudyCalendar({ sessions }) {
   const weeks = useMemo(() => {
@@ -144,11 +155,15 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onFullPractice, onAchievements }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onFullPractice, onAchievements, onFocusPractice }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const gam = useMemo(() => loadGamification(), [])
   const levelInfo = useMemo(() => getLevelInfo(gam.totalXP), [gam])
+  const levelColor = useMemo(() => getLevelColor(levelInfo.level), [levelInfo])
+  const [examDate, setExamDate] = useState(() => loadExamDate())
+  const [editingExam, setEditingExam] = useState(false)
+  const daysLeft = useMemo(() => daysUntil(examDate), [examDate])
   const dailyProgress = useMemo(() => getDailyProgress(history), [history])
   const dailyDone = dailyProgress >= DAILY_GOAL
   const achievementsCount = Object.keys(gam.achievements).length
@@ -167,7 +182,28 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
   const challengeDone = challengeProgress >= todayChallenge.goal
   const challengeAlreadyCredited = gam.dailyChallengeDate === new Date().toISOString().slice(0, 10)
 
+  const weakDomain = useMemo(() => {
+    const byDomain = {}
+    for (const sess of history) {
+      for (const q of sess.questions) {
+        if (!byDomain[q.domain]) byDomain[q.domain] = { correct: 0, total: 0 }
+        byDomain[q.domain].total++
+        if ((sess.answers[q.id] ?? null) === q.answer) byDomain[q.domain].correct++
+      }
+    }
+    return Object.entries(byDomain)
+      .filter(([, s]) => s.total >= 5)
+      .map(([id, s]) => ({ id, pct: Math.round((s.correct / s.total) * 100) }))
+      .sort((a, b) => a.pct - b.pct)[0] ?? null
+  }, [history])
+
   const nudge = useMemo(() => {
+    if (daysLeft !== null && daysLeft <= 7 && daysLeft > 0) {
+      return { icon: '📅', title: `SAT in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}!`, body: 'Crunch time — focus on your weak spots and do at least one full session today.', color: 'border-rose-100 bg-rose-50' }
+    }
+    if (daysLeft !== null && daysLeft <= 14 && daysLeft > 7) {
+      return { icon: '⏰', title: `SAT in ${daysLeft} days`, body: 'Two weeks out — keep studying daily and take at least one full practice test.', color: 'border-amber-100 bg-amber-50' }
+    }
     if (levelInfo.xpForNext && (levelInfo.xpForNext - levelInfo.xpIntoLevel) <= 60) {
       const gap = levelInfo.xpForNext - levelInfo.xpIntoLevel
       return { icon: '⭐', title: `Almost Level ${levelInfo.level + 1}!`, body: `Just ${gap} XP to go. Complete one more session!`, color: 'border-amber-100 bg-amber-50' }
@@ -179,7 +215,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       return { icon: '✅', title: 'Daily goal complete!', body: `${dailyProgress} questions answered today. Great work — keep the streak going!`, color: 'border-emerald-100 bg-emerald-50' }
     }
     return null
-  }, [levelInfo, streak, dailyProgress, dailyDone])
+  }, [levelInfo, streak, dailyProgress, dailyDone, daysLeft])
 
   // Start with everything selected
   const allDomainIds = useMemo(
@@ -282,13 +318,13 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
         <div className="bg-white rounded-2xl border-2 border-gray-200 p-4 mb-6 flex items-center gap-4">
           {/* Level + XP bar */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-black text-sm shrink-0">
+            <div className={`w-10 h-10 rounded-full ${levelColor.ring} flex items-center justify-center text-white font-black text-sm shrink-0`}>
               {levelInfo.level}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-gray-700 truncate">{levelInfo.title}</p>
               <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mt-1">
-                <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${levelInfo.pct}%` }} />
+                <div className={`h-full ${levelColor.ring} rounded-full transition-all`} style={{ width: `${levelInfo.pct}%` }} />
               </div>
               <p className="text-xs text-gray-400 mt-0.5">
                 {levelInfo.xpForNext
@@ -380,13 +416,20 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           <div className="bg-white rounded-2xl border-2 border-gray-200 p-4 mb-6">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">SAT Score Goal</p>
-              {!editingGoal && (
-                <button
-                  onClick={() => { setGoalInput(goalTarget ? String(goalTarget) : ''); setEditingGoal(true) }}
-                  className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
-                >
-                  {goalTarget ? 'Edit goal' : 'Set goal'}
-                </button>
+              {!editingGoal && !editingExam && (
+                <div className="flex gap-2">
+                  {daysLeft !== null && (
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${daysLeft <= 7 ? 'bg-rose-100 text-rose-600' : daysLeft <= 14 ? 'bg-amber-100 text-amber-600' : 'bg-indigo-100 text-indigo-600'}`}>
+                      📅 {daysLeft}d
+                    </span>
+                  )}
+                  <button
+                    onClick={() => { setGoalInput(goalTarget ? String(goalTarget) : ''); setEditingGoal(true) }}
+                    className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
+                  >
+                    {goalTarget ? 'Edit' : 'Set goal'}
+                  </button>
+                </div>
               )}
             </div>
             {editingGoal ? (
@@ -419,49 +462,76 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <button onClick={() => setEditingGoal(false)} className="text-xs text-gray-400 hover:text-gray-600">Cancel</button>
               </div>
             ) : (
-              <div className="flex items-end gap-4">
-                <div>
-                  {estimatedScore && (
-                    <div className="mb-2">
-                      <span className="text-xs text-gray-400">Estimated current</span>
-                      <div className="text-2xl font-black text-gray-900">~{estimatedScore}</div>
+              <>
+                <div className="flex items-end gap-4">
+                  <div>
+                    {estimatedScore && (
+                      <div className="mb-2">
+                        <span className="text-xs text-gray-400">Estimated current</span>
+                        <div className="text-2xl font-black text-gray-900">~{estimatedScore}</div>
+                      </div>
+                    )}
+                    {goalTarget && (
+                      <div>
+                        <span className="text-xs text-gray-400">Goal</span>
+                        <div className="text-lg font-black text-indigo-600">{goalTarget}</div>
+                      </div>
+                    )}
+                    {!goalTarget && !estimatedScore && (
+                      <p className="text-sm text-gray-400">Complete a few sessions to see your estimated score.</p>
+                    )}
+                  </div>
+                  {goalTarget && estimatedScore && (
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-400">400</span>
+                        <span className="text-xs text-gray-400">1600</span>
+                      </div>
+                      <div className="relative h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="absolute h-full bg-indigo-500 rounded-full"
+                          style={{ width: `${((estimatedScore - 400) / 1200) * 100}%` }}
+                        />
+                        <div
+                          className="absolute top-0 h-full w-0.5 bg-indigo-900"
+                          style={{ left: `${((goalTarget - 400) / 1200) * 100}%` }}
+                          title={`Goal: ${goalTarget}`}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1 text-center">
+                        {estimatedScore >= goalTarget
+                          ? '🎉 Goal reached! Set a higher target.'
+                          : `${goalTarget - estimatedScore} points to go`}
+                      </p>
                     </div>
-                  )}
-                  {goalTarget && (
-                    <div>
-                      <span className="text-xs text-gray-400">Goal</span>
-                      <div className="text-lg font-black text-indigo-600">{goalTarget}</div>
-                    </div>
-                  )}
-                  {!goalTarget && !estimatedScore && (
-                    <p className="text-sm text-gray-400">Complete a few sessions to see your estimated score.</p>
                   )}
                 </div>
-                {goalTarget && estimatedScore && (
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-gray-400">400</span>
-                      <span className="text-xs text-gray-400">1600</span>
-                    </div>
-                    <div className="relative h-3 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="absolute h-full bg-indigo-500 rounded-full"
-                        style={{ width: `${((estimatedScore - 400) / 1200) * 100}%` }}
+                <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-400">Exam date:</span>
+                    {editingExam ? (
+                      <input
+                        autoFocus
+                        type="date"
+                        defaultValue={examDate ?? ''}
+                        min={new Date().toISOString().slice(0, 10)}
+                        onBlur={e => { if (e.target.value) { setExamDate(e.target.value); saveExamDate(e.target.value) } setEditingExam(false) }}
+                        onKeyDown={e => { if (e.key === 'Escape') setEditingExam(false) }}
+                        className="text-xs border border-indigo-300 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-indigo-300"
                       />
-                      <div
-                        className="absolute top-0 h-full w-0.5 bg-indigo-900"
-                        style={{ left: `${((goalTarget - 400) / 1200) * 100}%` }}
-                        title={`Goal: ${goalTarget}`}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1 text-center">
-                      {estimatedScore >= goalTarget
-                        ? '🎉 Goal reached! Set a higher target.'
-                        : `${goalTarget - estimatedScore} points to go`}
-                    </p>
+                    ) : (
+                      <button onClick={() => setEditingExam(true)} className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors">
+                        {examDate ? new Date(examDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '+ Add date'}
+                      </button>
+                    )}
                   </div>
-                )}
-              </div>
+                  {daysLeft !== null && (
+                    <span className={`text-xs font-semibold ${daysLeft <= 7 ? 'text-rose-600' : daysLeft <= 14 ? 'text-amber-600' : 'text-indigo-600'}`}>
+                      {daysLeft > 0 ? `${daysLeft} days away` : daysLeft === 0 ? 'Today!' : 'Exam passed'}
+                    </span>
+                  )}
+                </div>
+              </>
             )}
           </div>
         )}
@@ -484,6 +554,23 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
 
         {/* Activity heatmap (shown when there are sessions) */}
         {history.length > 0 && <StudyCalendar sessions={history} />}
+
+        {/* Weak spot focus card */}
+        {weakDomain && onFocusPractice && (
+          <div className="bg-rose-50 border-2 border-rose-100 rounded-2xl p-4 mb-4 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-widest text-rose-400 mb-0.5">Weak Spot Detected</p>
+              <p className="text-sm font-bold text-gray-900 truncate">{domainById[weakDomain.id]?.label ?? weakDomain.id}</p>
+              <p className="text-xs text-rose-500 mt-0.5">Only {weakDomain.pct}% accuracy · focus here to improve your score</p>
+            </div>
+            <button
+              onClick={() => onFocusPractice(weakDomain.id)}
+              className="shrink-0 text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 px-3 py-2 rounded-xl transition-colors"
+            >
+              Practice →
+            </button>
+          </div>
+        )}
 
         {/* Quick-start shortcuts */}
         {(onQuickPractice || onFullPractice) && (

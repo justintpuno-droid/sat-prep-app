@@ -20,6 +20,13 @@ export const LEVELS = [
   { level: 15, xp: 9500, title: '800 Legend' },
 ]
 
+export function getLevelColor(level) {
+  if (level >= 13) return { ring: 'bg-amber-500', text: 'text-amber-600', border: 'border-amber-300', light: 'bg-amber-50' }
+  if (level >= 9)  return { ring: 'bg-violet-600', text: 'text-violet-600', border: 'border-violet-300', light: 'bg-violet-50' }
+  if (level >= 5)  return { ring: 'bg-indigo-600', text: 'text-indigo-600', border: 'border-indigo-300', light: 'bg-indigo-50' }
+  return           { ring: 'bg-slate-500',  text: 'text-slate-600',  border: 'border-slate-300',  light: 'bg-slate-50' }
+}
+
 export function getLevelInfo(totalXP) {
   let current = LEVELS[0]
   for (let i = LEVELS.length - 1; i >= 0; i--) {
@@ -118,7 +125,7 @@ const CHECKS = {
 
 // ─── Storage ───────────────────────────────────────────────────────────────
 
-function defaultGam() { return { totalXP: 0, achievements: {}, maxStreak: 0 } }
+function defaultGam() { return { totalXP: 0, achievements: {}, maxStreak: 0, xpLog: [] } }
 
 export function loadGamification() {
   try { return JSON.parse(localStorage.getItem(KEY)) ?? defaultGam() }
@@ -179,10 +186,14 @@ export function processSession(session, history, prevGam) {
   const oldLevel = getLevelInfo(oldXP)
   const newLevel = getLevelInfo(newXP)
 
+  const totalXPEarned = xp.total + challengeBonus
+  const xpLog = [...(prevGam.xpLog ?? []), { date: today, xp: totalXPEarned }].slice(-90)
+
   const gam = {
     ...prevGam,
     totalXP: newXP,
     maxStreak: Math.max(prevGam.maxStreak, streak),
+    xpLog,
     ...(challengeBonus > 0 ? { dailyChallengeDate: today } : {}),
   }
 

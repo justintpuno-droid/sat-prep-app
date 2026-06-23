@@ -39,6 +39,13 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
   const gam = useMemo(() => loadGamification(), [])
   const levelInfo = useMemo(() => getLevelInfo(gam.totalXP), [gam])
   const achievementsCount = Object.keys(gam.achievements).length
+  const weekXP = useMemo(() => {
+    const mon = new Date()
+    const day = mon.getDay()
+    mon.setDate(mon.getDate() - (day === 0 ? 6 : day - 1))
+    const monStr = mon.toISOString().slice(0, 10)
+    return (gam.xpLog ?? []).filter(e => e.date >= monStr).reduce((sum, e) => sum + e.xp, 0)
+  }, [gam])
 
   const stats = useMemo(() => {
     if (sessions.length === 0) return null
@@ -156,6 +163,12 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                   <div className="text-center shrink-0">
                     <p className="text-2xl font-black">{gam.maxStreak}</p>
                     <p className="text-xs text-indigo-200">Best streak</p>
+                  </div>
+                )}
+                {weekXP > 0 && (
+                  <div className="text-center shrink-0">
+                    <p className="text-2xl font-black">+{weekXP}</p>
+                    <p className="text-xs text-indigo-200">XP this week</p>
                   </div>
                 )}
               </div>

@@ -85,6 +85,17 @@ export default function App() {
     setScreen('quiz')
   }
 
+  function handleFocusPractice(domainId) {
+    const pool = allQuestions.filter(q => q.domain === domainId)
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Focus Practice',
+      sessionName: null,
+      questions: shuffle(pool).slice(0, Math.min(pool.length, 20)),
+    })
+    setScreen('learning')
+  }
+
   function handlePracticeFromBank(questions) {
     setSessionConfig({
       mode: 'learning',
@@ -96,7 +107,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
