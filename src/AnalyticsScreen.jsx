@@ -47,6 +47,20 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     return (gam.xpLog ?? []).filter(e => e.date >= monStr).reduce((sum, e) => sum + e.xp, 0)
   }, [gam])
 
+  const weekComparison = useMemo(() => {
+    if (sessions.length === 0) return null
+    const now = new Date()
+    const mon = new Date(now)
+    mon.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1))
+    mon.setHours(0, 0, 0, 0)
+    const prevMon = new Date(mon); prevMon.setDate(prevMon.getDate() - 7)
+    const thisWeek = sessions.filter(s => new Date(s.completedAt) >= mon)
+    const lastWeek = sessions.filter(s => { const d = new Date(s.completedAt); return d >= prevMon && d < mon })
+    const thisQs = thisWeek.reduce((sum, s) => sum + s.score.total, 0)
+    const lastQs = lastWeek.reduce((sum, s) => sum + s.score.total, 0)
+    return { thisQs, lastQs, delta: thisQs - lastQs }
+  }, [sessions])
+
   const stats = useMemo(() => {
     if (sessions.length === 0) return null
 
@@ -138,7 +152,20 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       .map(([name, b]) => ({ name, emoji: name === 'morning' ? '🌅' : name === 'afternoon' ? '☀️' : '🌙', label: name.charAt(0).toUpperCase() + name.slice(1), p: pct(b.correct, b.total), ...b }))
       .sort((a, b) => b.p - a.p)
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay }
+    // Domain accuracy trends (recent 5 sessions vs. older)
+    const domainTrends = {}
+    for (const d of domainList) {
+      const dSess = sessions.filter(s => s.score.byDomain[d.id]?.total > 0)
+      if (dSess.length < 6) { domainTrends[d.id] = 0; continue }
+      const calc = (arr) => {
+        const c = arr.reduce((sum, s) => sum + (s.score.byDomain[d.id]?.correct ?? 0), 0)
+        const t = arr.reduce((sum, s) => sum + (s.score.byDomain[d.id]?.total ?? 0), 0)
+        return t ? pct(c, t) : 0
+      }
+      domainTrends[d.id] = calc(dSess.slice(0, 5)) - calc(dSess.slice(5))
+    }
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends }
   }, [sessions])
 
   return (
@@ -240,6 +267,19 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                   <div className="text-center shrink-0">
                     <p className="text-2xl font-black">+{weekXP}</p>
                     <p className="text-xs text-indigo-200">XP this week</p>
+                  </div>
+                )}
+                {weekComparison && weekComparison.thisQs > 0 && (
+                  <div className="text-center shrink-0">
+                    <p className="text-2xl font-black">{weekComparison.thisQs}</p>
+                    <p className="text-xs text-indigo-200">
+                      Qs this week
+                      {weekComparison.delta !== 0 && (
+                        <span className={weekComparison.delta > 0 ? ' text-emerald-300' : ' text-rose-300'}>
+                          {' '}{weekComparison.delta > 0 ? '+' : ''}{weekComparison.delta} vs last
+                        </span>
+                      )}
+                    </p>
                   </div>
                 )}
               </div>
@@ -374,11 +414,18 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
             <div className="bg-white rounded-2xl border border-gray-200 p-5">
               <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">All-Time by Domain</p>
               <div className="space-y-4">
-                {stats.domainList.map(d => (
+                {stats.domainList.map(d => {
+                  const trend = stats.domainTrends[d.id] ?? 0
+                  return (
                   <div key={d.id}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm text-gray-700 font-medium">{d.label}</span>
                       <div className="flex items-center gap-2">
+                        {Math.abs(trend) >= 5 && (
+                          <span className={`text-xs font-semibold ${trend > 0 ? 'text-emerald-500' : 'text-rose-400'}`}>
+                            {trend > 0 ? '↑' : '↓'}{Math.abs(trend)}%
+                          </span>
+                        )}
                         <span className="text-xs text-gray-400">{d.correct}/{d.total}</span>
                         <span className={`text-sm font-bold w-10 text-right ${textColor(d.p)}`}>{d.p}%</span>
                       </div>
@@ -387,7 +434,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                       <div className={`h-full ${barColor(d.p)} rounded-full transition-all duration-500`} style={{ width: `${d.p}%` }} />
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
 
               {/* Most improved callout */}
