@@ -3,7 +3,7 @@ import { TAXONOMY } from './data/taxonomy'
 import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory } from './utils/history'
-import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, getTodayChallenge, getChallengeProgress } from './utils/gamification'
+import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, getTodayChallenge, getChallengeProgress, ACHIEVEMENTS } from './utils/gamification'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -481,7 +481,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <div className="h-12 w-px bg-gray-100 shrink-0" />
               <button onClick={onAchievements} className="shrink-0 text-center group">
                 <p className="text-xl group-hover:scale-110 transition-transform">🏆</p>
-                <p className="text-xs text-gray-400 mt-1">{achievementsCount}/{15}</p>
+                <p className="text-xs text-gray-400 mt-1">{achievementsCount}/{ACHIEVEMENTS.length}</p>
               </button>
             </>
           )}

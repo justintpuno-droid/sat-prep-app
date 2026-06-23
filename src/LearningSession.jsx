@@ -52,6 +52,8 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const selected = answers[current?.id]
   const answeredCount = questions.filter(q => answers[q.id] !== undefined).length
   const correctCount = questions.filter(q => answers[q.id] === q.answer).length
+  const hardQuestions = questions.filter(q => q.difficulty === 3)
+  const hardCorrect = hardQuestions.filter(q => answers[q.id] === q.answer).length
   const isLast = index === questions.length - 1
 
   function handleSelect(optId) {
@@ -174,16 +176,26 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             }
             <span className={`text-sm ${isBeastMode ? 'text-gray-300' : 'text-gray-600'}`}>
               <span className="text-emerald-400 font-bold">{correctCount}</span>
-              <span className={isBeastMode ? 'text-gray-500' : 'text-gray-400'}> / {answeredCount} correct</span>
+              <span className={isBeastMode ? 'text-gray-500' : 'text-gray-400'}> / {answeredCount}</span>
+              {answeredCount > 0 && (
+                <span className={`ml-1 text-xs font-semibold ${correctCount / answeredCount >= 0.8 ? 'text-emerald-500' : correctCount / answeredCount >= 0.6 ? 'text-amber-500' : 'text-rose-400'}`}>
+                  ({Math.round(correctCount / answeredCount * 100)}%)
+                </span>
+              )}
             </span>
-            {/* Live XP + combo */}
+            {/* Live XP + combo + hard */}
             <div className="flex items-center gap-1.5">
               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isBeastMode ? 'bg-amber-500 text-white' : 'text-amber-600 bg-amber-50'}`}>
                 ⭐ {sessionXP}{isBeastMode ? ' (2×)' : ''}
               </span>
+              {hardQuestions.length > 0 && hardCorrect > 0 && (
+                <span className="text-xs font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full">
+                  🔥 {hardCorrect}/{hardQuestions.length}
+                </span>
+              )}
               {combo >= 3 && (
                 <span className="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full animate-pulse">
-                  🔥 {combo}×
+                  {combo}×
                 </span>
               )}
             </div>
