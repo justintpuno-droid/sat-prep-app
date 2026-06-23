@@ -97,13 +97,15 @@ export default function App() {
     setScreen('quiz')
   }
 
-  function handleFocusPractice(domainId) {
+  function handleFocusPractice(domainId, xpMultiplier) {
     const pool = allQuestions.filter(q => q.domain === domainId)
+    const isDomainOfDay = xpMultiplier != null
     setSessionConfig({
       mode: 'learning',
-      formatLabel: 'Focus Practice',
+      formatLabel: isDomainOfDay ? 'Domain of the Day' : 'Focus Practice',
       sessionName: null,
       questions: shuffle(pool).slice(0, Math.min(pool.length, 20)),
+      ...(isDomainOfDay ? { xpMultiplier } : {}),
     })
     setScreen('learning')
   }

@@ -347,6 +347,12 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
                   )
                 })()}
                 <p className="text-gray-400 text-xs mt-1 text-center">{getGrade(score.percent).label}</p>
+                {gamResult?.sessionRank && gamResult.sessionRank.isSessionPB && (
+                  <p className="text-amber-500 text-xs font-bold mt-0.5 text-center">🏆 Best session!</p>
+                )}
+                {gamResult?.sessionRank && !gamResult.sessionRank.isSessionPB && gamResult.sessionRank.pctBetter >= 75 && (
+                  <p className="text-emerald-600 text-xs font-medium mt-0.5 text-center">Top {100 - gamResult.sessionRank.pctBetter}% ↑</p>
+                )}
               </div>
             </div>
             <div className="text-right space-y-1.5">

@@ -219,9 +219,21 @@ export function processSession(session, history, prevGam) {
     }
   }
 
+  // Session rank vs. historical average
+  const prevHistory = history.slice(0, -1)
+  const sessionRank = (() => {
+    const allScores = prevHistory.map(s => s.score.percent).filter(n => n != null)
+    if (allScores.length < 3) return null
+    const avg = Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length)
+    const cur = session.score.percent
+    const better = allScores.filter(s => s < cur).length
+    const pctBetter = Math.round((better / allScores.length) * 100)
+    const isSessionPB = cur > Math.max(...allScores)
+    return { avg, cur, pctBetter, isSessionPB }
+  })()
+
   // Personal best detection (compare session domain scores vs. previous history)
   const personalBests = []
-  const prevHistory = history.slice(0, -1)
   for (const [domainId, ds] of Object.entries(session.score.byDomain)) {
     if (ds.total < 5) continue
     const curPct = Math.round((ds.correct / ds.total) * 100)
@@ -240,7 +252,7 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, challengeBonus, challengeCompleted, comebackBonus, personalBests, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
+  return { xp, challengeBonus, challengeCompleted, comebackBonus, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────

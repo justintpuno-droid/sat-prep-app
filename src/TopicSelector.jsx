@@ -96,6 +96,14 @@ function getTodayQuote() {
   return QUOTES[idx % QUOTES.length]
 }
 
+function getDomainOfDay() {
+  const domains = TAXONOMY.flatMap(s => s.domains.map(d => ({ id: d.id, label: d.label, subject: s.label, icon: s.icon })))
+  const d = new Date()
+  const start = new Date(d.getFullYear(), 0, 0)
+  const idx = Math.floor((d - start) / 86400000)
+  return domains[idx % domains.length]
+}
+
 const GOAL_KEY = 'sat_prep_goal'
 function loadGoalData() { try { return JSON.parse(localStorage.getItem(GOAL_KEY)) ?? {} } catch { return {} } }
 function loadGoal() { return loadGoalData().target ?? null }
@@ -208,6 +216,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
   const challengeAlreadyCredited = gam.dailyChallengeDate === new Date().toISOString().slice(0, 10)
 
   const todayQuote = useMemo(() => getTodayQuote(), [])
+  const domainOfDay = useMemo(() => getDomainOfDay(), [])
   const weekQs = useMemo(() => {
     const mon = new Date()
     const day = mon.getDay()
@@ -700,6 +709,23 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
 
         {/* Activity heatmap (shown when there are sessions) */}
         {history.length > 0 && <StudyCalendar sessions={history} />}
+
+        {/* Domain of the Day */}
+        {onFocusPractice && (
+          <div className="rounded-2xl border-2 border-violet-100 bg-gradient-to-r from-violet-50 to-indigo-50 p-4 mb-4 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-widest text-violet-400 mb-0.5">Domain of the Day ✨</p>
+              <p className="text-sm font-bold text-gray-900 truncate">{domainOfDay.label}</p>
+              <p className="text-xs text-violet-500 mt-0.5">{domainOfDay.subject} · +25% bonus XP today</p>
+            </div>
+            <button
+              onClick={() => onFocusPractice(domainOfDay.id, 1.25)}
+              className="shrink-0 text-xs font-semibold text-white bg-violet-500 hover:bg-violet-600 px-3 py-2 rounded-xl transition-colors"
+            >
+              Practice →
+            </button>
+          </div>
+        )}
 
         {/* Weak spot focus card */}
         {weakDomain && onFocusPractice && (
