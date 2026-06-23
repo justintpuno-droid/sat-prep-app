@@ -114,6 +114,10 @@ function getDomainOfDay() {
   return domains[idx % domains.length]
 }
 
+const QOD_KEY = 'sat_prep_qod'
+function loadQOD() { try { return JSON.parse(localStorage.getItem(QOD_KEY)) ?? {} } catch { return {} } }
+function saveQOD(data) { try { localStorage.setItem(QOD_KEY, JSON.stringify(data)) } catch {} }
+
 const WEEKLY_XP_KEY = 'sat_prep_weekly_xp_goal'
 function loadWeeklyXPGoal() { try { return parseInt(localStorage.getItem(WEEKLY_XP_KEY) ?? '500', 10) } catch { return 500 } }
 function saveWeeklyXPGoal(v) { try { localStorage.setItem(WEEKLY_XP_KEY, String(v)) } catch {} }
@@ -130,6 +134,70 @@ function daysUntil(dateStr) {
   if (!dateStr) return null
   const diff = new Date(dateStr + 'T12:00:00') - new Date()
   return Math.ceil(diff / 86400000)
+}
+
+function QuestionOfDay({ allQuestions }) {
+  const today = new Date().toISOString().slice(0, 10)
+  const qodData = useMemo(() => loadQOD(), [])
+  const [answer, setAnswer] = useState(qodData.date === today ? qodData.answer : null)
+  const [revealed, setRevealed] = useState(qodData.date === today && qodData.answer !== undefined)
+
+  const q = useMemo(() => {
+    const dayIdx = Math.floor(new Date() / 86400000)
+    const seed = dayIdx % Math.max(1, allQuestions.length)
+    return allQuestions[seed]
+  }, [allQuestions])
+
+  if (!q) return null
+  const isCorrect = answer === q.answer
+
+  function handlePick(optId) {
+    if (revealed) return
+    setAnswer(optId)
+    setRevealed(true)
+    saveQOD({ date: today, answer: optId, questionId: q.id })
+  }
+
+  const DIFF_COLOR = { 1: 'text-emerald-600', 2: 'text-amber-600', 3: 'text-rose-600' }
+  const DIFF_LABEL = { 1: 'Easy', 2: 'Medium', 3: 'Hard' }
+
+  return (
+    <div className="bg-white border-2 border-indigo-100 rounded-2xl p-4 mb-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-xs font-bold text-indigo-600 uppercase tracking-widest">⭐ Question of the Day</span>
+        <span className={`text-xs font-semibold ${DIFF_COLOR[q.difficulty] ?? 'text-gray-400'}`}>
+          {DIFF_LABEL[q.difficulty] ?? ''}
+        </span>
+        {revealed && (
+          <span className={`ml-auto text-sm font-black ${isCorrect ? 'text-emerald-600' : 'text-rose-500'}`}>
+            {isCorrect ? '✓ Correct!' : '✗ Missed'}
+          </span>
+        )}
+      </div>
+      <p className="text-sm text-gray-800 leading-relaxed mb-3 whitespace-pre-line line-clamp-4">{q.question}</p>
+      <div className="space-y-2">
+        {(q.options ?? []).map(opt => {
+          let cls = 'border-gray-200 bg-white text-gray-700 hover:border-indigo-200 cursor-pointer'
+          if (revealed) {
+            if (opt.id === q.answer) cls = 'border-emerald-500 bg-emerald-50 text-emerald-800'
+            else if (opt.id === answer) cls = 'border-rose-400 bg-rose-50 text-rose-700'
+            else cls = 'border-gray-100 bg-white text-gray-300'
+          } else if (answer === opt.id) {
+            cls = 'border-indigo-500 bg-indigo-50 text-indigo-900'
+          }
+          return (
+            <button key={opt.id} onClick={() => handlePick(opt.id)} disabled={revealed}
+              className={`w-full text-left rounded-xl border-2 px-3 py-2 text-xs flex items-center gap-2 transition-all ${cls}`}>
+              <span className="font-bold w-4 shrink-0">{opt.id}</span>
+              <span className="flex-1">{opt.text}</span>
+              {revealed && opt.id === q.answer && <span className="shrink-0 text-emerald-500 font-bold">✓</span>}
+              {revealed && opt.id === answer && opt.id !== q.answer && <span className="shrink-0 text-rose-400 font-bold">✗</span>}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 function StudyCalendar({ sessions }) {
@@ -1091,6 +1159,9 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
           </div>
         )}
+
+        {/* Question of the Day */}
+        <QuestionOfDay allQuestions={questions} />
 
         {/* Quick-start shortcuts */}
         {(onQuickPractice || onFullPractice || onBeastMode || onBlitzMode) && (
