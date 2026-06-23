@@ -145,6 +145,14 @@ export default function QuizSession({ config, onComplete, onQuit }) {
   }
 
   function completeCurrentModule(currentAnswers = allAnswers) {
+    // Flush time for the question currently on screen (effect cleanup fires after unmount, too late)
+    const currentQId = activeQs[index]?.id
+    if (currentQId && qStartRef.current) {
+      const spent = Math.round((Date.now() - qStartRef.current) / 1000)
+      if (spent > 0) qTimesRef.current[currentQId] = (qTimesRef.current[currentQId] ?? 0) + spent
+      qStartRef.current = null
+    }
+
     timer.pause()
     elapsedAccum.current += timer.elapsed
 

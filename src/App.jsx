@@ -8,6 +8,7 @@ import SessionHistory from './SessionHistory'
 import QuestionBank from './QuestionBank'
 import AnalyticsScreen from './AnalyticsScreen'
 import { saveToHistory } from './utils/history'
+import { shuffle } from './utils/index'
 
 export default function App() {
   const [screen, setScreen] = useState('home')
@@ -43,7 +44,7 @@ export default function App() {
       mode: 'learning',
       formatLabel: 'Question Bank Practice',
       sessionName: null,
-      questions,
+      questions: shuffle(questions),
     })
     setScreen('learning')
   }

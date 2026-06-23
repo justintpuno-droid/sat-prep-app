@@ -221,6 +221,11 @@ export default function SessionSummary({ session, onNewSession, onHistory, onRet
             <div className="text-right space-y-1.5">
               <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${modeColor}`}>{formatLabel}</span>
               <div className="text-sm text-gray-500">⏱ {formatTime(elapsedSeconds)}</div>
+              {questions.length > 0 && (
+                <div className="text-xs text-gray-400">
+                  ~{Math.round(elapsedSeconds / questions.length)}s / question
+                </div>
+              )}
               {timeLimit && <div className="text-xs text-gray-400">Limit: {formatTime(timeLimit)}</div>}
             </div>
           </div>
