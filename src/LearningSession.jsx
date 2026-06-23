@@ -9,6 +9,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [answers, setAnswers] = useState({})
   const [revealed, setRevealed] = useState(false)
   const [showQuitConfirm, setShowQuitConfirm] = useState(false)
+  const [timerHidden, setTimerHidden] = useState(false)
   const timer = useTimer()
 
   useEffect(() => { timer.start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -72,7 +73,25 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-mono text-gray-500">⏱ {formatTime(timer.seconds)}</span>
+            {timerHidden ? (
+              <button
+                onClick={() => setTimerHidden(false)}
+                className="text-xs text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg px-2.5 py-1 transition-colors"
+              >
+                ⏱ Show timer
+              </button>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-mono text-gray-500">⏱ {formatTime(timer.seconds)}</span>
+                <button
+                  onClick={() => setTimerHidden(true)}
+                  className="text-xs text-gray-300 hover:text-gray-500 transition-colors leading-none"
+                  title="Hide timer"
+                >
+                  hide
+                </button>
+              </div>
+            )}
             <button
               onClick={finish}
               className="text-xs text-gray-400 hover:text-gray-700 border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
