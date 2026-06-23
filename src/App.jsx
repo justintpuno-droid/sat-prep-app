@@ -7,7 +7,9 @@ import SessionSummary from './SessionSummary'
 import SessionHistory from './SessionHistory'
 import QuestionBank from './QuestionBank'
 import AnalyticsScreen from './AnalyticsScreen'
-import { saveToHistory } from './utils/history'
+import AchievementsScreen from './AchievementsScreen'
+import { saveToHistory, loadHistory } from './utils/history'
+import { loadGamification, saveGamification, processSession } from './utils/gamification'
 import { shuffle } from './utils/index'
 import allQuestions from './data/questions'
 import { MATH_DOMAIN_IDS, ENG_DOMAIN_IDS } from './data/taxonomy'
@@ -17,6 +19,7 @@ export default function App() {
   const [filters, setFilters] = useState(null)
   const [sessionConfig, setSessionConfig] = useState(null)
   const [completedSession, setCompletedSession] = useState(null)
+  const [gamResult, setGamResult] = useState(null)
 
   function handleFiltersSet(f) { setFilters(f); setScreen('session-config') }
 
@@ -27,6 +30,11 @@ export default function App() {
 
   function handleSessionComplete(session) {
     saveToHistory(session)
+    const history = loadHistory()
+    const gam = loadGamification()
+    const result = processSession(session, history, gam)
+    saveGamification(result.gamification)
+    setGamResult(result)
     setCompletedSession(session)
     setScreen('summary')
   }
@@ -88,7 +96,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onFullPractice={handleFullPractice} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
@@ -96,11 +104,13 @@ export default function App() {
   if (screen === 'quiz')
     return <QuizSession config={sessionConfig} onComplete={handleSessionComplete} onQuit={() => setScreen('home')} />
   if (screen === 'summary')
-    return <SessionSummary session={completedSession} onNewSession={() => setScreen('home')} onHistory={() => setScreen('history')} onRetry={handleRetry} />
+    return <SessionSummary session={completedSession} gamResult={gamResult} onNewSession={() => setScreen('home')} onHistory={() => setScreen('history')} onRetry={handleRetry} />
   if (screen === 'history')
-    return <SessionHistory onBack={() => setScreen('home')} onNewSession={() => setScreen('home')} onAnalytics={() => setScreen('analytics')} onReview={s => { setCompletedSession(s); setScreen('summary') }} />
+    return <SessionHistory onBack={() => setScreen('home')} onNewSession={() => setScreen('home')} onAnalytics={() => setScreen('analytics')} onAchievements={() => setScreen('achievements')} onReview={s => { setCompletedSession(s); setGamResult(null); setScreen('summary') }} />
   if (screen === 'question-bank')
     return <QuestionBank onBack={() => setScreen('home')} onPractice={handlePracticeFromBank} />
   if (screen === 'analytics')
-    return <AnalyticsScreen onBack={() => setScreen('history')} onDrillWeak={qs => { setSessionConfig({ mode: 'learning', formatLabel: 'Weak Spot Drill', sessionName: null, questions: qs }); setScreen('learning') }} />
+    return <AnalyticsScreen onBack={() => setScreen('history')} onAchievements={() => setScreen('achievements')} onDrillWeak={qs => { setSessionConfig({ mode: 'learning', formatLabel: 'Weak Spot Drill', sessionName: null, questions: qs }); setScreen('learning') }} />
+  if (screen === 'achievements')
+    return <AchievementsScreen onBack={() => setScreen('home')} />
 }

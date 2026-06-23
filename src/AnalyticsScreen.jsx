@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { loadHistory } from './utils/history'
+import { loadGamification, getLevelInfo, ACHIEVEMENTS } from './utils/gamification'
 import { pct, formatTime, shuffle } from './utils/index'
 import { domainById } from './data/taxonomy'
 
@@ -33,8 +34,11 @@ function computeStreak(sessions) {
   return streak
 }
 
-export default function AnalyticsScreen({ onBack, onDrillWeak }) {
+export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements }) {
   const sessions = useMemo(() => loadHistory(), [])
+  const gam = useMemo(() => loadGamification(), [])
+  const levelInfo = useMemo(() => getLevelInfo(gam.totalXP), [gam])
+  const achievementsCount = Object.keys(gam.achievements).length
 
   const stats = useMemo(() => {
     if (sessions.length === 0) return null
@@ -121,6 +125,41 @@ export default function AnalyticsScreen({ onBack, onDrillWeak }) {
                 </button>
               </div>
             )}
+
+            {/* Gamification stats */}
+            <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl p-4 mb-4 text-white">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                    <span className="font-black text-lg">{levelInfo.level}</span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-sm">{levelInfo.title}</p>
+                    <p className="text-xs text-indigo-200">{gam.totalXP.toLocaleString()} XP total</p>
+                    {levelInfo.xpForNext && (
+                      <div className="mt-1.5 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                        <div className="h-full bg-white rounded-full" style={{ width: `${levelInfo.pct}%` }} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="text-center shrink-0">
+                  <p className="text-2xl font-black">{achievementsCount}<span className="text-base font-medium text-indigo-300">/{ACHIEVEMENTS.length}</span></p>
+                  <p className="text-xs text-indigo-200">Achievements</p>
+                  {onAchievements && (
+                    <button onClick={onAchievements} className="text-xs text-indigo-200 hover:text-white underline mt-1 transition-colors">
+                      View all →
+                    </button>
+                  )}
+                </div>
+                {gam.maxStreak > 0 && (
+                  <div className="text-center shrink-0">
+                    <p className="text-2xl font-black">{gam.maxStreak}</p>
+                    <p className="text-xs text-indigo-200">Best streak</p>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Top stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">

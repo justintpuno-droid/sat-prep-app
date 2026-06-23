@@ -154,8 +154,8 @@ function QuestionRow({ question, userAnswer, index, isFlagged, timeSpent }) {
   )
 }
 
-export default function SessionSummary({ session, onNewSession, onHistory, onRetry }) {
-  const { mode, format, formatLabel, elapsedSeconds, timeLimit, questions, answers, score, sessionName, phaseData, flaggedIds, questionTimes } = session
+export default function SessionSummary({ session, gamResult, onNewSession, onHistory, onRetry }) {
+  const { mode, format, formatLabel, elapsedSeconds, timeLimit, questions, answers, score, sessionName, phaseData, flaggedIds, questionTimes, maxCombo } = session
   const flaggedSet = useMemo(() => new Set(flaggedIds ?? []), [flaggedIds])
   const [breakdownTab, setBreakdownTab] = useState('subject')
   const [reviewFilter, setReviewFilter] = useState('all')
@@ -225,6 +225,73 @@ export default function SessionSummary({ session, onNewSession, onHistory, onRet
           </div>
         </div>
 
+        {/* XP reward */}
+        {gamResult && (
+          <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl p-5 mb-4 text-white">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-indigo-200">XP Earned</p>
+              <p className="text-3xl font-black">+{gamResult.xp.total}</p>
+            </div>
+            <div className="flex gap-3 text-xs text-indigo-200 mb-4">
+              <span>Base: +{gamResult.xp.base}</span>
+              {gamResult.xp.bonus > 0 && <span>Bonus: +{gamResult.xp.bonus}</span>}
+              {gamResult.xp.mult > 1.05 && <span>Streak {Math.round(gamResult.xp.mult * 10) / 10}×</span>}
+            </div>
+
+            {gamResult.leveledUp ? (
+              <div className="bg-white/20 rounded-xl p-3 mb-3 flex items-center gap-3">
+                <span className="text-2xl">🎉</span>
+                <div>
+                  <p className="font-bold text-sm">Level Up!</p>
+                  <p className="text-xs text-indigo-200">{gamResult.oldLevel.title} → {gamResult.newLevel.title}</p>
+                </div>
+                <div className="ml-auto w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0">
+                  <span className="text-indigo-600 font-black text-sm">{gamResult.newLevel.level}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="mb-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-indigo-200">Lv {gamResult.newLevel.level} · {gamResult.newLevel.title}</span>
+                  {gamResult.newLevel.xpForNext && (
+                    <span className="text-xs text-indigo-300">{gamResult.newLevel.xpIntoLevel} / {gamResult.newLevel.xpForNext} XP</span>
+                  )}
+                </div>
+                <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-white rounded-full" style={{ width: `${gamResult.newLevel.pct}%` }} />
+                </div>
+              </div>
+            )}
+
+            {gamResult.challengeCompleted && (
+              <div className="flex items-center gap-2.5 bg-white/20 rounded-xl px-3 py-2.5 mt-1">
+                <span className="text-xl">🎯</span>
+                <div>
+                  <p className="text-sm font-bold leading-tight">Daily Challenge Complete!</p>
+                  <p className="text-xs text-indigo-200">+{gamResult.challengeBonus} bonus XP</p>
+                </div>
+              </div>
+            )}
+
+            {gamResult.newAchievements.length > 0 && (
+              <div className="space-y-2 pt-1">
+                <p className="text-xs font-semibold text-indigo-200 uppercase tracking-wider">
+                  {gamResult.newAchievements.length === 1 ? 'Achievement Unlocked!' : `${gamResult.newAchievements.length} Achievements Unlocked!`}
+                </p>
+                {gamResult.newAchievements.map(ach => (
+                  <div key={ach.id} className="flex items-center gap-2.5 bg-white/20 rounded-xl px-3 py-2.5">
+                    <span className="text-xl">{ach.icon}</span>
+                    <div>
+                      <p className="text-sm font-bold leading-tight">{ach.title}</p>
+                      <p className="text-xs text-indigo-200">{ach.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Score predictor (full adaptive tests only) */}
         {SCORE_PREDICTOR_FORMATS.has(format) && phaseData?.length > 0 && phaseData.every(p => p.gotHardMod2 !== null) && (
           <ScorePredictor phaseData={phaseData} answers={answers} />
@@ -243,6 +310,11 @@ export default function SessionSummary({ session, onNewSession, onHistory, onRet
               {questions.length > 0 && (
                 <div className="text-xs text-gray-400">
                   ~{Math.round(elapsedSeconds / questions.length)}s / question
+                </div>
+              )}
+              {maxCombo >= 3 && (
+                <div className="text-xs font-semibold text-orange-500">
+                  🔥 Best combo: {maxCombo}×
                 </div>
               )}
               {timeLimit && <div className="text-xs text-gray-400">Limit: {formatTime(timeLimit)}</div>}

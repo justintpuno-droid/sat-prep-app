@@ -169,7 +169,7 @@ function HistoryCard({ session, deleteMode, selected, onToggleSelect, onRename, 
   )
 }
 
-export default function SessionHistory({ onBack, onNewSession, onAnalytics, onReview }) {
+export default function SessionHistory({ onBack, onNewSession, onAnalytics, onAchievements, onReview }) {
   const [sessions, setSessions] = useState(() => loadHistory())
   const [confirmClear, setConfirmClear] = useState(false)
   const [deleteMode, setDeleteMode] = useState(false)
@@ -230,6 +230,14 @@ export default function SessionHistory({ onBack, onNewSession, onAnalytics, onRe
           </div>
 
           <div className="flex gap-2">
+            {!deleteMode && onAchievements && (
+              <button
+                onClick={onAchievements}
+                className="text-xs text-amber-600 hover:text-amber-800 border border-amber-200 bg-amber-50 rounded-lg px-3 py-1.5 transition-colors font-medium"
+              >
+                🏆 Achievements
+              </button>
+            )}
             {!deleteMode && onAnalytics && (
               <button
                 onClick={onAnalytics}

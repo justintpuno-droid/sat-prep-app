@@ -11,6 +11,12 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [flagged, setFlagged] = useState(() => new Set())
   const [showQuitConfirm, setShowQuitConfirm] = useState(false)
   const [timerHidden, setTimerHidden] = useState(false)
+  const [sessionXP, setSessionXP] = useState(0)
+  const [combo, setCombo] = useState(0)
+  const [maxCombo, setMaxCombo] = useState(0)
+  const [xpFlash, setXpFlash] = useState(null)
+  const [milestone, setMilestone] = useState(null)
+  const maxComboRef = useRef(0)
   const timer = useTimer()
 
   function toggleFlag(id) {
@@ -29,6 +35,27 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     if (revealed) return
     setAnswers(prev => ({ ...prev, [current.id]: optId }))
     setRevealed(true)
+    const isCorrect = optId === current.answer
+    const xpGain = isCorrect ? (10 + (current.difficulty === 3 ? 10 : 0)) : 5
+    setSessionXP(prev => prev + xpGain)
+    const newCombo = isCorrect ? combo + 1 : 0
+    setCombo(newCombo)
+    if (newCombo > maxComboRef.current) {
+      maxComboRef.current = newCombo
+      setMaxCombo(newCombo)
+    }
+    if (isCorrect && (newCombo === 5 || newCombo === 10 || newCombo === 15 || (newCombo > 0 && newCombo % 20 === 0))) {
+      const msgs = {
+        5:  { icon: '🎯', text: '5-in-a-row!', sub: 'You\'re on fire' },
+        10: { icon: '🔥', text: '10-in-a-row!', sub: 'Absolutely crushing it' },
+        15: { icon: '⚡', text: '15-in-a-row!', sub: 'Unstoppable!' },
+      }
+      const msg = msgs[newCombo] ?? { icon: '🌟', text: `${newCombo}-in-a-row!`, sub: 'Legendary!' }
+      setMilestone({ ...msg, id: Date.now() })
+      setTimeout(() => setMilestone(null), 2000)
+    }
+    setXpFlash({ amount: xpGain, correct: isCorrect, id: Date.now() })
+    setTimeout(() => setXpFlash(null), 900)
   }
 
   function handleNext() {
@@ -51,6 +78,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       answers,
       score: scoreQuestions(answered, answers),
       flaggedIds: [...flagged],
+      maxCombo: maxComboRef.current,
     })
   }
 
@@ -109,6 +137,15 @@ export default function LearningSession({ config, onComplete, onQuit }) {
               <span className="text-emerald-600 font-bold">{correctCount}</span>
               <span className="text-gray-400"> / {answeredCount} correct</span>
             </span>
+            {/* Live XP + combo */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">⭐ {sessionXP}</span>
+              {combo >= 3 && (
+                <span className="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full animate-pulse">
+                  🔥 {combo}×
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-3">
             {timerHidden ? (
@@ -162,6 +199,13 @@ export default function LearningSession({ config, onComplete, onQuit }) {
           showFeedback={revealed}
         />
 
+        {/* XP flash */}
+        {xpFlash && (
+          <div key={xpFlash.id} className="flex justify-end mb-2">
+            <span className="text-sm font-black text-amber-500 animate-bounce">+{xpFlash.amount} XP</span>
+          </div>
+        )}
+
         {/* Feedback */}
         {revealed && (
           <div className={`mt-5 rounded-xl p-4 ${selected === current.answer ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
@@ -196,6 +240,17 @@ export default function LearningSession({ config, onComplete, onQuit }) {
           </div>
         )}
       </div>
+
+      {/* Combo milestone toast */}
+      {milestone && (
+        <div key={milestone.id} className="fixed top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+          <div className="bg-gray-900 text-white rounded-2xl px-6 py-4 text-center shadow-2xl animate-bounce">
+            <div className="text-3xl mb-1">{milestone.icon}</div>
+            <p className="font-black text-lg leading-tight">{milestone.text}</p>
+            <p className="text-xs text-gray-300 mt-0.5">{milestone.sub}</p>
+          </div>
+        </div>
+      )}
 
       {/* Quit confirm modal */}
       {showQuitConfirm && (
