@@ -37,7 +37,7 @@ export function getLevelInfo(totalXP) {
   const xpIntoLevel = totalXP - current.xp
   const xpForNext = next ? next.xp - current.xp : null
   const pct = xpForNext ? Math.min(100, Math.round((xpIntoLevel / xpForNext) * 100)) : 100
-  return { ...current, next, xpIntoLevel, xpForNext, pct }
+  return { ...current, next, xpIntoLevel, xpForNext, pct, minXP: current.xp }
 }
 
 // ─── Achievements ──────────────────────────────────────────────────────────

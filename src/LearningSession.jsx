@@ -3,6 +3,26 @@ import QuestionCard from './components/QuestionCard'
 import { useTimer } from './hooks/useTimer'
 import { formatTime, scoreQuestions } from './utils/index'
 
+function BlitzCircle({ seconds }) {
+  const max = 60, r = 18, circ = 2 * Math.PI * r
+  const danger = seconds <= 10
+  const stroke = danger ? '#ef4444' : seconds <= 20 ? '#f97316' : '#f59e0b'
+  return (
+    <div className="relative w-12 h-12 shrink-0">
+      <svg className="w-12 h-12 -rotate-90" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r={r} fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="4" />
+        <circle cx="22" cy="22" r={r} fill="none" stroke={stroke} strokeWidth="4"
+          strokeDasharray={`${(seconds / max) * circ} ${circ}`} strokeLinecap="round"
+          style={{ transition: 'stroke-dasharray 0.9s linear, stroke 0.5s' }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className={`text-sm font-black ${danger ? 'text-rose-500 animate-pulse' : 'text-orange-500'}`}>{seconds}</span>
+      </div>
+    </div>
+  )
+}
+
 export default function LearningSession({ config, onComplete, onQuit }) {
   const { questions } = config
   const isBeastMode = config.formatLabel === 'Beast Mode'
@@ -224,9 +244,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
           </div>
           <div className="flex items-center gap-3">
             {isBlitzMode ? (
-              <span className={`text-lg font-black font-mono ${blitzSeconds <= 10 ? 'text-rose-500 animate-pulse' : 'text-orange-500'}`}>
-                {blitzSeconds}s
-              </span>
+              <BlitzCircle seconds={blitzSeconds} />
             ) : timerHidden ? (
               <button
                 onClick={() => setTimerHidden(false)}

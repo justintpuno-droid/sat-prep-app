@@ -3,6 +3,27 @@ import QuestionCard from './components/QuestionCard'
 import { formatTime, pct } from './utils/index'
 import { domainById, skillById } from './data/taxonomy'
 
+function AnimatedXPBar({ gamResult }) {
+  const { newLevel, xp, oldXP } = gamResult
+  const xpForNext = newLevel.xpForNext
+  if (!xpForNext) return null
+  const oldPct = Math.min(100, Math.max(0, ((oldXP - (newLevel.minXP ?? 0)) / xpForNext) * 100))
+  const newPct = newLevel.pct
+  const [width, setWidth] = useState(oldPct)
+  useEffect(() => { const t = setTimeout(() => setWidth(newPct), 200); return () => clearTimeout(t) }, [newPct])
+  return (
+    <div className="mb-3">
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-xs text-indigo-200">Lv {newLevel.level} · {newLevel.title}</span>
+        <span className="text-xs text-indigo-300">{newLevel.xpIntoLevel} / {xpForNext} XP</span>
+      </div>
+      <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+        <div className="h-full bg-white rounded-full transition-all duration-[1200ms] ease-out" style={{ width: `${width}%` }} />
+      </div>
+    </div>
+  )
+}
+
 const CONFETTI_COLORS = ['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#f97316']
 
 function Confetti() {
@@ -323,17 +344,7 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
                 </div>
               </div>
             ) : (
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-indigo-200">Lv {gamResult.newLevel.level} · {gamResult.newLevel.title}</span>
-                  {gamResult.newLevel.xpForNext && (
-                    <span className="text-xs text-indigo-300">{gamResult.newLevel.xpIntoLevel} / {gamResult.newLevel.xpForNext} XP</span>
-                  )}
-                </div>
-                <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-white rounded-full" style={{ width: `${gamResult.newLevel.pct}%` }} />
-                </div>
-              </div>
+              <AnimatedXPBar gamResult={gamResult} />
             )}
 
             {gamResult.challengeCompleted && (
