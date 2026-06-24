@@ -27,6 +27,21 @@ export function getLevelColor(level) {
   return           { ring: 'bg-slate-500',  text: 'text-slate-600',  border: 'border-slate-300',  light: 'bg-slate-50' }
 }
 
+export const PRESTIGE_XP_THRESHOLD = 9500 // Level 15 xp requirement
+
+export function getPrestigeInfo(gam) {
+  const prestige = gam.prestige ?? 0
+  const canPrestige = (gam.totalXP ?? 0) >= PRESTIGE_XP_THRESHOLD && prestige < 3
+  const titles = ['', '⭐ Prestige I', '⭐⭐ Prestige II', '⭐⭐⭐ Prestige III']
+  return { prestige, canPrestige, title: titles[prestige] ?? '' }
+}
+
+export function doPrestige(gam) {
+  const info = getPrestigeInfo(gam)
+  if (!info.canPrestige) return gam
+  return { ...gam, totalXP: 0, prestige: (gam.prestige ?? 0) + 1 }
+}
+
 export function getLevelInfo(totalXP) {
   let current = LEVELS[0]
   for (let i = LEVELS.length - 1; i >= 0; i--) {

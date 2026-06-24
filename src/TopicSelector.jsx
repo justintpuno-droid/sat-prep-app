@@ -4,7 +4,7 @@ import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory, getSRCount } from './utils/history'
 import { SAT_VOCAB } from './data/vocab'
-import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze } from './utils/gamification'
+import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze, getPrestigeInfo, doPrestige, saveGamification } from './utils/gamification'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -457,6 +457,18 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
   const challengeProgress = useMemo(() => getChallengeProgress(todaySessions, todayChallenge), [todaySessions, todayChallenge])
   const challengeDone = challengeProgress >= todayChallenge.goal
   const challengeAlreadyCredited = gam.dailyChallengeDate === new Date().toISOString().slice(0, 10)
+
+  const [prestigeInfo, setPrestigeInfo] = useState(() => getPrestigeInfo(loadGamification()))
+  const [showPrestigeConfirm, setShowPrestigeConfirm] = useState(false)
+
+  function handlePrestige() {
+    const currentGam = loadGamification()
+    const updated = doPrestige(currentGam)
+    saveGamification(updated)
+    setPrestigeInfo(getPrestigeInfo(updated))
+    setShowPrestigeConfirm(false)
+    window.location.reload()
+  }
 
   const todayQuote = useMemo(() => getTodayQuote(), [])
   const domainOfDay = useMemo(() => getDomainOfDay(), [])
@@ -1191,6 +1203,26 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 flex items-start justify-center px-4 py-12">
+      {/* Prestige confirm modal */}
+      {showPrestigeConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setShowPrestigeConfirm(false)}>
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="text-5xl mb-3">⭐</div>
+            <h3 className="text-xl font-black text-gray-900 mb-2">Prestige {prestigeInfo.prestige + 1}?</h3>
+            <p className="text-sm text-gray-600 mb-1">Your XP resets to 0, but you earn a permanent <span className="font-bold text-amber-600">Prestige {prestigeInfo.prestige + 1}</span> badge.</p>
+            <p className="text-xs text-gray-400 mb-6">All your history, streak, and achievements are kept. This just shows everyone you've mastered the game.</p>
+            <div className="space-y-3">
+              <button onClick={handlePrestige} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-2xl transition-colors">
+                ✨ Yes, Prestige!
+              </button>
+              <button onClick={() => setShowPrestigeConfirm(false)} className="w-full text-gray-500 font-semibold py-2 text-sm hover:text-gray-700 transition-colors">
+                Not yet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* XP toast */}
       {showXPToast && pendingXP > 0 && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-bounce pointer-events-none">
@@ -1316,7 +1348,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               {levelInfo.level}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-gray-700 truncate">{levelInfo.title}</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-semibold text-gray-700 truncate">{levelInfo.title}</p>
+                {prestigeInfo.prestige > 0 && (
+                  <span className="text-xs font-bold text-amber-600 shrink-0">{prestigeInfo.title}</span>
+                )}
+              </div>
               <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mt-1">
                 <div className={`h-full ${levelColor.ring} rounded-full transition-all`} style={{ width: `${levelInfo.pct}%` }} />
               </div>
@@ -1325,6 +1362,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                   ? `${gam.totalXP.toLocaleString()} XP · ${levelInfo.xpIntoLevel}/${levelInfo.xpForNext} to Lv ${levelInfo.level + 1}`
                   : `${gam.totalXP.toLocaleString()} XP · Max Level`}
                 {timeToNextLevel && <span className="text-indigo-400"> · ~{timeToNextLevel} session{timeToNextLevel !== 1 ? 's' : ''}</span>}
+                {prestigeInfo.canPrestige && (
+                  <button onClick={() => setShowPrestigeConfirm(true)} className="ml-2 text-amber-600 font-bold hover:text-amber-800 transition-colors">
+                    ✨ Prestige
+                  </button>
+                )}
               </p>
             </div>
           </div>
