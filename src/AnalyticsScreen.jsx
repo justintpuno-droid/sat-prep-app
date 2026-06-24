@@ -391,7 +391,18 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       .map(([id, v]) => ({ id, label: (domainList.find(d => d.id === id) || {}).label ?? id, avg: Math.round(v.sum / v.n) }))
       .sort((a, b) => b.avg - a.avg)
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, skillList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend, speedByDomainList, calGrid, monthlyAccuracy }
+    const moodByType = {}
+    for (const s of sessions) {
+      if (!s.mood) continue
+      if (!moodByType[s.mood]) moodByType[s.mood] = { sum: 0, n: 0 }
+      moodByType[s.mood].sum += s.score.percent; moodByType[s.mood].n++
+    }
+    const moodStats = Object.entries(moodByType)
+      .map(([id, v]) => ({ id, avg: Math.round(v.sum / v.n), n: v.n }))
+      .sort((a, b) => b.avg - a.avg)
+    const MOOD_LABELS = { fire: '🔥 On Fire', good: '😊 Good', okay: '😐 Okay', tired: '😤 Tired', rough: '😵 Rough' }
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, skillList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend, speedByDomainList, calGrid, monthlyAccuracy, moodStats, MOOD_LABELS }
   }, [sessions])
 
   return (
@@ -1102,6 +1113,40 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Mood vs Performance */}
+            {stats.moodStats.length >= 2 && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">Mood vs Accuracy</p>
+                <p className="text-xs text-gray-400 mb-4">Your average score by how you felt during each session</p>
+                <div className="space-y-3">
+                  {stats.moodStats.map((m, i) => (
+                    <div key={m.id}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-gray-700 flex items-center gap-1">
+                          {stats.MOOD_LABELS[m.id] ?? m.id}
+                          {i === 0 && <span className="text-xs text-emerald-600 font-semibold ml-1">· Best mood</span>}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-400">{m.n} sessions</span>
+                          <span className={`text-sm font-bold ${textColor(m.avg)}`}>{m.avg}%</span>
+                        </div>
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className={`h-full ${barColor(m.avg)} rounded-full`} style={{ width: `${m.avg}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {stats.moodStats.length >= 2 && (() => {
+                  const best = stats.moodStats[0]
+                  const worst = stats.moodStats[stats.moodStats.length - 1]
+                  const gap = best.avg - worst.avg
+                  if (gap < 5) return null
+                  return <p className="text-xs text-gray-400 mt-3 italic">You score {gap}pts higher when {stats.MOOD_LABELS[best.id] ?? best.id} than {stats.MOOD_LABELS[worst.id] ?? worst.id}.</p>
+                })()}
               </div>
             )}
 
