@@ -1213,6 +1213,38 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               )
             })()}
 
+            {/* Math vs Reading personality */}
+            {stats.totalQ >= 30 && (() => {
+              const MATH_DOMAINS = new Set(['algebra','advanced-math','problem-solving-data','geometry','cross-domain'])
+              const mathQs = stats.domainList.filter(d => MATH_DOMAINS.has(d.id))
+              const engQs  = stats.domainList.filter(d => !MATH_DOMAINS.has(d.id))
+              if (mathQs.length === 0 || engQs.length === 0) return null
+              const mathPct = Math.round(mathQs.reduce((s,d) => s + d.correct, 0) / Math.max(1, mathQs.reduce((s,d) => s + d.total, 0)) * 100)
+              const engPct  = Math.round(engQs.reduce((s,d)  => s + d.correct, 0) / Math.max(1, engQs.reduce((s,d)  => s + d.total, 0)) * 100)
+              const delta = mathPct - engPct
+              const personality = delta >= 10 ? 'Math Whiz 🧮' : delta <= -10 ? 'Word Wizard 📖' : 'Balanced Scholar ⚖️'
+              const desc = delta >= 10 ? `You're ${delta}pts stronger in Math than English. Focus on Reading to close the gap.`
+                         : delta <= -10 ? `You're ${Math.abs(delta)}pts stronger in English than Math. Push harder on Algebra and Advanced Math.`
+                         : 'Your Math and English scores are closely matched — great overall balance!'
+              return (
+                <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl p-4 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-indigo-400 mb-3">Your SAT Personality</p>
+                  <p className="text-xl font-black text-gray-900 mb-1">{personality}</p>
+                  <p className="text-xs text-gray-500 mb-3 leading-snug">{desc}</p>
+                  <div className="flex gap-3">
+                    <div className="flex-1 text-center bg-white/70 rounded-xl p-3">
+                      <p className="text-2xl font-black text-indigo-600">{mathPct}%</p>
+                      <p className="text-xs text-gray-500 mt-0.5">Math</p>
+                    </div>
+                    <div className="flex-1 text-center bg-white/70 rounded-xl p-3">
+                      <p className="text-2xl font-black text-violet-600">{engPct}%</p>
+                      <p className="text-xs text-gray-500 mt-0.5">English</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* SAT Report Card */}
             {stats.domainList.filter(d => d.total >= 5).length >= 2 && (() => {
               const grade = p => p >= 95 ? 'A+' : p >= 90 ? 'A' : p >= 87 ? 'A−' : p >= 83 ? 'B+' : p >= 80 ? 'B' : p >= 77 ? 'B−' : p >= 73 ? 'C+' : p >= 70 ? 'C' : p >= 67 ? 'C−' : p >= 63 ? 'D+' : p >= 60 ? 'D' : 'F'
