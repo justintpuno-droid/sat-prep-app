@@ -3069,6 +3069,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
+        {/* Daily motivational quote */}
+        <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 mb-4 flex items-start gap-3">
+          <span className="text-xl shrink-0 mt-0.5">💬</span>
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Quote of the Day</p>
+            <p className="text-sm text-gray-700 font-medium leading-snug italic">"{dailyQuote.text}"</p>
+            {dailyQuote.author && <p className="text-[10px] text-gray-400 mt-1">— {dailyQuote.author}</p>}
+          </div>
+        </div>
+
         {/* XP Shop */}
         <XPShop gam={gam} onPurchase={handleShopPurchase} />
 

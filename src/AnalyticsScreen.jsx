@@ -650,6 +650,47 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               )
             })()}
 
+            {/* 30-day score projection */}
+            {sessions.length >= 5 && (() => {
+              const eligible = sessions.filter(s => s.score.total >= 5).slice(-10)
+              if (eligible.length < 4) return null
+              const toScore = p => Math.round((400 + (p / 100) * 1200) / 10) * 10
+              const scores = eligible.map(s => toScore(s.score.percent))
+              const n = scores.length
+              const sumX = scores.reduce((_, __, i) => _ + i, 0)
+              const sumY = scores.reduce((a, b) => a + b, 0)
+              const sumXY = scores.reduce((s, y, i) => s + i * y, 0)
+              const sumX2 = scores.reduce((s, _, i) => s + i * i, 0)
+              const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX)
+              const projected30 = Math.max(400, Math.min(1600, Math.round((scores[n - 1] + slope * 10) / 10) * 10))
+              const current = scores[n - 1]
+              const delta = projected30 - current
+              const goal = (() => { try { const g = JSON.parse(localStorage.getItem('sat_prep_goal') ?? 'null'); return g?.targetScore ?? null } catch { return null } })()
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">30-Day Score Projection</p>
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="text-3xl font-black text-indigo-700">{projected30}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">projected score</p>
+                    </div>
+                    <div className="h-12 w-px bg-gray-100" />
+                    <div className="flex-1">
+                      <p className={`text-sm font-bold ${delta > 0 ? 'text-emerald-600' : delta < 0 ? 'text-rose-500' : 'text-gray-500'}`}>
+                        {delta > 0 ? `+${delta} from now` : delta < 0 ? `${delta} from now` : 'Holding steady'}
+                      </p>
+                      {goal && (
+                        <p className={`text-xs mt-1 ${projected30 >= goal ? 'text-emerald-600 font-semibold' : 'text-gray-500'}`}>
+                          {projected30 >= goal ? `✓ On track for goal of ${goal}!` : `${goal - projected30} pts below goal of ${goal}`}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-gray-400 mt-1">Based on recent accuracy trend</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* Estimated score trend */}
             {sessions.length >= 3 && (() => {
               const eligible = sessions.filter(s => s.score.total >= 5)
