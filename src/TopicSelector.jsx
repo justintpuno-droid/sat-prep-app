@@ -3352,31 +3352,39 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           try { dismissed = localStorage.getItem(PLAN_KEY) === 'dismissed' } catch {}
           if (dismissed) return null
           const plan = []
-          if (weakDomain) plan.push({ icon: '🎯', label: `Focus: ${weakDomain.label}`, desc: '10 questions', time: 10 })
-          else plan.push({ icon: '⚡', label: 'Quick Practice', desc: '15 random questions', time: 12 })
+          if (weakDomain) plan.push({ icon: '🎯', label: `Focus: ${weakDomain.label}`, desc: '10 questions', time: 10, action: onFocusPractice ? () => onFocusPractice(weakDomain.id) : null })
+          else plan.push({ icon: '⚡', label: 'Quick Practice', desc: '15 random questions', time: 12, action: onQuickPractice ?? null })
           const wrongIds = new Set()
           for (const s of history.slice(-5)) for (const q of s.questions) if ((s.answers?.[q.id] ?? null) !== q.answer) wrongIds.add(q.id)
-          if (wrongIds.size >= 5) plan.push({ icon: '📓', label: 'Wrong Answer Sprint', desc: `Review ${Math.min(wrongIds.size, 15)} missed questions`, time: 8 })
-          plan.push({ icon: '💎', label: '5 Hard Questions', desc: 'Beast Mode warmup', time: 5 })
+          if (wrongIds.size >= 5) plan.push({ icon: '📓', label: 'Wrong Answer Sprint', desc: `Review ${Math.min(wrongIds.size, 15)} missed`, time: 8, action: onWrongAnswerSprint ?? null })
+          plan.push({ icon: '💎', label: '5 Hard Questions', desc: 'Beast Mode warmup', time: 5, action: onQuick5 ?? null })
           const total = plan.reduce((s, p) => s + p.time, 0)
           return (
             <div className="bg-white border-2 border-emerald-200 rounded-2xl p-4 mb-4">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className="text-xs font-black uppercase tracking-widest text-emerald-600">Today's Study Plan</p>
-                  <p className="text-xs text-gray-400 mt-0.5">~{total} minutes · personalized for you</p>
+                  <p className="text-xs text-gray-400 mt-0.5">~{total} minutes · tap a step to start</p>
                 </div>
                 <button onClick={() => { try { localStorage.setItem(PLAN_KEY, 'dismissed') } catch {} window.location.reload() }} className="text-gray-300 text-xs hover:text-gray-400">✕</button>
               </div>
               <div className="space-y-2">
                 {plan.map((p, i) => (
-                  <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 border border-gray-100">
+                  <div
+                    key={i}
+                    onClick={p.action ?? undefined}
+                    className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${p.action ? 'bg-gray-50 border-gray-100 hover:bg-emerald-50 hover:border-emerald-200 cursor-pointer active:scale-[0.98]' : 'bg-gray-50 border-gray-100'}`}
+                  >
                     <span className="text-base shrink-0">{p.icon}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-gray-800">{p.label}</p>
                       <p className="text-[10px] text-gray-400">{p.desc}</p>
                     </div>
-                    <span className="text-[10px] text-gray-400 shrink-0">{p.time}m</span>
+                    {p.action ? (
+                      <span className="text-[10px] font-bold text-emerald-600 shrink-0">Start →</span>
+                    ) : (
+                      <span className="text-[10px] text-gray-400 shrink-0">{p.time}m</span>
+                    )}
                   </div>
                 ))}
               </div>
