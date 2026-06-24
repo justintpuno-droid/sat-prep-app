@@ -1295,6 +1295,46 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
           </>
         )}
 
+        {/* Daily XP chart — last 14 days */}
+        {sessions.length >= 3 && (() => {
+          const days = []
+          for (let i = 13; i >= 0; i--) {
+            const d = new Date(); d.setDate(d.getDate() - i)
+            const key = d.toISOString().slice(0, 10)
+            const daySess = sessions.filter(s => s.completedAt?.slice(0, 10) === key)
+            const xpEarned = daySess.reduce((n, s) => {
+              return n + s.questions.filter(q => (s.answers[q.id] ?? null) === q.answer).length * 10
+            }, 0)
+            days.push({ key, xp: xpEarned, label: d.getDate(), isToday: i === 0 })
+          }
+          const maxXP = Math.max(...days.map(d => d.xp), 50)
+          const totalXP = days.reduce((n, d) => n + d.xp, 0)
+          const studyDays = days.filter(d => d.xp > 0).length
+          return (
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 mt-4 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">XP Earned — Last 14 Days</p>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-indigo-600">{totalXP.toLocaleString()} XP</p>
+                  <p className="text-[10px] text-gray-400">{studyDays} active days</p>
+                </div>
+              </div>
+              <div className="flex items-end gap-1 h-16">
+                {days.map((d, i) => {
+                  const h = d.xp > 0 ? Math.max(4, Math.round((d.xp / maxXP) * 56)) : 2
+                  const color = d.isToday ? 'bg-indigo-600' : d.xp > 0 ? 'bg-indigo-300' : 'bg-gray-100'
+                  return (
+                    <div key={d.key} className="flex-1 flex flex-col items-center gap-0.5">
+                      <div className={`w-full rounded-t-sm ${color}`} style={{ height: `${h}px` }} title={`${d.key}: ${d.xp} XP`} />
+                      {i % 2 === 0 && <span className={`text-[8px] ${d.isToday ? 'text-indigo-600 font-bold' : 'text-gray-300'}`}>{d.label}</span>}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
+
       </div>
     </div>
   )
