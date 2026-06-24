@@ -4,7 +4,7 @@ import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory, getSRCount } from './utils/history'
 import { SAT_VOCAB } from './data/vocab'
-import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze, getPrestigeInfo, doPrestige, saveGamification } from './utils/gamification'
+import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze, getPrestigeInfo, doPrestige, saveGamification, getTodayTripleChallenges, getTripleChallengeProgress, isChallengeComplete } from './utils/gamification'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -482,6 +482,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
   const challengeProgress = useMemo(() => getChallengeProgress(todaySessions, todayChallenge), [todaySessions, todayChallenge])
   const challengeDone = challengeProgress >= todayChallenge.goal
   const challengeAlreadyCredited = gam.dailyChallengeDate === new Date().toISOString().slice(0, 10)
+
+  const tripleToday = useMemo(() => getTodayTripleChallenges(), [])
+  const tripleProgress = useMemo(() => tripleToday.map(c => getTripleChallengeProgress(todaySessions, c)), [todaySessions, tripleToday])
+  const tripleComplete = useMemo(() => tripleToday.map((c, i) => tripleProgress[i] >= c.goal), [tripleProgress, tripleToday])
+  const allTripleComplete = tripleComplete.every(Boolean)
+  const totalTripleBonus = tripleToday.reduce((n, c) => n + c.bonus, 0)
 
   const [prestigeInfo, setPrestigeInfo] = useState(() => getPrestigeInfo(loadGamification()))
   const [showPrestigeConfirm, setShowPrestigeConfirm] = useState(false)
@@ -2143,36 +2149,48 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
-        {/* Daily challenge */}
-        <div className={`rounded-2xl border-2 p-4 mb-4 ${challengeDone ? 'border-emerald-200 bg-emerald-50' : 'border-gray-200 bg-white'}`}>
-          <div className="flex items-center justify-between mb-2">
+        {/* Triple Daily Challenges */}
+        <div className={`rounded-2xl border-2 p-4 mb-4 ${allTripleComplete ? 'border-amber-300 bg-amber-50' : 'border-gray-200 bg-white'}`}>
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-base">🎯</span>
-              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Daily Challenge</p>
+              <span className="text-base">🏆</span>
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Daily Challenges</p>
             </div>
-            {(challengeDone || challengeAlreadyCredited) && (
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
-                {challengeAlreadyCredited ? `+${todayChallenge.bonus} XP earned!` : `+${todayChallenge.bonus} XP on complete`}
-              </span>
-            )}
-            {!challengeDone && !challengeAlreadyCredited && (
-              <span className="text-xs text-gray-400">+{todayChallenge.bonus} XP reward</span>
-            )}
-          </div>
-          <p className={`text-sm font-semibold mb-3 ${challengeDone ? 'text-emerald-800' : 'text-gray-900'}`}>
-            {todayChallenge.desc}
-          </p>
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${challengeDone ? 'bg-emerald-500' : 'bg-indigo-500'}`}
-                style={{ width: `${Math.min(100, (challengeProgress / todayChallenge.goal) * 100)}%` }}
-              />
-            </div>
-            <span className={`text-xs font-bold shrink-0 ${challengeDone ? 'text-emerald-600' : 'text-gray-600'}`}>
-              {Math.min(challengeProgress, todayChallenge.goal)}/{todayChallenge.goal}
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${allTripleComplete ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-500'}`}>
+              {allTripleComplete ? '🎉 All done!' : `+${totalTripleBonus} XP total`}
             </span>
           </div>
+          <div className="space-y-2.5">
+            {tripleToday.map((c, i) => {
+              const done = tripleComplete[i]
+              const prog = tripleProgress[i]
+              const pct = Math.min(100, (prog / c.goal) * 100)
+              return (
+                <div key={c.id} className={`p-2.5 rounded-xl ${done ? 'bg-emerald-50 border border-emerald-100' : 'bg-gray-50 border border-gray-100'}`}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm">{c.icon}</span>
+                      <p className={`text-xs font-semibold ${done ? 'text-emerald-700' : 'text-gray-700'}`}>{c.desc}</p>
+                    </div>
+                    <span className={`text-xs font-bold shrink-0 ml-2 ${done ? 'text-emerald-600' : 'text-gray-400'}`}>
+                      {done ? `+${c.bonus} XP ✓` : `+${c.bonus} XP`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-emerald-500' : 'bg-indigo-400'}`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className={`text-xs font-semibold shrink-0 ${done ? 'text-emerald-600' : 'text-gray-500'}`}>
+                      {Math.min(prog, c.goal)}/{c.goal}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          {allTripleComplete && (
+            <p className="text-center text-xs text-amber-700 font-semibold mt-3">Bonus XP applied — come back tomorrow for new challenges!</p>
+          )}
         </div>
 
         {/* Weekly Challenge */}

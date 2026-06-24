@@ -513,6 +513,80 @@ export function getChallengeProgress(todaySessions, challenge) {
   return 0
 }
 
+// ─── Triple Daily Challenges ────────────────────────────────────────────────
+
+const TRIPLE_POOL = [
+  // Volume
+  { id: 'q15',   type: 'volume', desc: 'Answer 15 questions',        goal: 15,  unit: 'questions',    icon: '📝', bonus: 30 },
+  { id: 'q30',   type: 'volume', desc: 'Answer 30 questions',        goal: 30,  unit: 'questions',    icon: '📝', bonus: 50 },
+  { id: 'q50',   type: 'volume', desc: 'Answer 50 questions',        goal: 50,  unit: 'questions',    icon: '📝', bonus: 80 },
+  // Accuracy
+  { id: 'acc70', type: 'accuracy', desc: 'Score 70%+ in a session', goal: 70, unit: '% score',       icon: '🎯', bonus: 40 },
+  { id: 'acc80', type: 'accuracy', desc: 'Score 80%+ in a session', goal: 80, unit: '% score',       icon: '🎯', bonus: 60 },
+  { id: 'acc90', type: 'accuracy', desc: 'Score 90%+ in a session', goal: 90, unit: '% score',       icon: '🎯', bonus: 90 },
+  // Hard questions
+  { id: 'h5',    type: 'hard', desc: 'Get 5 Hard Qs correct',        goal: 5,   unit: 'Hard correct', icon: '💪', bonus: 60 },
+  { id: 'h10',   type: 'hard', desc: 'Get 10 Hard Qs correct',       goal: 10,  unit: 'Hard correct', icon: '💪', bonus: 100 },
+  // Sessions
+  { id: 's2',    type: 'sessions', desc: 'Complete 2 sessions',      goal: 2,   unit: 'sessions',     icon: '⚡', bonus: 40 },
+  { id: 's3',    type: 'sessions', desc: 'Complete 3 sessions',      goal: 3,   unit: 'sessions',     icon: '⚡', bonus: 70 },
+  // Combo
+  { id: 'c5',    type: 'combo', desc: 'Get a 5-answer streak',        goal: 5,   unit: 'streak',      icon: '🔥', bonus: 50 },
+  { id: 'c8',    type: 'combo', desc: 'Get an 8-answer streak',       goal: 8,   unit: 'streak',      icon: '🔥', bonus: 80 },
+  // Beast
+  { id: 'beast', type: 'mode', desc: 'Complete a Beast Mode session', goal: 1,  unit: 'Beast session', icon: '🦁', bonus: 100 },
+  // Speed
+  { id: 'fast',  type: 'speed', desc: 'Avg under 60s/question (10+ Qs)', goal: 60, unit: 'sec avg', icon: '💨', bonus: 60 },
+  // Variety
+  { id: 'dom2',  type: 'domains', desc: 'Practice 2 different domains',  goal: 2, unit: 'domains',   icon: '🌈', bonus: 40 },
+  { id: 'dom4',  type: 'domains', desc: 'Practice 4 different domains',  goal: 4, unit: 'domains',   icon: '🌈', bonus: 80 },
+]
+
+function seededPick(seed, arr, n) {
+  const out = []
+  const used = new Set()
+  let s = seed
+  while (out.length < n && out.length < arr.length) {
+    s = (s * 1664525 + 1013904223) & 0xffffffff
+    const idx = Math.abs(s) % arr.length
+    if (!used.has(idx)) { used.add(idx); out.push(arr[idx]) }
+  }
+  return out
+}
+
+export function getTodayTripleChallenges() {
+  const d = new Date()
+  const day = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000)
+  return seededPick(day, TRIPLE_POOL, 3)
+}
+
+export function getTripleChallengeProgress(todaySessions, challenge) {
+  if (challenge.type === 'volume') return todaySessions.reduce((n, s) => n + s.score.total, 0)
+  if (challenge.type === 'accuracy') return todaySessions.some(s => s.score.percent >= challenge.goal) ? challenge.goal : 0
+  if (challenge.type === 'hard') {
+    return todaySessions.reduce((n, s) =>
+      n + s.questions.filter(q => q.difficulty === 3 && (s.answers[q.id] ?? null) === q.answer).length, 0)
+  }
+  if (challenge.type === 'sessions') return todaySessions.length
+  if (challenge.type === 'combo') return todaySessions.some(s => (s.maxCombo ?? 0) >= challenge.goal) ? challenge.goal : 0
+  if (challenge.type === 'mode') return todaySessions.some(s => s.formatLabel === 'Beast Mode') ? 1 : 0
+  if (challenge.type === 'speed') {
+    const eligible = todaySessions.filter(s => s.score.total >= 10 && s.elapsedSeconds)
+    if (eligible.length === 0) return 0
+    const best = Math.min(...eligible.map(s => s.elapsedSeconds / s.score.total))
+    return best <= challenge.goal ? challenge.goal : 0
+  }
+  if (challenge.type === 'domains') {
+    const domains = new Set(todaySessions.flatMap(s => s.questions.map(q => q.domain)))
+    return domains.size
+  }
+  return 0
+}
+
+export function isChallengeComplete(todaySessions, challenge) {
+  return getTripleChallengeProgress(todaySessions, challenge) >= challenge.goal
+}
+
 // ─── Weekly challenge ───────────────────────────────────────────────────────
 
 export const WEEKLY_CHALLENGES = [
