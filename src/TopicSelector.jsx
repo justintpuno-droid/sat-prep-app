@@ -1943,6 +1943,54 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
+        {/* College Score Targets */}
+        {scoreEstimate && (() => {
+          const est = Math.round((scoreEstimate.lo + scoreEstimate.hi) / 2)
+          const colleges = [
+            { name: 'Community College',    median: 950,  emoji: '🏫', color: 'text-gray-500' },
+            { name: 'Average State U',       median: 1080, emoji: '🏛️',  color: 'text-gray-600' },
+            { name: 'UC Santa Barbara',      median: 1270, emoji: '🌊', color: 'text-blue-600' },
+            { name: 'USC',                   median: 1400, emoji: '⚔️',  color: 'text-red-600' },
+            { name: 'UCLA',                  median: 1450, emoji: '🐻', color: 'text-blue-700' },
+            { name: 'UC Berkeley',           median: 1490, emoji: '🦅', color: 'text-amber-700' },
+            { name: 'MIT',                   median: 1555, emoji: '🔬', color: 'text-gray-800' },
+            { name: 'Harvard',               median: 1580, emoji: '🎓', color: 'text-red-800' },
+          ]
+          const closestBelow = [...colleges].filter(c => c.median <= est + 50).slice(-3)
+          const closestAbove = [...colleges].filter(c => c.median > est + 50).slice(0, 3)
+          const shown = [...closestBelow.slice(-2), ...closestAbove.slice(0, 3)]
+          if (shown.length === 0) return null
+          return (
+            <div className="bg-white border border-gray-100 rounded-2xl px-4 py-4 mb-4">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Your Score vs. College Medians</p>
+              <div className="space-y-2">
+                {shown.map(c => {
+                  const gap = c.median - est
+                  const reached = gap <= 0
+                  return (
+                    <div key={c.name} className="flex items-center gap-3">
+                      <span className="text-base w-7 shrink-0 text-center">{c.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className={`text-xs font-semibold ${reached ? 'text-gray-800' : 'text-gray-400'}`}>{c.name}</p>
+                          <span className={`text-xs font-bold ${reached ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            {reached ? `✓ In range` : `+${gap} needed`}
+                          </span>
+                        </div>
+                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mt-1">
+                          <div className={`h-full rounded-full transition-all duration-700 ${reached ? 'bg-emerald-400' : 'bg-amber-300'}`}
+                            style={{ width: `${Math.min(100, (est / c.median) * 100)}%` }} />
+                        </div>
+                      </div>
+                      <span className="text-xs text-gray-400 shrink-0 w-10 text-right">{c.median}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Exam readiness composite score */}
         {examReadiness && (
           <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-4">
