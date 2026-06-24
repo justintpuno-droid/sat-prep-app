@@ -138,8 +138,6 @@ export default function BreathingExercise({ onBack }) {
     const fromScale = prevPhase.scale
     const circleScale = fromScale + (rawScale - fromScale) * progress
 
-    const circleSize = 120 + circleSize * 0 + 120 * circleScale
-
     return (
       <div className={`min-h-screen bg-gradient-to-br ${technique.color} flex flex-col items-center justify-center px-6 text-white`}>
         <p className="text-white/50 text-xs font-bold uppercase tracking-widest mb-1">{technique.name}</p>
