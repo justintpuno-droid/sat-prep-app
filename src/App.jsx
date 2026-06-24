@@ -24,6 +24,7 @@ import GrammarRef from './GrammarRef'
 import MathRef from './MathRef'
 import DigitalSATTips from './DigitalSATTips'
 import BreathingExercise from './BreathingExercise'
+import ScoreCalculator from './ScoreCalculator'
 
 export default function App() {
   const [onboarded, setOnboarded] = useState(() => hasOnboarded())
@@ -404,7 +405,7 @@ export default function App() {
     return <Onboarding onDone={() => setOnboarded(true)} />
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onSkillFocus={handleSkillFocus} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} onSATTimed={handleSATTimed} onHeartsMode={handleHeartsMode} onSurvivalMode={handleSurvivalMode} onRampMode={handleRampMode} onWrongJournal={() => setScreen('wrong-journal')} onQuickAssessment={handleQuickAssessment} onPowerHour={handlePowerHour} onStrategyGuide={() => setScreen('strategy-guide')} onStudyNotes={() => setScreen('study-notes')} onGrammarRef={() => setScreen('grammar-ref')} onMathRef={() => setScreen('math-ref')} onDigitalSAT={() => setScreen('digital-sat')} onBreathing={() => setScreen('breathing')} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onSkillFocus={handleSkillFocus} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} onSATTimed={handleSATTimed} onHeartsMode={handleHeartsMode} onSurvivalMode={handleSurvivalMode} onRampMode={handleRampMode} onWrongJournal={() => setScreen('wrong-journal')} onQuickAssessment={handleQuickAssessment} onPowerHour={handlePowerHour} onStrategyGuide={() => setScreen('strategy-guide')} onStudyNotes={() => setScreen('study-notes')} onGrammarRef={() => setScreen('grammar-ref')} onMathRef={() => setScreen('math-ref')} onDigitalSAT={() => setScreen('digital-sat')} onBreathing={() => setScreen('breathing')} onScoreCalculator={() => setScreen('score-calculator')} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
@@ -446,4 +447,7 @@ export default function App() {
 
   if (screen === 'breathing')
     return <BreathingExercise onBack={() => setScreen('home')} />
+
+  if (screen === 'score-calculator')
+    return <ScoreCalculator onBack={() => setScreen('home')} />
 }
