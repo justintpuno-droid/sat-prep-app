@@ -419,6 +419,19 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
       {(gamResult?.leveledUp || score.percent === 100) && <Confetti />}
       <div className="max-w-2xl mx-auto">
 
+        {/* Boss defeated banner */}
+        {gamResult?.bossResult?.defeated && !gamResult?.bossResult?.wasAlreadyDefeated && (() => {
+          const b = gamResult.bossResult
+          return (
+            <div className="rounded-2xl p-5 mb-5 text-center bg-gradient-to-r from-orange-500 via-rose-500 to-purple-600 text-white shadow-xl">
+              <p className="text-4xl mb-2">{b.icon} 💥</p>
+              <p className="text-xl font-black mb-1">Boss Defeated!</p>
+              <p className="font-bold text-white/90">{b.name}</p>
+              <p className="text-white/70 text-xs mt-2">You destroyed the weekly boss · <span className="font-bold text-yellow-300">+{b.xp} XP</span></p>
+            </div>
+          )
+        })()}
+
         {/* Head-to-Head result */}
         {session.rivalResult && (() => {
           const r = session.rivalResult

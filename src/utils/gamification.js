@@ -323,14 +323,15 @@ export function saveBoss(boss) { try { localStorage.setItem(BOSS_KEY, JSON.strin
 
 export function applyBossResult(sessionQuestions, sessionAnswers) {
   const boss = getWeeklyBoss()
-  if (boss.defeated) return boss
+  if (boss.defeated) return { ...boss, wasAlreadyDefeated: true }
   let dmg = 0
   for (const q of sessionQuestions) {
     if (q.domain === boss.domain && (sessionAnswers[q.id] ?? null) === q.answer) dmg += 10
   }
   if (dmg === 0) return boss
   const newHP = Math.max(0, boss.currentHP - dmg)
-  const updated = { ...boss, currentHP: newHP, defeated: newHP === 0 }
+  const justDefeated = newHP === 0
+  const updated = { ...boss, currentHP: newHP, defeated: justDefeated, wasAlreadyDefeated: false }
   saveBoss(updated)
   return updated
 }
