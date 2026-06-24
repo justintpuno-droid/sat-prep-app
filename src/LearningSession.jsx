@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import QuestionCard from './components/QuestionCard'
 import { useTimer } from './hooks/useTimer'
 import { formatTime, scoreQuestions } from './utils/index'
+import { loadGamification } from './utils/gamification'
 
 function BlitzCircle({ seconds }) {
   const max = 60, r = 18, circ = 2 * Math.PI * r
@@ -25,6 +26,7 @@ function BlitzCircle({ seconds }) {
 
 export default function LearningSession({ config, onComplete, onQuit }) {
   const { questions } = config
+  const gam = loadGamification()
   const isBeastMode = config.formatLabel === 'Beast Mode'
   const isBlitzMode = config.formatLabel === 'Blitz Mode'
   const hasMathQuestions = questions.some(q => q.subject === 'math')
@@ -255,9 +257,14 @@ export default function LearningSession({ config, onComplete, onQuit }) {
               {(() => {
                 const day = new Date().getDay()
                 const isWeekend = day === 0 || day === 6
+                const streakMult = gam.streak >= 14 ? 2.0 : gam.streak >= 7 ? 1.5 : gam.streak >= 3 ? 1.25 : 1.0
+                const modeMult = isBeastMode ? 2.0 : 1.0
+                const wkMult = isWeekend ? 1.5 : 1.0
+                const totalMult = streakMult * modeMult * wkMult
+                const multLabel = totalMult > 1.05 ? `${totalMult.toFixed(1)}×` : null
                 return (
                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isBeastMode ? 'bg-amber-500 text-white' : 'text-amber-600 bg-amber-50'}`}>
-                    ⭐ {sessionXP}{isBeastMode ? ' (2×)' : isWeekend ? ' (1.5×)' : ''}
+                    ⭐ {sessionXP}{multLabel ? ` (${multLabel})` : ''}
                   </span>
                 )
               })()}
