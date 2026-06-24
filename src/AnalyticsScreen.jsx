@@ -862,6 +862,32 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                     </div>
                   ))}
                 </div>
+                {/* Difficulty mix stacked bar */}
+                {stats.diffList.length >= 2 && (() => {
+                  const totalAll = stats.diffList.reduce((s, d) => s + d.total, 0)
+                  const mixColors = { Easy: 'bg-emerald-400', Medium: 'bg-amber-400', Hard: 'bg-rose-400' }
+                  return (
+                    <div className="mt-4">
+                      <p className="text-xs text-gray-400 mb-1.5">Question mix (by count)</p>
+                      <div className="flex h-3 rounded-full overflow-hidden">
+                        {stats.diffList.map(d => (
+                          <div key={d.label} className={`${mixColors[d.label]}`} style={{ width: `${Math.round((d.total / totalAll) * 100)}%` }} title={`${d.label}: ${d.total} questions (${Math.round((d.total / totalAll) * 100)}%)`} />
+                        ))}
+                      </div>
+                      <div className="flex gap-3 mt-1.5">
+                        {stats.diffList.map(d => (
+                          <div key={d.label} className="flex items-center gap-1">
+                            <div className={`w-2 h-2 rounded-full ${mixColors[d.label]}`} />
+                            <span className="text-xs text-gray-400">{d.label} {Math.round((d.total / totalAll) * 100)}%</span>
+                          </div>
+                        ))}
+                      </div>
+                      {stats.diffList.find(d => d.label === 'Hard')?.total / totalAll < 0.1 && (
+                        <p className="text-xs text-amber-600 mt-2">💡 Try more Hard questions to maximize score gains</p>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
             )}
 
