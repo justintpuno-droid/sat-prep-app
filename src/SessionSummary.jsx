@@ -798,26 +798,51 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               </div>
             )}
 
-            {breakdownTab === 'difficulty' && (
-              <div className="space-y-3">
-                {[1, 2, 3].map(d => {
-                  const stats = byDifficulty[d]
-                  if (!stats || stats.total === 0) return null
-                  const p = pct(stats.correct, stats.total)
-                  return (
-                    <div key={d}>
-                      <div className="flex items-center justify-between mb-1 text-sm">
-                        <span className={`font-medium ${DIFF_COLOR[d]}`}>{DIFF_LABEL[d]}</span>
-                        <span className="text-gray-500 text-xs">{stats.correct}/{stats.total} ({p}%)</span>
-                      </div>
-                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className={`h-full ${DIFF_BAR[d]} rounded-full transition-all duration-500`} style={{ width: `${p}%` }} />
-                      </div>
+            {breakdownTab === 'difficulty' && (() => {
+              const total = (byDifficulty[1]?.total ?? 0) + (byDifficulty[2]?.total ?? 0) + (byDifficulty[3]?.total ?? 0)
+              const totalCorrect = (byDifficulty[1]?.correct ?? 0) + (byDifficulty[2]?.correct ?? 0) + (byDifficulty[3]?.correct ?? 0)
+              if (total === 0) return null
+              const r = 30, circ = 2 * Math.PI * r
+              const segs = [1, 2, 3].map(d => ({ d, t: byDifficulty[d]?.total ?? 0, c: byDifficulty[d]?.correct ?? 0 })).filter(s => s.t > 0)
+              let offset = 0
+              return (
+                <div>
+                  <div className="flex items-center justify-center gap-6 mb-4">
+                    <svg width="80" height="80" viewBox="0 0 80 80" className="-rotate-90">
+                      <circle cx="40" cy="40" r={r} fill="none" stroke="#f3f4f6" strokeWidth="10" />
+                      {segs.map(({ d, t }) => {
+                        const len = (t / total) * circ
+                        const el = <circle key={d} cx="40" cy="40" r={r} fill="none"
+                          stroke={d === 1 ? '#10b981' : d === 2 ? '#f59e0b' : '#ef4444'} strokeWidth="10"
+                          strokeDasharray={`${len} ${circ}`} strokeDashoffset={-offset} strokeLinecap="butt" />
+                        offset += len
+                        return el
+                      })}
+                    </svg>
+                    <div className="text-center">
+                      <p className="text-2xl font-black text-gray-900">{Math.round((totalCorrect / total) * 100)}%</p>
+                      <p className="text-xs text-gray-400">overall</p>
                     </div>
-                  )
-                })}
-              </div>
-            )}
+                  </div>
+                  <div className="space-y-3">
+                    {[1, 2, 3].map(d => {
+                      const stats = byDifficulty[d]
+                      if (!stats || stats.total === 0) return null
+                      const p = pct(stats.correct, stats.total)
+                      return (
+                        <div key={d} className="flex items-center gap-3">
+                          <span className={`text-xs font-bold w-14 shrink-0 ${DIFF_COLOR[d]}`}>{DIFF_LABEL[d]}</span>
+                          <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div className={`h-full ${DIFF_BAR[d]} rounded-full`} style={{ width: `${p}%` }} />
+                          </div>
+                          <span className="text-xs text-gray-500 w-20 text-right shrink-0">{stats.correct}/{stats.total} · {p}%</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })()}
 
             {breakdownTab === 'answers' && (
               <div>
