@@ -662,12 +662,29 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         )}
 
         {/* Wrong streak warning */}
-        {revealed && wrongStreak >= 3 && !isBlitzMode && (
-          <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2.5 flex items-center gap-2">
-            <span className="text-base">⚠️</span>
-            <p className="text-sm text-amber-800 font-medium">{wrongStreak} wrong in a row — slow down and re-read carefully before selecting.</p>
-          </div>
-        )}
+        {revealed && wrongStreak >= 3 && !isBlitzMode && (() => {
+          const domain = current?.domain ?? ''
+          const TIPS = {
+            'algebra': 'Try writing the equation before solving. Define what x represents first.',
+            'advanced-math': 'Look for patterns. Try plugging in small numbers to test.',
+            'problem-solving-data': 'Re-read the question. Identify what unit the answer needs to be in.',
+            'geometry-trig': 'Label every given length and angle on the figure before solving.',
+            'information-ideas': 'The answer is always in the passage — quote the exact sentence that supports it.',
+            'craft-structure': 'Ask: what is the author\'s PURPOSE for this word/sentence?',
+            'expression-ideas': 'Pick the answer that sounds most like formal academic writing.',
+            'standard-english': 'Say it aloud. If it sounds awkward, it\'s wrong. Look for the grammar rule being tested.',
+          }
+          const tip = TIPS[domain] ?? 'Re-read the question stem carefully before choosing.'
+          return (
+            <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 flex items-start gap-2">
+              <span className="text-base shrink-0 mt-0.5">⚠️</span>
+              <div>
+                <p className="text-xs font-bold text-amber-800">{wrongStreak} in a row — here's a tip:</p>
+                <p className="text-sm text-amber-700 mt-0.5 leading-snug">{tip}</p>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* SAT Timed out banner */}
         {satTimedOut && isSATTimed && (
