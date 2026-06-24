@@ -469,6 +469,81 @@ function QuestionOfDay({ allQuestions }) {
   )
 }
 
+const QOH_KEY = 'sat_prep_qoh'
+function loadQOH() { try { return JSON.parse(localStorage.getItem(QOH_KEY)) ?? {} } catch { return {} } }
+function saveQOH(d) { try { localStorage.setItem(QOH_KEY, JSON.stringify(d)) } catch {} }
+
+function QuestionOfHour({ allQuestions, onXP }) {
+  const hardQs = useMemo(() => allQuestions.filter(q => q.difficulty === 3), [allQuestions])
+  const hourKey = useMemo(() => {
+    const n = new Date()
+    return `${n.toISOString().slice(0, 10)}_${n.getHours()}`
+  }, [])
+  const qohData = useMemo(() => loadQOH(), [])
+  const [answer, setAnswer] = useState(qohData.hourKey === hourKey ? qohData.answer : null)
+  const [revealed, setRevealed] = useState(qohData.hourKey === hourKey && qohData.answer !== undefined)
+  const [minsLeft, setMinsLeft] = useState(() => 59 - new Date().getMinutes())
+
+  const q = useMemo(() => {
+    const hourIdx = Math.floor(Date.now() / 3600000)
+    return hardQs[hourIdx % Math.max(1, hardQs.length)]
+  }, [hardQs])
+
+  useEffect(() => {
+    const t = setInterval(() => setMinsLeft(59 - new Date().getMinutes()), 30000)
+    return () => clearInterval(t)
+  }, [])
+
+  if (!q || hardQs.length === 0) return null
+  const isCorrect = answer === q.answer
+
+  function handlePick(optId) {
+    if (revealed) return
+    setAnswer(optId)
+    setRevealed(true)
+    saveQOH({ hourKey, answer: optId, questionId: q.id })
+    if (optId === q.answer && onXP) onXP(50)
+  }
+
+  return (
+    <div className="bg-gradient-to-br from-violet-900 to-indigo-900 border border-violet-700 rounded-2xl p-4 mb-4 text-white">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-xs font-bold text-violet-300 uppercase tracking-widest">⚡ Question of the Hour</span>
+        <span className="text-xs font-semibold text-rose-300">Hard</span>
+        <span className="ml-auto text-xs text-violet-400">🕐 ~{minsLeft}m left</span>
+        {revealed && (
+          <span className={`text-sm font-black ml-1 ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
+            {isCorrect ? '✓' : '✗'}
+          </span>
+        )}
+      </div>
+      <p className="text-sm text-violet-100 leading-relaxed mb-3 line-clamp-4">{q.question}</p>
+      <div className="space-y-1.5">
+        {(q.options ?? []).map(opt => {
+          let cls = 'border-violet-700 bg-violet-800/50 text-violet-200 hover:border-violet-500 cursor-pointer'
+          if (revealed) {
+            if (opt.id === q.answer) cls = 'border-emerald-400 bg-emerald-900/40 text-emerald-300'
+            else if (opt.id === answer) cls = 'border-rose-400 bg-rose-900/40 text-rose-300'
+            else cls = 'border-violet-800 bg-transparent text-violet-500'
+          }
+          return (
+            <button key={opt.id} onClick={() => handlePick(opt.id)} disabled={revealed}
+              className={`w-full text-left rounded-xl border px-3 py-2 text-xs flex items-center gap-2 transition-all ${cls}`}>
+              <span className="font-bold w-4 shrink-0">{opt.id}</span>
+              <span>{opt.text}</span>
+            </button>
+          )
+        })}
+      </div>
+      {revealed && (
+        <p className={`mt-2.5 text-xs font-semibold text-center ${isCorrect ? 'text-emerald-400' : 'text-violet-400'}`}>
+          {isCorrect ? '⭐ +50 XP! Come back next hour for a new challenge.' : 'Next hard question drops next hour!'}
+        </p>
+      )}
+    </div>
+  )
+}
+
 function StudyCalendar({ sessions }) {
   const weeks = useMemo(() => {
     const qByDate = {}
@@ -3109,6 +3184,9 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
 
         {/* Daily Spin */}
         <DailySpin />
+
+        {/* Question of the Hour */}
+        <QuestionOfHour allQuestions={questions} onXP={xp => { const g = loadGamification(); saveGamification({ ...g, totalXP: (g.totalXP ?? 0) + xp }) }} />
 
         {/* Question of the Day */}
         <QuestionOfDay allQuestions={questions} />
