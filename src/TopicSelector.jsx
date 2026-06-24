@@ -270,7 +270,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const gam = useMemo(() => loadGamification(), [])
@@ -352,6 +352,28 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     const [id, st] = candidate
     const daysSince = Math.round((Date.now() - new Date(st.lastSeen + 'T12:00:00').getTime()) / 86400000)
     return { id, label: domainById[id]?.label ?? id, pct: Math.round((st.correct / st.total) * 100), daysSince }
+  }, [history])
+
+  const masteredTopics = useMemo(() => {
+    const byDomain = {}
+    for (const s of history) {
+      for (const q of s.questions) {
+        if (!byDomain[q.domain]) byDomain[q.domain] = { c: 0, t: 0 }
+        byDomain[q.domain].t++
+        if ((s.answers[q.id] ?? null) === q.answer) byDomain[q.domain].c++
+      }
+    }
+    return Object.entries(byDomain).filter(([, v]) => v.t >= 20 && v.c / v.t >= 0.8).length
+  }, [history])
+
+  const recentWrongCount = useMemo(() => {
+    const ids = new Set()
+    for (const s of history.slice(-10)) {
+      for (const q of s.questions) {
+        if ((s.answers[q.id] ?? null) !== q.answer) ids.add(q.id)
+      }
+    }
+    return ids.size
   }, [history])
 
   const scoreEstimate = useMemo(() => {
@@ -788,6 +810,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               )}
             </div>
             <div className="flex gap-2">
+              {onWrongAnswerSprint && recentWrongCount > 0 && (
+                <button onClick={onWrongAnswerSprint} className="text-xs font-semibold text-rose-600 hover:text-rose-800 border border-rose-200 bg-rose-50 rounded-lg px-3 py-1.5 transition-colors" title={`Drill ${Math.min(recentWrongCount, 15)} recent wrong answers`}>
+                  🔁 Wrong ({recentWrongCount})
+                </button>
+              )}
               {onAdaptiveQuiz && history.length >= 3 && (
                 <button onClick={onAdaptiveQuiz} className="text-xs font-semibold text-violet-600 hover:text-violet-800 border border-violet-200 bg-violet-50 rounded-lg px-3 py-1.5 transition-colors" title="Smart quiz weighted to your weak spots">
                   🧠 Adaptive
@@ -909,6 +936,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <div className="shrink-0 text-center">
                 <p className="text-base font-black text-indigo-500">{qMilestone.gap}</p>
                 <p className="text-xs text-gray-400 mt-0.5">to {qMilestone.next}</p>
+              </div>
+            </>
+          )}
+
+          {masteredTopics > 0 && (
+            <>
+              <div className="h-12 w-px bg-gray-100 shrink-0" />
+              <div className="shrink-0 text-center">
+                <p className="text-xl">⭐</p>
+                <p className="text-xs text-gray-400 mt-1">{masteredTopics} mastered</p>
               </div>
             </>
           )}

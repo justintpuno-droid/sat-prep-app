@@ -39,6 +39,26 @@ export default function App() {
     setScreen('summary')
   }
 
+  function handleWrongAnswerSprint() {
+    const history = loadHistory()
+    const byId = Object.fromEntries(allQuestions.map(q => [q.id, q]))
+    const wrongIds = new Set()
+    for (const s of history.slice(-10)) {
+      for (const q of s.questions) {
+        if ((s.answers[q.id] ?? null) !== q.answer) wrongIds.add(q.id)
+      }
+    }
+    const wrongQs = [...wrongIds].map(id => byId[id]).filter(Boolean)
+    if (wrongQs.length === 0) return
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Wrong Answer Sprint',
+      sessionName: null,
+      questions: shuffle(wrongQs).slice(0, 15),
+    })
+    setScreen('learning')
+  }
+
   function handleRetry(wrongQuestions) {
     setSessionConfig({
       mode: 'learning',
@@ -173,7 +193,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
