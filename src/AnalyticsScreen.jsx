@@ -198,6 +198,20 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     const biasTotal = Object.values(wrongChoices).reduce((a, b) => a + b, 0)
     const answerBias = biasTotal >= 20 ? wrongChoices : null
 
+    // Wrong answers per session trend: recent 5 vs prior 5
+    let wrongTrend = null
+    {
+      const eligible = sessions.filter(s => s.score.total >= 5)
+      if (eligible.length >= 8) {
+        const older = eligible.slice(-10, -5)
+        const newer = eligible.slice(-5)
+        const oldWrong = older.reduce((s, x) => s + (x.score.total - x.score.correct), 0) / older.length
+        const newWrong = newer.reduce((s, x) => s + (x.score.total - x.score.correct), 0) / newer.length
+        const delta = Math.round((oldWrong - newWrong) * 10) / 10
+        wrongTrend = { oldWrong: Math.round(oldWrong * 10) / 10, newWrong: Math.round(newWrong * 10) / 10, delta, improved: delta > 0.5 }
+      }
+    }
+
     // 30-day activity heatmap data
     const heatmap = []
     for (let i = 29; i >= 0; i--) {
@@ -268,7 +282,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     // Questions per minute efficiency
     const qPerMin = totalTime > 0 ? (totalQ / (totalTime / 60)).toFixed(1) : null
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend }
   }, [sessions])
 
   return (
@@ -484,6 +498,15 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               />
               <StatCard label="Time Studied" value={formatTime(stats.totalTime)} />
               {stats.avgSessionMin && <StatCard label="Avg Session" value={`${stats.avgSessionMin}m`} sub="per session" />}
+              {stats.wrongTrend && (
+                <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
+                  <p className={`text-2xl font-black ${stats.wrongTrend.improved ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    {stats.wrongTrend.improved ? '↓' : '↑'} {Math.abs(stats.wrongTrend.delta)}
+                  </p>
+                  <p className="text-xs font-semibold text-gray-500 mt-0.5">Wrong / session</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{stats.wrongTrend.newWrong} recent vs {stats.wrongTrend.oldWrong} before</p>
+                </div>
+              )}
               {stats.consistency && (
                 <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
                   <p className={`text-2xl font-black ${stats.consistency.color}`}>{stats.consistency.label}</p>

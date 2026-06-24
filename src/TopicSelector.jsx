@@ -417,6 +417,14 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return xp
   }, [history])
 
+  const weeklySessionCount = useMemo(() => {
+    const mon = new Date()
+    const day = mon.getDay()
+    mon.setDate(mon.getDate() - (day === 0 ? 6 : day - 1))
+    const monStr = mon.toISOString().slice(0, 10)
+    return history.filter(s => s.completedAt.slice(0, 10) >= monStr).length
+  }, [history])
+
   const dailyXPSparkline = useMemo(() => {
     const days = []
     for (let i = 6; i >= 0; i--) {
@@ -1216,6 +1224,21 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             )
           })()}
         </div>
+
+        {/* Weekly session count */}
+        {weeklySessionCount > 0 && (
+          <div className="flex items-center justify-between mb-4 px-1">
+            <span className="text-xs text-gray-500">📅 Sessions this week</span>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1">
+                {[1,2,3,4,5].map(n => (
+                  <div key={n} className={`w-4 h-4 rounded-sm ${n <= weeklySessionCount ? 'bg-indigo-500' : 'bg-gray-100'}`} />
+                ))}
+              </div>
+              <span className="text-xs font-bold text-indigo-600">{weeklySessionCount}/5</span>
+            </div>
+          </div>
+        )}
 
         {/* Best of the week highlight */}
         {bestOfWeek && (
