@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { loadGamification, getLevelInfo, getLevelColor, ACHIEVEMENTS, getPrestigeInfo, saveGamification } from './utils/gamification'
 import { loadHistory } from './utils/history'
 
@@ -18,10 +18,20 @@ function computeStreak(sessions) {
 }
 
 export default function ProfileScreen({ onBack }) {
-  const gam = useMemo(() => loadGamification(), [])
+  const [gam, setGam] = useState(() => loadGamification())
   const history = useMemo(() => loadHistory(), [])
   const [avatar, setAvatar] = useState(loadAvatar)
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
+  const [shopMsg, setShopMsg] = useState(null)
+
+  const buyItem = useCallback((cost, update, label) => {
+    if ((gam.totalXP ?? 0) < cost) { setShopMsg(`Need ${cost} XP!`); setTimeout(() => setShopMsg(null), 1500); return }
+    const next = { ...gam, totalXP: gam.totalXP - cost, ...update }
+    saveGamification(next)
+    setGam(next)
+    setShopMsg(`Bought ${label}!`)
+    setTimeout(() => setShopMsg(null), 1500)
+  }, [gam])
   const levelInfo = useMemo(() => getLevelInfo(gam.totalXP), [gam])
   const levelColor = useMemo(() => getLevelColor(levelInfo.level), [levelInfo])
   const prestigeInfo = useMemo(() => getPrestigeInfo(gam), [gam])
@@ -180,7 +190,7 @@ export default function ProfileScreen({ onBack }) {
         )}
 
         {/* Inventory */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Inventory</p>
           <div className="flex gap-3">
             <div className="flex-1 bg-violet-50 border border-violet-100 rounded-xl p-3 text-center">
@@ -195,6 +205,35 @@ export default function ProfileScreen({ onBack }) {
               <p className="text-2xl font-black text-amber-700">{gam.hintCredits ?? 0}</p>
               <p className="text-xs text-amber-500">💡 Hints</p>
             </div>
+          </div>
+        </div>
+
+        {/* XP Shop */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">XP Shop</p>
+            <span className="text-xs font-bold text-amber-600">⭐ {(gam.totalXP ?? 0).toLocaleString()} XP available</span>
+          </div>
+          {shopMsg && <div className="mb-3 text-center text-xs font-bold text-indigo-600 bg-indigo-50 rounded-xl py-2">{shopMsg}</div>}
+          <div className="space-y-2">
+            {[
+              { label: '🚀 XP Boost',     cost: 200, desc: '2× XP on next session', action: () => buyItem(200, { boosts: (gam.boosts ?? 0) + 1 }, '🚀 Boost') },
+              { label: '🧊 Streak Freeze', cost: 150, desc: 'Protect your streak for 1 day', action: () => buyItem(150, { streakFreezes: (gam.streakFreezes ?? 0) + 1 }, '🧊 Freeze') },
+              { label: '💡 Hint ×3',       cost: 100, desc: 'Get 3 hints to use anytime', action: () => buyItem(100, { hintCredits: (gam.hintCredits ?? 0) + 3 }, '💡 Hints') },
+            ].map(item => (
+              <div key={item.label} className="flex items-center justify-between gap-3 py-2 border-b border-gray-50 last:border-0">
+                <div>
+                  <p className="text-sm font-bold text-gray-800">{item.label}</p>
+                  <p className="text-xs text-gray-400">{item.desc}</p>
+                </div>
+                <button
+                  onClick={item.action}
+                  className="shrink-0 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black px-3 py-1.5 rounded-xl transition-colors"
+                >
+                  {item.cost} XP
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
