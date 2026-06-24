@@ -328,6 +328,31 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return seen.size
   }, [history])
 
+  const weeklyFocusPlan = useMemo(() => {
+    if (history.length < 5) return null
+    const byDomain = {}
+    for (const s of history) {
+      for (const q of s.questions) {
+        if (!byDomain[q.domain]) byDomain[q.domain] = { c: 0, t: 0 }
+        byDomain[q.domain].t++
+        if ((s.answers[q.id] ?? null) === q.answer) byDomain[q.domain].c++
+      }
+    }
+    const allDomainIds = new Set(questions.map(q => q.domain))
+    const unpracticed = [...allDomainIds]
+      .filter(id => !byDomain[id] || byDomain[id].t < 3)
+      .slice(0, 2)
+      .map(id => ({ id, label: domainById[id]?.label ?? id, status: 'new' }))
+    const struggling = Object.entries(byDomain)
+      .filter(([, v]) => v.t >= 5 && (v.c / v.t) < 0.7)
+      .sort(([, a], [, b]) => (a.c / a.t) - (b.c / b.t))
+      .slice(0, 3)
+      .map(([id, v]) => ({ id, label: domainById[id]?.label ?? id, pct: Math.round((v.c / v.t) * 100), status: 'weak' }))
+    const focus = [...struggling, ...unpracticed].slice(0, 3)
+    if (focus.length === 0) return null
+    return focus
+  }, [history])
+
   const tomorrowFocus = useMemo(() => {
     if (history.length < 5) return null
     const threeDaysAgo = new Date(); threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
@@ -1352,6 +1377,32 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             )
           })()}
         </div>
+
+        {/* This week's focus plan */}
+        {weeklyFocusPlan && (
+          <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">📋 This Week's Focus</p>
+            <div className="space-y-1.5">
+              {weeklyFocusPlan.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setSelectedDomains(new Set([f.id]))}
+                  className="w-full flex items-center gap-2 group text-left"
+                >
+                  <span className={`shrink-0 w-4 h-4 rounded-full text-white text-center text-xs leading-4 font-bold ${f.status === 'weak' ? 'bg-rose-400' : 'bg-indigo-400'}`}>
+                    {f.status === 'weak' ? '!' : '+'}
+                  </span>
+                  <span className="text-sm text-gray-700 group-hover:text-indigo-600 transition-colors flex-1">{f.label}</span>
+                  {f.pct !== undefined
+                    ? <span className="text-xs text-rose-400 font-semibold">{f.pct}%</span>
+                    : <span className="text-xs text-indigo-400 font-medium">not started</span>
+                  }
+                  <span className="text-xs text-gray-300 group-hover:text-indigo-400">→</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Best study time tip */}
         {bestStudyTime && (() => {
