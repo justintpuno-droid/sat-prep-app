@@ -242,6 +242,18 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
   const [breakdownTab, setBreakdownTab] = useState('subject')
   const [reviewFilter, setReviewFilter] = useState('all')
   const [copied, setCopied] = useState(false)
+  const xpTarget = gamResult ? gamResult.newXP - gamResult.oldXP : 0
+  const [displayedXP, setDisplayedXP] = useState(0)
+  useEffect(() => {
+    if (!xpTarget) return
+    let start = 0; const step = Math.max(1, Math.round(xpTarget / 30))
+    const timer = setInterval(() => {
+      start += step
+      if (start >= xpTarget) { setDisplayedXP(xpTarget); clearInterval(timer) }
+      else setDisplayedXP(start)
+    }, 30)
+    return () => clearInterval(timer)
+  }, [xpTarget])
 
   function handleCopyResults() {
     const date = new Date(session.completedAt ?? Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
@@ -376,7 +388,7 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl p-5 mb-4 text-white">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-semibold uppercase tracking-widest text-indigo-200">XP Earned</p>
-              <p className="text-3xl font-black">+{gamResult.newXP - gamResult.oldXP}</p>
+              <p className="text-3xl font-black tabular-nums">+{displayedXP}</p>
             </div>
             <div className="flex flex-wrap gap-3 text-xs text-indigo-200 mb-4">
               <span>Base: +{gamResult.xp.base}</span>
