@@ -2525,30 +2525,62 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
         )}
 
         {/* Test day checklist — shown when exam is within 7 days */}
-        {daysLeft !== null && daysLeft >= 0 && daysLeft <= 7 && (
-          <div className="rounded-2xl bg-gradient-to-br from-rose-600 to-rose-800 p-4 mb-4 text-white">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-lg">📅</span>
-              <p className="font-black text-sm">{daysLeft === 0 ? 'SAT Day Is Here!' : `${daysLeft} Day${daysLeft !== 1 ? 's' : ''} Until Your SAT!`}</p>
-            </div>
-            <div className="space-y-1.5">
-              {[
-                { label: 'Admission ticket printed', key: 'ticket' },
-                { label: 'Photo ID ready', key: 'id' },
-                { label: 'Pencils & eraser packed', key: 'pencils' },
-                { label: 'Approved calculator', key: 'calc' },
-                { label: 'Snacks & water bottle', key: 'snacks' },
-                { label: 'Sleep 8+ hours tonight', key: 'sleep' },
-              ].map(({ label, key }) => (
-                <div key={key} className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded border-2 border-rose-300 shrink-0" />
-                  <span className="text-xs text-rose-100">{label}</span>
+        {daysLeft !== null && daysLeft >= 0 && daysLeft <= 7 && (() => {
+          const CHECKLIST_KEY = 'sat_prep_testday_checklist'
+          const ITEMS = [
+            { label: 'Admission ticket printed or saved', key: 'ticket' },
+            { label: 'Photo ID ready', key: 'id' },
+            { label: '#2 pencils & eraser packed', key: 'pencils' },
+            { label: 'Approved calculator + spare batteries', key: 'calc' },
+            { label: 'Snacks & water bottle', key: 'snacks' },
+            { label: 'Alarm set — arrive 30 min early', key: 'alarm' },
+            { label: 'Sleep 8+ hours tonight', key: 'sleep' },
+            { label: 'Eat a real breakfast tomorrow', key: 'breakfast' },
+          ]
+          const [checked, setChecked] = [
+            (() => { try { return JSON.parse(localStorage.getItem(CHECKLIST_KEY) ?? '{}') } catch { return {} } })(),
+            (fn) => {
+              const prev = (() => { try { return JSON.parse(localStorage.getItem(CHECKLIST_KEY) ?? '{}') } catch { return {} } })()
+              const next = fn(prev)
+              try { localStorage.setItem(CHECKLIST_KEY, JSON.stringify(next)) } catch {}
+              return next
+            }
+          ]
+          const doneCount = ITEMS.filter(i => checked[i.key]).length
+          const allDone = doneCount === ITEMS.length
+          return (
+            <div className="rounded-2xl bg-gradient-to-br from-rose-600 to-rose-800 p-4 mb-4 text-white">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">📅</span>
+                  <p className="font-black text-sm">{daysLeft === 0 ? 'SAT Day Is Here!' : `${daysLeft} Day${daysLeft !== 1 ? 's' : ''} Until Your SAT!`}</p>
                 </div>
-              ))}
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${allDone ? 'bg-white text-rose-700' : 'bg-white/20 text-rose-200'}`}>{doneCount}/{ITEMS.length}</span>
+              </div>
+              <div className="space-y-2">
+                {ITEMS.map(({ label, key }) => {
+                  const isChecked = !!checked[key]
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setChecked(prev => ({ ...prev, [key]: !prev[key] }))}
+                      className="w-full flex items-center gap-2.5 text-left"
+                    >
+                      <div className={`w-5 h-5 rounded-md border-2 shrink-0 flex items-center justify-center transition-all ${isChecked ? 'bg-white border-white' : 'border-rose-300'}`}>
+                        {isChecked && <span className="text-rose-700 text-xs font-black">✓</span>}
+                      </div>
+                      <span className={`text-xs leading-tight ${isChecked ? 'line-through text-rose-400' : 'text-rose-100'}`}>{label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+              {allDone
+                ? <p className="text-xs text-white font-bold mt-3 text-center">✅ All set! Go get that score!</p>
+                : <p className="text-xs text-rose-300 mt-3">💡 Light review only — trust your preparation!</p>
+              }
             </div>
-            <p className="text-xs text-rose-300 mt-3">💡 Light review only — trust your preparation!</p>
-          </div>
-        )}
+          )
+        })()}
 
         {/* Next Up recommendation */}
         {recommendation && (
