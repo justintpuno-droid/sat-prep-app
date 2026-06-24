@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { loadHistory } from './utils/history'
 import { loadGamification, getLevelInfo, ACHIEVEMENTS } from './utils/gamification'
 import { pct, formatTime, shuffle } from './utils/index'
-import { domainById, skillById } from './data/taxonomy'
+import { TAXONOMY, domainById, skillById } from './data/taxonomy'
 
 function barColor(p) {
   return p >= 80 ? 'bg-emerald-500' : p >= 60 ? 'bg-amber-500' : 'bg-rose-500'
@@ -1271,6 +1271,51 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                     ))}
                   </div>
                   <p className="text-xs text-gray-400 mt-3 text-center">Grades based on accuracy (min 5 questions per domain)</p>
+                </div>
+              )
+            })()}
+
+            {/* Skill Mastery Map */}
+            {stats.skillList.length >= 3 && (() => {
+              const bySkill = Object.fromEntries(stats.skillList.map(s => [s.id, s]))
+              const masteried = stats.skillList.filter(s => s.p >= 80 && s.total >= 5).length
+              const total = TAXONOMY.flatMap(s => s.domains).flatMap(d => d.skills).length
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Skill Mastery Map</p>
+                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{masteried}/{total} mastered</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-4">Green = mastered (≥80%, ≥5 attempts) · Yellow = in progress · Gray = not yet practiced</p>
+                  {TAXONOMY.map(subject => (
+                    <div key={subject.id} className="mb-4">
+                      <p className="text-xs font-bold text-gray-600 mb-2">{subject.icon} {subject.label}</p>
+                      {subject.domains.map(domain => (
+                        <div key={domain.id} className="mb-2">
+                          <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wide mb-1">{domain.label}</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {domain.skills.map(skill => {
+                              const s = bySkill[skill.id]
+                              const status = !s ? 'none' : s.p >= 80 && s.total >= 5 ? 'mastered' : 'progress'
+                              return (
+                                <span
+                                  key={skill.id}
+                                  title={s ? `${skill.label}: ${s.p}% (${s.total} attempts)` : `${skill.label}: not yet practiced`}
+                                  className={`text-[10px] font-semibold px-2 py-1 rounded-lg border leading-tight max-w-[140px] truncate ${
+                                    status === 'mastered' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                    status === 'progress' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                    'bg-gray-50 text-gray-300 border-gray-100'
+                                  }`}
+                                >
+                                  {status === 'mastered' ? '✓ ' : status === 'progress' ? '⟳ ' : ''}{skill.label}
+                                </span>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               )
             })()}
