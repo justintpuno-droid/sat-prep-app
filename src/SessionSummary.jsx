@@ -221,6 +221,17 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
   const flaggedSet = useMemo(() => new Set(flaggedIds ?? []), [flaggedIds])
   const [breakdownTab, setBreakdownTab] = useState('subject')
   const [reviewFilter, setReviewFilter] = useState('all')
+  const [copied, setCopied] = useState(false)
+
+  function handleCopyResults() {
+    const domains = [...new Set(questions.map(q => q.domain))].slice(0, 2).join(' & ')
+    const date = new Date(session.completedAt ?? Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    const text = `SAT Prep · ${score.percent}% (${score.correct}/${score.total}) · ${formatLabel} · ${domains || 'Mixed'} · ${date}`
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }).catch(() => {})
+  }
 
   const modeColor = mode === 'learning' ? 'bg-indigo-100 text-indigo-700' : 'bg-violet-100 text-violet-700'
 
@@ -685,6 +696,10 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               New Session →
             </button>
           </div>
+          <button onClick={handleCopyResults}
+            className="w-full py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-colors">
+            {copied ? '✅ Copied to clipboard!' : '📋 Copy results'}
+          </button>
         </div>
 
       </div>

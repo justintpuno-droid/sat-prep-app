@@ -379,6 +379,22 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return xp
   }, [history])
 
+  const dailyXPSparkline = useMemo(() => {
+    const days = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i)
+      const key = d.toISOString().slice(0, 10)
+      let xp = 0
+      for (const s of history) {
+        if (s.completedAt.slice(0, 10) === key) {
+          xp += s.score.correct * 10 + (s.score.total - s.score.correct) * 5
+        }
+      }
+      days.push({ key, xp, label: ['S','M','T','W','T','F','S'][d.getDay()] })
+    }
+    return days
+  }, [history])
+
   const recentAchievements = useMemo(() => {
     const cutoff = Date.now() - 24 * 60 * 60 * 1000
     return Object.entries(gam.achievements)
@@ -1069,6 +1085,28 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           <p className="text-xs text-gray-400 mt-1.5">
             {weekXP >= weeklyXPGoal ? '✅ Weekly goal reached!' : `${(weeklyXPGoal - weekXP).toLocaleString()} XP to go this week`}
           </p>
+          {/* Daily XP sparkline */}
+          {dailyXPSparkline.some(d => d.xp > 0) && (() => {
+            const maxXP = Math.max(...dailyXPSparkline.map(d => d.xp), 1)
+            return (
+              <div className="flex items-end gap-1 mt-3 h-8">
+                {dailyXPSparkline.map((d, i) => {
+                  const today = i === 6
+                  const h = Math.max(4, Math.round((d.xp / maxXP) * 32))
+                  return (
+                    <div key={d.key} className="flex flex-col items-center gap-0.5 flex-1">
+                      <div
+                        className={`w-full rounded-t-sm transition-all ${today ? (d.xp ? 'bg-indigo-500' : 'bg-indigo-200') : d.xp ? 'bg-indigo-300' : 'bg-gray-100'}`}
+                        style={{ height: `${h}px` }}
+                        title={`${d.key}: ${d.xp} XP`}
+                      />
+                      <span className={`text-xs leading-none ${today ? 'text-indigo-500 font-bold' : 'text-gray-300'}`}>{d.label}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
         </div>
 
         {/* SAT score goal tracker */}
