@@ -98,6 +98,9 @@ export const ACHIEVEMENTS = [
   { id: 'all-formats',     icon: '🎨', title: 'Format Explorer',   desc: 'Try every practice mode (Quick, Beast, Blitz, Adaptive, Sudden Death)' },
   { id: 'timed-ace',       icon: '⏱', title: 'Under Pressure',    desc: 'Score 90%+ on a Timed Challenge' },
   { id: 'xp-10000',        icon: '🌌', title: 'Galaxy Brain',      desc: 'Accumulate 10,000 total XP' },
+  { id: 'vocab-10',         icon: '📖', title: 'Word Collector',    desc: 'Master 10 SAT vocabulary words' },
+  { id: 'vocab-30',         icon: '📚', title: 'Vocabulary Pro',    desc: 'Master 30 SAT vocabulary words' },
+  { id: 'vocab-all',        icon: '🎓', title: 'Word Master',       desc: 'Master all 60 SAT vocabulary words' },
   // Secret achievements (hidden until unlocked)
   { id: 'midnight-scholar', icon: '🌑', title: 'Midnight Scholar',  desc: '???', hidden: true },
   { id: 'perfect-beast',    icon: '🦁', title: 'Perfect Beast',     desc: '???', hidden: true },
@@ -235,6 +238,9 @@ const CHECKS = {
     return Object.values(byday).some(n => n >= 5)
   },
   'speed-god':        (h) => h.some(s => s.score.total >= 10 && s.elapsedSeconds && (s.elapsedSeconds / s.score.total) < 15),
+  'vocab-10':  () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 10 } catch { return false } },
+  'vocab-30':  () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 30 } catch { return false } },
+  'vocab-all': () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 60 } catch { return false } },
 }
 
 // ─── Storage ───────────────────────────────────────────────────────────────
