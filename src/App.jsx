@@ -17,8 +17,10 @@ import { loadGamification, saveGamification, processSession } from './utils/gami
 import { shuffle } from './utils/index'
 import allQuestions from './data/questions'
 import { MATH_DOMAIN_IDS, ENG_DOMAIN_IDS } from './data/taxonomy'
+import Onboarding, { hasOnboarded } from './Onboarding'
 
 export default function App() {
+  const [onboarded, setOnboarded] = useState(() => hasOnboarded())
   const [screen, setScreen] = useState('home')
   const [filters, setFilters] = useState(null)
   const [sessionConfig, setSessionConfig] = useState(null)
@@ -379,6 +381,9 @@ export default function App() {
     })
     setScreen('learning')
   }
+
+  if (!onboarded)
+    return <Onboarding onDone={() => setOnboarded(true)} />
 
   if (screen === 'home')
     return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} onSATTimed={handleSATTimed} onHeartsMode={handleHeartsMode} onSurvivalMode={handleSurvivalMode} onRampMode={handleRampMode} onWrongJournal={() => setScreen('wrong-journal')} onQuickAssessment={handleQuickAssessment} onPowerHour={handlePowerHour} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
