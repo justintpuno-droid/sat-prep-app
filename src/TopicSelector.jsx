@@ -1553,6 +1553,42 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           )
         })()}
 
+        {/* Most Wanted — persistent mistake questions */}
+        {persistentMistakes.length >= 3 && (() => {
+          const byId = Object.fromEntries(questions.map(q => [q.id, q]))
+          const top3 = persistentMistakes.slice(0, 3).map(m => ({ ...m, q: byId[m.id] })).filter(m => m.q)
+          if (top3.length === 0) return null
+          return (
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest">🎯 Most Wanted</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Questions you keep missing</p>
+                </div>
+                {onProblemAreasDrill && (
+                  <button onClick={onProblemAreasDrill} className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl hover:bg-rose-100 transition-colors">
+                    Drill all →
+                  </button>
+                )}
+              </div>
+              <div className="space-y-2">
+                {top3.map((m, i) => (
+                  <div key={m.id} className="flex items-start gap-3 bg-rose-50 rounded-xl px-3 py-2.5">
+                    <span className="text-sm font-black text-rose-400 shrink-0 mt-0.5">#{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-700 line-clamp-1 font-medium">{m.q.question.replace(/\n/g, ' ').slice(0, 70)}…</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-gray-400">{domainById[m.q.domain]?.label ?? m.q.domain}</span>
+                        <span className="text-rose-400 text-xs font-semibold">✗ {m.wrongCount}×</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Domain mastery map */}
         {history.length >= 3 && (() => {
           const byDomain = {}
