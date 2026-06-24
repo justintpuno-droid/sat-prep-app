@@ -808,7 +808,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     const row = SAT_PERCENTILES.find(([s]) => midScore >= s)
     const percentile = row ? row[1] : 1
 
-    return { lo: band[1], hi: band[2], mathScore, engScore, trend, percentile, midScore }
+    // All-time improvement: first 3 eligible vs. current
+    const firstSessions = history.filter(s => s.score.total >= 10).slice(0, 5)
+    let improvementPoints = null
+    if (firstSessions.length >= 3) {
+      const earlyAcc = firstSessions.reduce((s, x) => s + x.score.percent, 0) / firstSessions.length / 100
+      const earlyMid = Math.round((400 + earlyAcc * 1200) / 10) * 10
+      improvementPoints = midScore - earlyMid
+    }
+
+    return { lo: band[1], hi: band[2], mathScore, engScore, trend, percentile, midScore, improvementPoints }
   }, [history])
 
   const momentum = useMemo(() => {
@@ -2092,6 +2101,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <p className="text-xs text-indigo-300">out of 1600</p>
                 {scoreEstimate.percentile && (
                   <p className="text-xs font-bold text-violet-600 mt-0.5">Top {100 - scoreEstimate.percentile + 1}% nationally</p>
+                )}
+                {scoreEstimate.improvementPoints !== null && scoreEstimate.improvementPoints !== 0 && (
+                  <p className={`text-xs font-bold mt-0.5 ${scoreEstimate.improvementPoints > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    {scoreEstimate.improvementPoints > 0 ? `↑ +${scoreEstimate.improvementPoints} pts since you started!` : `↓ ${scoreEstimate.improvementPoints} pts vs. early sessions`}
+                  </p>
                 )}
               </div>
               <div className="h-10 w-px bg-indigo-100" />
