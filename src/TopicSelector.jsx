@@ -1166,6 +1166,56 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           )}
         </div>
 
+        {/* Domain mastery map */}
+        {history.length >= 3 && (() => {
+          const byDomain = {}
+          for (const s of history) for (const q of s.questions) {
+            if (!byDomain[q.domain]) byDomain[q.domain] = { c: 0, t: 0 }
+            byDomain[q.domain].t++
+            if ((s.answers?.[q.id] ?? null) === q.answer) byDomain[q.domain].c++
+          }
+          const math = TAXONOMY.find(s => s.id === 'math')?.domains ?? []
+          const eng  = TAXONOMY.find(s => s.id === 'english')?.domains ?? []
+          const Cell = ({ domain }) => {
+            const d = byDomain[domain.id]
+            const pct = d ? Math.round((d.c / d.t) * 100) : null
+            const bg = pct === null ? 'bg-gray-100 text-gray-300' :
+                       pct >= 80 ? 'bg-emerald-500 text-white' :
+                       pct >= 65 ? 'bg-amber-400 text-white' : 'bg-rose-400 text-white'
+            return (
+              <button
+                onClick={() => onFocusPractice?.(domain.id)}
+                className={`flex-1 rounded-xl py-2 px-1 text-center transition-all hover:scale-105 ${bg}`}
+                title={`${domain.label}${pct !== null ? `: ${pct}% (${d.t} Qs)` : ': not yet practiced'}`}
+              >
+                <p className="text-xs font-bold leading-tight">{pct !== null ? `${pct}%` : '—'}</p>
+                <p className="text-[9px] leading-tight mt-0.5 opacity-80 truncate">{domain.label.split(' ')[0]}</p>
+              </button>
+            )
+          }
+          return (
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Domain Map — tap to drill</p>
+              <div className="mb-2">
+                <p className="text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Math</p>
+                <div className="flex gap-1.5">{math.map(d => <Cell key={d.id} domain={d} />)}</div>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-300 mb-1 uppercase tracking-widest">English</p>
+                <div className="flex gap-1.5">{eng.map(d => <Cell key={d.id} domain={d} />)}</div>
+              </div>
+              <div className="flex items-center gap-2 mt-2.5">
+                {[['bg-emerald-500','≥80%'],['bg-amber-400','65-79%'],['bg-rose-400','<65%'],['bg-gray-100 border border-gray-200','New']].map(([cls,lbl]) => (
+                  <div key={lbl} className="flex items-center gap-1">
+                    <div className={`w-2.5 h-2.5 rounded-sm ${cls}`} />
+                    <span className="text-[9px] text-gray-400">{lbl}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* SAT Score Estimate */}
         {scoreEstimate && (
           <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
