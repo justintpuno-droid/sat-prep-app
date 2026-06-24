@@ -1247,6 +1247,40 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           )
         })()}
 
+        {/* Exam countdown */}
+        {(() => {
+          try {
+            const goal = JSON.parse(localStorage.getItem('sat_prep_goal') ?? 'null')
+            if (!goal?.examDate) return null
+            const days = Math.ceil((new Date(goal.examDate + 'T12:00:00') - new Date()) / 86400000)
+            if (days <= 0 || days > 180) return null
+            const history = loadHistory()
+            const recentSessions = history.filter(s => s.score.total >= 5).slice(-10)
+            const avgPct = recentSessions.length ? recentSessions.reduce((n, s) => n + s.score.percent, 0) / recentSessions.length : null
+            const estScore = avgPct ? Math.round((400 + (avgPct / 100) * 1200) / 10) * 10 : null
+            const target = goal.target ?? goal.targetScore
+            const onTrack = estScore && target ? estScore >= target - 50 : null
+            const urgency = days <= 7 ? 'rose' : days <= 30 ? 'amber' : 'indigo'
+            const COLORS = { rose: 'border-rose-200 bg-rose-50 text-rose-700', amber: 'border-amber-200 bg-amber-50 text-amber-700', indigo: 'border-indigo-200 bg-indigo-50 text-indigo-700' }
+            return (
+              <div className={`rounded-2xl border-2 px-4 py-3 mb-3 flex items-center gap-3 ${COLORS[urgency]}`}>
+                <span className="text-2xl shrink-0">{days <= 7 ? '🚨' : days <= 30 ? '📅' : '🗓'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold">{days} day{days !== 1 ? 's' : ''} until SAT</p>
+                  {target && estScore && (
+                    <p className="text-xs mt-0.5">
+                      Est. score: ~{estScore} · Goal: {target} ·{' '}
+                      <span className={onTrack ? 'text-emerald-600 font-bold' : 'text-rose-500 font-bold'}>
+                        {onTrack ? '✓ On track' : `${target - estScore} pts gap`}
+                      </span>
+                    </p>
+                  )}
+                </div>
+              </div>
+            )
+          } catch { return null }
+        })()}
+
         <div className="mt-4 space-y-3">
           {wrongQuestions.length > 0 && onRetry && (
             <button
