@@ -154,10 +154,15 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     const isCorrect = optId === current.answer
     const elapsedSec = (Date.now() - questionStartRef.current) / 1000
     const speedBonus = isCorrect && elapsedSec < 30 ? 5 : 0
-    const xpGain = (isCorrect ? (10 + (current.difficulty === 3 ? 10 : 0)) : 5) + speedBonus
+    const isPowerQ = (index + 1) % 7 === 0
+    const xpGain = Math.round(((isCorrect ? (10 + (current.difficulty === 3 ? 10 : 0)) : 5) + speedBonus) * (isPowerQ ? 2 : 1))
     setSessionXP(prev => prev + xpGain)
     const newCombo = isCorrect ? combo + 1 : 0
     setCombo(newCombo)
+    if (isCorrect && wrongStreak >= 3 && newCombo === 1 && !milestone) {
+      setComboFlash('💪 You\'re back!')
+      setTimeout(() => setComboFlash(null), 900)
+    }
     setWrongStreak(isCorrect ? 0 : ws => ws + 1)
     if (newCombo > maxComboRef.current) {
       maxComboRef.current = newCombo
@@ -401,7 +406,12 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-5">
           <p className="text-xs text-gray-400">Question {index + 1} of {questions.length}</p>
-          {!revealed && !isBlitzMode && (
+          {(index + 1) % 7 === 0 && !revealed && (
+            <span className="text-xs font-bold text-amber-500 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full animate-pulse">
+              ⚡ Power Question — 2× XP!
+            </span>
+          )}
+          {!revealed && !isBlitzMode && (index + 1) % 7 !== 0 && (
             <span className="text-xs text-gray-300">1–4 to answer · Enter to next</span>
           )}
         </div>
