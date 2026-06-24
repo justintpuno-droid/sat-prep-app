@@ -572,6 +572,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return medPct !== null && medPct >= 80 && hardT < 20 ? medPct : null
   }, [history])
 
+  const practiceTestReady = useMemo(() => {
+    const eligible = history.filter(s => s.score.total >= 5).slice(-5)
+    if (eligible.length < 5) return false
+    return eligible.every(s => s.score.percent >= 75)
+  }, [history])
+
   const recommendation = useMemo(() => {
     if (history.length === 0) return null
     const today = new Date().toISOString().slice(0, 10)
@@ -1034,6 +1040,20 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               className="shrink-0 bg-white text-indigo-600 font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-indigo-50 transition-colors"
             >
               Start →
+            </button>
+          </div>
+        )}
+
+        {/* Practice test ready prompt */}
+        {practiceTestReady && onFullPractice && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+            <span className="text-xl shrink-0">🎯</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-emerald-700 font-semibold">You're on a 75%+ streak!</p>
+              <p className="text-xs text-emerald-600 mt-0.5">5 strong sessions in a row — try a Full Practice Test</p>
+            </div>
+            <button onClick={onFullPractice} className="shrink-0 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-xl transition-colors">
+              Full Test →
             </button>
           </div>
         )}
@@ -1534,6 +1554,14 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                             )}
                           </div>
                           <div className="text-xs text-gray-400">{domain.description}</div>
+                          {domainStats[domain.id] && domainStats[domain.id].total >= 3 && (
+                            <div className="mt-1 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${domainStats[domain.id].pct >= 80 ? 'bg-emerald-400' : domainStats[domain.id].pct >= 60 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                                style={{ width: `${domainStats[domain.id].pct}%` }}
+                              />
+                            </div>
+                          )}
                         </div>
                       </label>
                     ))}
