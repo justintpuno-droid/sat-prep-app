@@ -90,6 +90,31 @@ const QUOTES = [
   { text: "Your future self will thank you for every study session today.", author: "Anonymous" },
 ]
 
+const SAT_STRATEGIES = [
+  { category: 'Reading', tip: 'Read the question before the passage. Knowing what you\'re looking for cuts reading time in half.' },
+  { category: 'Math', tip: 'Plug in numbers for variable questions. If "n is even," try n=2 and check each answer.' },
+  { category: 'Reading', tip: 'Wrong answers on inference questions are usually too extreme or too literal. The right answer is moderate.' },
+  { category: 'Math', tip: 'Draw it. Almost every geometry problem becomes easier when you sketch it out, even roughly.' },
+  { category: 'Writing', tip: 'Read the entire sentence before editing. The error often hides in context you haven\'t seen yet.' },
+  { category: 'Math', tip: 'For "which could be true" questions, eliminate what MUST be false — what remains is your answer.' },
+  { category: 'Reading', tip: 'Paired evidence questions: find the right answer to #1 first, THEN find its support in #2.' },
+  { category: 'Writing', tip: 'Shorter is almost always better on grammar questions. Eliminate wordy options first.' },
+  { category: 'Math', tip: 'Time check: you have ~75 seconds per question. If stuck at 90s, mark and move on.' },
+  { category: 'Reading', tip: 'Vocabulary-in-context: cover the word, predict your own, then match to choices.' },
+  { category: 'Math', tip: 'For percent problems, convert to decimals. "30% of 80" = 0.30 × 80 = 24. Faster than fractions.' },
+  { category: 'Writing', tip: 'If the underlined portion is a transition word, read both sentences to judge the logical relationship.' },
+  { category: 'Reading', tip: 'Main idea questions: skim the first and last sentence of each paragraph, not the whole passage.' },
+  { category: 'Math', tip: 'When the problem says "set up an equation," translate word-by-word: "is" = =, "of" = ×, "more than" = +.' },
+  { category: 'Strategy', tip: 'Never skip a question cold. Give every question at least 15 seconds — you might spot the answer immediately.' },
+  { category: 'Strategy', tip: 'Use process of elimination aggressively. Crossing off 2 wrong answers doubles your guessing odds.' },
+  { category: 'Math', tip: 'For grid-in questions, there\'s no penalty for guessing — always fill in your best estimate.' },
+  { category: 'Reading', tip: '"The author suggests" = inference. Look for indirect evidence, not a stated fact.' },
+  { category: 'Writing', tip: 'Commas rule: don\'t put a comma between a subject and its verb — "The student, answered" is wrong.' },
+  { category: 'Strategy', tip: 'Start with questions you know, then return to hard ones. Momentum builds confidence and accuracy.' },
+]
+
+const CATEGORY_COLOR = { Reading: 'text-indigo-600 bg-indigo-50 border-indigo-100', Math: 'text-emerald-700 bg-emerald-50 border-emerald-100', Writing: 'text-violet-700 bg-violet-50 border-violet-100', Strategy: 'text-amber-700 bg-amber-50 border-amber-100' }
+
 function scoreMilestone(score) {
   if (score >= 1500) return { label: 'Top 1%', color: 'text-amber-600 bg-amber-50' }
   if (score >= 1400) return { label: 'Top 5%', color: 'text-violet-600 bg-violet-50' }
@@ -2532,6 +2557,23 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
           </div>
         )}
+
+        {/* SAT Strategy Tip */}
+        {(() => {
+          const d = new Date()
+          const start = new Date(d.getFullYear(), 0, 0)
+          const tip = SAT_STRATEGIES[Math.floor((d - start) / 86400000) % SAT_STRATEGIES.length]
+          const colors = CATEGORY_COLOR[tip.category] ?? 'text-gray-600 bg-gray-50 border-gray-100'
+          return (
+            <div className={`border rounded-2xl p-4 mb-4 ${colors}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm">💡</span>
+                <p className={`text-xs font-bold uppercase tracking-widest`}>SAT Tip · {tip.category}</p>
+              </div>
+              <p className="text-sm font-medium text-gray-800 leading-snug">{tip.tip}</p>
+            </div>
+          )
+        })()}
 
         {/* SAT Vocab Word of the Day */}
         <VocabWordOfDay />
