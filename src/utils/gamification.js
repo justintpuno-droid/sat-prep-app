@@ -228,7 +228,16 @@ export function loadBoost() { try { return JSON.parse(localStorage.getItem(BOOST
 export function saveBoost(v) { try { localStorage.setItem(BOOST_KEY, JSON.stringify(v)) } catch {} }
 export function consumeBoost() { try { localStorage.removeItem(BOOST_KEY) } catch {} }
 
-function defaultGam() { return { totalXP: 0, achievements: {}, maxStreak: 0, xpLog: [], boosts: 0 } }
+export function useStreakFreeze() {
+  const gam = loadGamification()
+  if ((gam.streakFreezes ?? 0) < 1) return false
+  gam.streakFreezes = (gam.streakFreezes ?? 1) - 1
+  gam.freezeUsedDate = new Date().toISOString().slice(0, 10)
+  saveGamification(gam)
+  return true
+}
+
+function defaultGam() { return { totalXP: 0, achievements: {}, maxStreak: 0, xpLog: [], boosts: 0, streakFreezes: 0 } }
 
 export function loadGamification() {
   try { return JSON.parse(localStorage.getItem(KEY)) ?? defaultGam() }
@@ -327,13 +336,22 @@ export function processSession(session, history, prevGam) {
   const newBoosts = streakMilestone5 && !alreadyAwardedThisStreak ? prevBoosts + 1 : prevBoosts
   const earnedBoost = newBoosts > prevBoosts
 
+  // Award a streak freeze at 7-day and every 14 days thereafter
+  const prevFreezes = prevGam.streakFreezes ?? 0
+  const freezeMilestone = streak > 0 && (streak === 7 || (streak > 7 && streak % 14 === 0))
+  const alreadyAwardedFreeze = (prevGam.lastFreezeStreak ?? 0) >= streak
+  const newFreezes = freezeMilestone && !alreadyAwardedFreeze ? prevFreezes + 1 : prevFreezes
+  const earnedFreeze = newFreezes > prevFreezes
+
   const gam = {
     ...prevGam,
     totalXP: newXP,
     maxStreak: Math.max(prevGam.maxStreak, streak),
     xpLog,
     boosts: newBoosts,
+    streakFreezes: newFreezes,
     ...(earnedBoost ? { lastBoostStreak: streak } : {}),
+    ...(earnedFreeze ? { lastFreezeStreak: streak } : {}),
     ...(challengeBonus > 0 ? { dailyChallengeDate: today } : {}),
   }
 
@@ -386,7 +404,7 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, boostedXP, boostActive, earnedBoost, challengeBonus, challengeCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
+  return { xp, boostedXP, boostActive, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────

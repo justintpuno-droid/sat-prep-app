@@ -3,7 +3,7 @@ import { TAXONOMY, MATH_DOMAIN_IDS, ENG_DOMAIN_IDS } from './data/taxonomy'
 import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory } from './utils/history'
-import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, ACHIEVEMENTS, loadBoost, saveBoost } from './utils/gamification'
+import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze } from './utils/gamification'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -317,6 +317,8 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return !history.some(s => s.completedAt.slice(0, 10) === today)
   }, [streak, history])
   const [boostActive, setBoostActive] = useState(() => loadBoost())
+  const [freezeCount, setFreezeCount] = useState(() => loadGamification().streakFreezes ?? 0)
+  const [freezeUsed, setFreezeUsed] = useState(false)
   const gam = useMemo(() => loadGamification(), [])
   const levelInfo = useMemo(() => getLevelInfo(gam.totalXP), [gam])
   const levelColor = useMemo(() => getLevelColor(levelInfo.level), [levelInfo])
@@ -1374,19 +1376,36 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
         )}
 
         {/* Streak at risk warning */}
-        {streakAtRisk && (
+        {streakAtRisk && !freezeUsed && (
           <div className="bg-gradient-to-r from-rose-500 to-orange-500 rounded-2xl px-4 py-3 mb-4 text-white flex items-center gap-3 animate-pulse">
             <span className="text-2xl shrink-0">🔥</span>
             <div className="flex-1 min-w-0">
               <p className="font-black text-sm leading-tight">{streak}-day streak at risk!</p>
               <p className="text-xs text-rose-100 mt-0.5">Study before midnight to keep it alive</p>
             </div>
-            <button
-              onClick={onQuick5}
-              className="shrink-0 bg-white/20 hover:bg-white/30 rounded-xl px-3 py-1.5 text-xs font-bold transition-colors"
-            >
-              Quick 5 →
-            </button>
+            <div className="flex gap-1.5 shrink-0">
+              {freezeCount > 0 && (
+                <button
+                  onClick={() => { if (useStreakFreeze()) { setFreezeCount(c => c - 1); setFreezeUsed(true) } }}
+                  className="bg-white/20 hover:bg-white/30 rounded-xl px-2.5 py-1.5 text-xs font-bold transition-colors"
+                  title={`Use a Streak Freeze (${freezeCount} left)`}
+                >
+                  🧊 Freeze
+                </button>
+              )}
+              <button onClick={onQuick5} className="bg-white/20 hover:bg-white/30 rounded-xl px-2.5 py-1.5 text-xs font-bold transition-colors">
+                Quick 5 →
+              </button>
+            </div>
+          </div>
+        )}
+        {freezeUsed && (
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+            <span className="text-xl">🧊</span>
+            <div>
+              <p className="text-sm font-bold text-blue-700">Streak Freeze used!</p>
+              <p className="text-xs text-blue-400">Your {streak}-day streak is protected for today</p>
+            </div>
           </div>
         )}
 
