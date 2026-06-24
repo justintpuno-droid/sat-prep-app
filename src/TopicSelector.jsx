@@ -114,6 +114,24 @@ function getDomainOfDay() {
   return domains[idx % domains.length]
 }
 
+const MOTIVATIONAL_QUOTES = [
+  { text: "The SAT is a skill, and skills can be learned.", author: "Princeton Review" },
+  { text: "Every practice question is a step toward your goal score.", author: "" },
+  { text: "Progress is progress, no matter how small.", author: "" },
+  { text: "Consistency beats intensity every time.", author: "" },
+  { text: "Your future self will thank you for studying today.", author: "" },
+  { text: "The secret to getting ahead is getting started.", author: "Mark Twain" },
+  { text: "Don't practice until you get it right. Practice until you can't get it wrong.", author: "" },
+  { text: "Every expert was once a beginner.", author: "" },
+  { text: "Hard questions today → easy questions on test day.", author: "" },
+  { text: "You don't have to be great to start, but you have to start to be great.", author: "" },
+  { text: "Mistakes are proof that you're trying.", author: "" },
+  { text: "Small daily improvements lead to stunning long-term results.", author: "" },
+  { text: "The grind now, the glory later.", author: "" },
+  { text: "Your effort today is your score tomorrow.", author: "" },
+  { text: "SAT prep is a marathon, not a sprint. Stay consistent.", author: "" },
+]
+
 const QOD_KEY = 'sat_prep_qod'
 function loadQOD() { try { return JSON.parse(localStorage.getItem(QOD_KEY)) ?? {} } catch { return {} } }
 function saveQOD(data) { try { localStorage.setItem(QOD_KEY, JSON.stringify(data)) } catch {} }
@@ -327,6 +345,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     for (const s of history) for (const q of s.questions) seen.add(q.id)
     return seen.size
   }, [history])
+
+  const dailyQuote = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    const seed = today.split('-').reduce((a, b) => a + parseInt(b, 10), 0)
+    return MOTIVATIONAL_QUOTES[seed % MOTIVATIONAL_QUOTES.length]
+  }, [])
 
   const weeklyFocusPlan = useMemo(() => {
     if (history.length < 5) return null
@@ -1928,6 +1952,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           if (!msg) return null
           return <p className="text-xs text-indigo-500 mt-2">💡 {msg}</p>
         })()}
+
+        {/* Daily motivational quote */}
+        <div className="border-t border-gray-100 pt-4 mb-4 text-center">
+          <p className="text-sm text-gray-500 italic leading-snug">"{dailyQuote.text}"</p>
+          {dailyQuote.author && <p className="text-xs text-gray-300 mt-1">— {dailyQuote.author}</p>}
+        </div>
 
         {/* Start button */}
         {matchingCount > 0 && (

@@ -25,6 +25,26 @@ function AnimatedXPBar({ gamResult }) {
   )
 }
 
+function LevelUpModal({ gamResult, onDismiss }) {
+  const [visible, setVisible] = useState(true)
+  useEffect(() => { const t = setTimeout(() => { setVisible(false); onDismiss?.() }, 4000); return () => clearTimeout(t) }, [onDismiss])
+  if (!visible || !gamResult?.leveledUp) return null
+  const { newLevel } = gamResult
+  const colors = { 1: 'from-slate-400 to-slate-600', 5: 'from-indigo-500 to-violet-600', 9: 'from-violet-600 to-purple-700', 13: 'from-amber-400 to-orange-500' }
+  const grad = newLevel.level >= 13 ? colors[13] : newLevel.level >= 9 ? colors[9] : newLevel.level >= 5 ? colors[5] : colors[1]
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => { setVisible(false); onDismiss?.() }}>
+      <div className={`bg-gradient-to-br ${grad} rounded-3xl p-8 text-white text-center max-w-xs mx-4 shadow-2xl animate-bounce-once`}>
+        <p className="text-5xl mb-2">🎉</p>
+        <p className="text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Level Up!</p>
+        <p className="text-4xl font-black mb-1">Level {newLevel.level}</p>
+        <p className="text-lg font-semibold opacity-90">{newLevel.title}</p>
+        <p className="text-xs opacity-60 mt-3">Tap to continue</p>
+      </div>
+    </div>
+  )
+}
+
 const CONFETTI_COLORS = ['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#f97316']
 
 function Confetti() {
@@ -308,8 +328,11 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
     return questions
   }, [questions, answers, reviewFilter, wrongQuestions, flaggedSet])
 
+  const [levelUpDismissed, setLevelUpDismissed] = useState(false)
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 px-4 py-10">
+      {gamResult?.leveledUp && !levelUpDismissed && <LevelUpModal gamResult={gamResult} onDismiss={() => setLevelUpDismissed(true)} />}
       {(gamResult?.leveledUp || score.percent === 100) && <Confetti />}
       <div className="max-w-2xl mx-auto">
 
