@@ -22,7 +22,6 @@ export default function App() {
   const [completedSession, setCompletedSession] = useState(null)
   const [gamResult, setGamResult] = useState(null)
   const [pendingXP, setPendingXP] = useState(null)
-  const [pendingCelebration, setPendingCelebration] = useState(null)
 
   function handleFiltersSet(f) { setFilters(f); setScreen('session-config') }
 
@@ -44,9 +43,6 @@ export default function App() {
     setGamResult(result)
     setCompletedSession(session)
     setPendingXP(result.earnedXP ?? null)
-    if (result.leveledUp || (result.newAchievements?.length > 0)) {
-      setPendingCelebration({ leveledUp: result.leveledUp, newLevel: result.newLevel, newAchievements: result.newAchievements ?? [] })
-    }
     setScreen('summary')
   }
 
@@ -287,7 +283,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} pendingCelebration={pendingCelebration} onClearCelebration={() => setPendingCelebration(null)} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')

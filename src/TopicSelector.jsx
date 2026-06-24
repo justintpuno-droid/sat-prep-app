@@ -417,7 +417,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, pendingXP, onClearPendingXP, pendingCelebration, onClearCelebration }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -1169,54 +1169,6 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 flex items-start justify-center px-4 py-12">
-      {/* Level-up / achievement celebration modal */}
-      {pendingCelebration && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={onClearCelebration}>
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl" onClick={e => e.stopPropagation()}>
-            {pendingCelebration.leveledUp ? (
-              <>
-                <div className="text-6xl mb-3">🎉</div>
-                <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-1">Level Up!</p>
-                <p className="text-3xl font-black text-gray-900 mb-1">Level {pendingCelebration.newLevel?.level}</p>
-                <p className="text-lg font-semibold text-indigo-600 mb-4">{pendingCelebration.newLevel?.title}</p>
-                {pendingCelebration.newAchievements?.length > 0 && (
-                  <div className="mb-4 space-y-2">
-                    {pendingCelebration.newAchievements.map(a => (
-                      <div key={a.id} className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
-                        <span className="text-xl">{a.icon}</span>
-                        <div className="text-left">
-                          <p className="text-xs font-bold text-amber-700">{a.title}</p>
-                          <p className="text-xs text-gray-500">{a.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-                <div className="text-5xl mb-3">🏆</div>
-                <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-3">Achievement{pendingCelebration.newAchievements.length > 1 ? 's' : ''} Unlocked!</p>
-                <div className="space-y-3 mb-4">
-                  {pendingCelebration.newAchievements.map(a => (
-                    <div key={a.id} className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-                      <span className="text-3xl">{a.icon}</span>
-                      <div className="text-left">
-                        <p className="text-sm font-bold text-gray-900">{a.title}</p>
-                        <p className="text-xs text-gray-500">{a.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-            <button onClick={onClearCelebration} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl transition-colors">
-              Let's go! 🚀
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* XP toast */}
       {showXPToast && pendingXP > 0 && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-bounce pointer-events-none">
