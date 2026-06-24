@@ -741,6 +741,20 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       .slice(0, 3)
   }, [history, gam])
 
+  const domainCoverage = useMemo(() => {
+    const totalByDomain = {}
+    for (const q of questions) totalByDomain[q.domain] = (totalByDomain[q.domain] ?? 0) + 1
+    const seenByDomain = {}
+    for (const s of history) for (const q of s.questions) {
+      if (!seenByDomain[q.domain]) seenByDomain[q.domain] = new Set()
+      seenByDomain[q.domain].add(q.id)
+    }
+    return Object.entries(totalByDomain).map(([id, total]) => ({
+      id, total, seen: seenByDomain[id]?.size ?? 0,
+      pct: Math.round(((seenByDomain[id]?.size ?? 0) / total) * 100)
+    })).sort((a, b) => b.pct - a.pct)
+  }, [history])
+
   const domainMastery = useMemo(() => {
     const stats = {}
     for (const sess of history) {
@@ -1217,6 +1231,37 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
           )
         })()}
+
+        {/* Question coverage tracker */}
+        {domainCoverage.some(d => d.seen > 0) && (
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Question Coverage</p>
+              <span className="text-xs text-gray-400">
+                {domainCoverage.reduce((n, d) => n + d.seen, 0)} / {domainCoverage.reduce((n, d) => n + d.total, 0)} unique Qs seen
+              </span>
+            </div>
+            <div className="space-y-2">
+              {domainCoverage.map(d => {
+                const dom = TAXONOMY.flatMap(s => s.domains).find(x => x.id === d.id)
+                return (
+                  <div key={d.id}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-xs text-gray-600 truncate">{dom?.label ?? d.id}</span>
+                      <span className="text-xs font-semibold text-gray-500 ml-2 shrink-0">{d.seen}/{d.total}</span>
+                    </div>
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${d.pct >= 80 ? 'bg-emerald-500' : d.pct >= 40 ? 'bg-indigo-400' : 'bg-gray-300'}`}
+                        style={{ width: `${d.pct}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* SAT Score Estimate */}
         {scoreEstimate && (
