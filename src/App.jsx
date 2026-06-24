@@ -274,6 +274,20 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleRampMode() {
+    const easy = shuffle(allQuestions.filter(q => q.difficulty === 1)).slice(0, 5)
+    const medium = shuffle(allQuestions.filter(q => q.difficulty === 2)).slice(0, 5)
+    const hard = shuffle(allQuestions.filter(q => q.difficulty === 3)).slice(0, 5)
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Ramp Mode',
+      sessionName: null,
+      questions: [...easy, ...medium, ...hard],
+      xpMultiplier: 1.5,
+    })
+    setScreen('learning')
+  }
+
   function handleSurvivalMode() {
     const pool = [...shuffle(allQuestions), ...shuffle(allQuestions), ...shuffle(allQuestions)].slice(0, 60)
     setSessionConfig({
@@ -337,7 +351,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} onSATTimed={handleSATTimed} onHeartsMode={handleHeartsMode} onSurvivalMode={handleSurvivalMode} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} onSATTimed={handleSATTimed} onHeartsMode={handleHeartsMode} onSurvivalMode={handleSurvivalMode} onRampMode={handleRampMode} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
