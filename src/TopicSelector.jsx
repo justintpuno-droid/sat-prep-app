@@ -176,6 +176,29 @@ const MOTIVATIONAL_QUOTES = [
   { text: "SAT prep is a marathon, not a sprint. Stay consistent.", author: "" },
 ]
 
+const SAT_FACTS = [
+  "The SAT was first administered in 1926 and was based on Army IQ tests from World War I.",
+  "The perfect SAT score of 1600 is achieved by fewer than 1% of test takers each year.",
+  "The Digital SAT (2024) is about 1 hour shorter than the old paper SAT.",
+  "SAT stands for 'Scholastic Assessment Test' (originally 'Scholastic Aptitude Test').",
+  "The College Board offers fee waivers so low-income students can take the SAT for free.",
+  "Over 2 million students take the SAT each year in the United States.",
+  "The average SAT score in 2023 was 1028 out of 1600.",
+  "Desmos, the graphing calculator built into the Digital SAT, was founded in 2011.",
+  "The Digital SAT adapts difficulty based on Module 1 performance — scoring high unlocks harder (higher-ceiling) questions in Module 2.",
+  "You can cancel your SAT score within 5 days of your test date if you're unhappy — it won't appear on your record.",
+  "Many colleges now use 'superscoring' — they take the highest section scores from multiple test dates.",
+  "The SAT Reading & Writing module has 4 question types: Information & Ideas, Craft & Structure, Expression of Ideas, and Standard English Conventions.",
+  "The Digital SAT testing window is roughly 2 hours and 14 minutes including a 10-minute break.",
+  "A score of 1200 on the SAT puts you in approximately the 74th percentile nationally.",
+  "Guessing never hurts on the SAT — there's no penalty for wrong answers, so always fill in an answer.",
+  "The Bluebook app for the Digital SAT goes into lockdown mode during the test, blocking other apps.",
+  "SAT scores are 'superscorable' — most elite colleges take the highest Math and EBRW from separate test dates.",
+  "The SAT offers 7 official test dates per year in the US, typically Aug, Oct, Nov, Dec, Mar, May, and Jun.",
+  "About 60% of the SAT Math section involves algebra and functions — more than any other topic.",
+  "You can flag questions in the Digital SAT and come back to them before submitting each module.",
+]
+
 const QOD_KEY = 'sat_prep_qod'
 function loadQOD() { try { return JSON.parse(localStorage.getItem(QOD_KEY)) ?? {} } catch { return {} } }
 function saveQOD(data) { try { localStorage.setItem(QOD_KEY, JSON.stringify(data)) } catch {} }
@@ -3598,6 +3621,21 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             {dailyQuote.author && <p className="text-[10px] text-gray-400 mt-1">— {dailyQuote.author}</p>}
           </div>
         </div>
+
+        {/* Daily SAT Fact */}
+        {(() => {
+          const dayIdx = Math.floor(Date.now() / 86400000)
+          const fact = SAT_FACTS[dayIdx % SAT_FACTS.length]
+          return (
+            <div className="bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-100 rounded-2xl px-4 py-3.5 mb-4 flex items-start gap-3">
+              <span className="text-xl shrink-0 mt-0.5">🧠</span>
+              <div>
+                <p className="text-[10px] font-bold text-sky-500 uppercase tracking-widest mb-0.5">SAT Fact of the Day</p>
+                <p className="text-sm text-gray-700 leading-snug">{fact}</p>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* XP Shop */}
         <XPShop gam={gam} onPurchase={handleShopPurchase} />
