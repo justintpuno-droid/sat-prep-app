@@ -1388,6 +1388,46 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
           </>
         )}
 
+        {/* Speed vs Accuracy scatter */}
+        {sessions.filter(s => s.score.total >= 5 && s.elapsedSeconds > 0).length >= 4 && (() => {
+          const pts = sessions
+            .filter(s => s.score.total >= 5 && s.elapsedSeconds > 0)
+            .slice(-30)
+            .map(s => ({ x: Math.round(s.elapsedSeconds / s.score.total), y: s.score.percent }))
+          const maxX = Math.max(...pts.map(p => p.x), 120)
+          const W = 240, H = 120, padX = 24, padY = 16
+          const cx = x => padX + (x / maxX) * (W - padX * 2)
+          const cy = y => H - padY - (y / 100) * (H - padY * 2)
+          return (
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 mt-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">⚡ Speed vs. Accuracy</p>
+              <p className="text-xs text-gray-400 mb-3">Each dot is a session. Left = faster, top = more accurate.</p>
+              <div className="flex justify-center">
+                <svg width={W} height={H} className="overflow-visible">
+                  <line x1={padX} y1={padY} x1={padX} y2={H - padY} stroke="#f3f4f6" strokeWidth="1" />
+                  <line x1={padX} y1={H - padY} x2={W - padX} y2={H - padY} stroke="#f3f4f6" strokeWidth="1" />
+                  {[25, 50, 75].map(v => (
+                    <line key={v} x1={padX} y1={cy(v)} x2={W - padX} y2={cy(v)} stroke="#f3f4f6" strokeWidth="0.5" strokeDasharray="3 3" />
+                  ))}
+                  {pts.map((p, i) => {
+                    const fill = p.y >= 80 ? '#10b981' : p.y >= 60 ? '#f59e0b' : '#ef4444'
+                    return <circle key={i} cx={cx(p.x)} cy={cy(p.y)} r="4" fill={fill} fillOpacity="0.75" />
+                  })}
+                  <text x={padX} y={H - padY + 10} className="text-[8px]" fill="#9ca3af" fontSize="8">fast</text>
+                  <text x={W - padX - 10} y={H - padY + 10} fill="#9ca3af" fontSize="8">slow</text>
+                  <text x={padX - 18} y={padY + 4} fill="#9ca3af" fontSize="8">100%</text>
+                  <text x={padX - 12} y={H - padY + 4} fill="#9ca3af" fontSize="8">0%</text>
+                </svg>
+              </div>
+              <div className="flex items-center justify-center gap-4 mt-2 text-xs text-gray-400">
+                {[['#10b981', '≥80% accurate'], ['#f59e0b', '60–79%'], ['#ef4444', '<60%']].map(([c, l]) => (
+                  <span key={l} className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ background: c }} />{l}</span>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Daily XP chart — last 14 days */}
         {sessions.length >= 3 && (() => {
           const days = []
