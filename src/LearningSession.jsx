@@ -29,6 +29,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const gam = loadGamification()
   const isBeastMode = config.formatLabel === 'Beast Mode'
   const isBlitzMode = config.formatLabel === 'Blitz Mode'
+  const isSuddenDeath = config.formatLabel === 'Sudden Death'
   const hasMathQuestions = questions.some(q => q.subject === 'math')
 
   const [blitzSeconds, setBlitzSeconds] = useState(60)
@@ -160,6 +161,10 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         else { setIndex(i => i + 1); setRevealed(false); questionStartRef.current = Date.now() }
       }, 650)
     }
+
+    if (isSuddenDeath && !isCorrect) {
+      setTimeout(() => finishRef.current(), 1400)
+    }
   }
 
   function handleNext() {
@@ -241,6 +246,8 @@ export default function LearningSession({ config, onComplete, onQuit }) {
               ? <span className="text-xs font-black bg-rose-500 text-white px-2.5 py-1 rounded-full animate-pulse">🔥 BEAST MODE</span>
               : isBlitzMode
               ? <span className="text-xs font-black bg-orange-500 text-white px-2.5 py-1 rounded-full">⚡ BLITZ</span>
+              : isSuddenDeath
+              ? <span className="text-xs font-black bg-red-900 text-white px-2.5 py-1 rounded-full animate-pulse">💀 SUDDEN DEATH</span>
               : <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full">Learning</span>
             }
             <span className={`text-sm ${isBeastMode ? 'text-gray-300' : 'text-gray-600'}`}>

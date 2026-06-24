@@ -288,7 +288,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const [boostActive, setBoostActive] = useState(() => loadBoost())
@@ -1791,6 +1791,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <div className="text-xl mb-1.5">⚡</div>
                 <div className="font-bold text-sm text-amber-900">Blitz Mode</div>
                 <div className="text-xs text-amber-600 mt-0.5">60 sec · rapid fire</div>
+              </button>
+            )}
+            {onSuddenDeath && history.length >= 5 && (
+              <button
+                onClick={onSuddenDeath}
+                className="text-left rounded-2xl border-2 border-red-900 bg-gradient-to-br from-red-950 to-red-800 hover:from-red-900 hover:to-red-700 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">💀</div>
+                <div className="font-bold text-sm text-red-100">Sudden Death</div>
+                <div className="text-xs text-red-300 mt-0.5">One wrong = game over · 3× XP</div>
               </button>
             )}
           </div>
