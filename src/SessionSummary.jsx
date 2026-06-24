@@ -6,7 +6,7 @@ import { updateSessionMood, updateSessionNote, loadHistory } from './utils/histo
 
 function AnimatedXPBar({ gamResult }) {
   const { newLevel, xp, oldXP } = gamResult
-  const xpForNext = newLevel.xpForNext
+  const { xpForNext } = newLevel
   if (!xpForNext) return null
   const oldPct = Math.min(100, Math.max(0, ((oldXP - (newLevel.minXP ?? 0)) / xpForNext) * 100))
   const newPct = newLevel.pct
@@ -508,6 +508,7 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               {gamResult.boostActive && <span className="text-amber-300 font-bold animate-pulse">🚀 2× BOOST!</span>}
               {gamResult.earnedBoost && <span className="text-amber-200 font-bold">🚀 Boost earned!</span>}
               {gamResult.earnedFreeze && <span className="text-blue-200 font-bold">🧊 Streak Freeze earned!</span>}
+              {gamResult.timeBonus > 0 && <span className="text-yellow-300 font-bold">{gamResult.timeBonusLabel} +{gamResult.timeBonus} XP</span>}
             </div>
             {gamResult.sessionMilestone && (
               <div className="flex items-center gap-2.5 bg-white/20 rounded-xl px-3 py-2.5 mb-3">

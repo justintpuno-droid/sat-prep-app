@@ -425,17 +425,24 @@ export function processSession(session, history, prevGam) {
     improvementBonus = 20
   }
 
+  // Time-of-day bonus: night owl (11pm–4am) or early bird (5am–7am)
+  const nowHour = new Date().getHours()
+  const isNightOwl = nowHour >= 23 || nowHour < 4
+  const isEarlyBird = nowHour >= 5 && nowHour < 7
+  const timeBonus = isNightOwl ? 25 : isEarlyBird ? 20 : 0
+  const timeBonusLabel = isNightOwl ? '🦉 Night Owl' : isEarlyBird ? '🐦 Early Bird' : null
+
   // XP Boost power-up
   const boostActive = loadBoost()
   const boostMult = boostActive ? 2 : 1
   const boostedXP = Math.round(xp.total * boostMult)
   if (boostActive) consumeBoost()
 
-  const newXP = oldXP + boostedXP + challengeBonus + weeklyBonus + comebackBonus + milestoneBonus + improvementBonus
+  const newXP = oldXP + boostedXP + challengeBonus + weeklyBonus + comebackBonus + milestoneBonus + improvementBonus + timeBonus
   const oldLevel = getLevelInfo(oldXP)
   const newLevel = getLevelInfo(newXP)
 
-  const totalXPEarned = boostedXP + challengeBonus + weeklyBonus + comebackBonus + milestoneBonus + improvementBonus
+  const totalXPEarned = boostedXP + challengeBonus + weeklyBonus + comebackBonus + milestoneBonus + improvementBonus + timeBonus
   const xpLog = [...(prevGam.xpLog ?? []), { date: today, xp: totalXPEarned }].slice(-90)
 
   // Award a boost at every 5-day streak milestone (5, 10, 15…)
@@ -514,7 +521,7 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, boostedXP, boostActive, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, weeklyBonus, weeklyCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned, bossResult }
+  return { xp, boostedXP, boostActive, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, weeklyBonus, weeklyCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned, bossResult, timeBonus, timeBonusLabel }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────
