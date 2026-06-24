@@ -32,6 +32,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const isSuddenDeath = config.formatLabel === 'Sudden Death'
   const isTimedChallenge = config.formatLabel === 'Timed Challenge'
   const isHeadToHead = config.formatLabel?.startsWith('Head-to-Head')
+  const isSATTimed = config.formatLabel === 'SAT Timed Mode'
   const rival = config.rival ?? null
   const timedSeconds = config.timedChallengeSeconds ?? null
   const hasMathQuestions = questions.some(q => q.subject === 'math')
@@ -58,7 +59,9 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [wrongStreak, setWrongStreak] = useState(0)
   const [rivalCorrect, setRivalCorrect] = useState(0)
   const [rivalTotal, setRivalTotal] = useState(0)
-  const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge || isHeadToHead) ? 3 : 0)
+  const [satTimeLeft, setSatTimeLeft] = useState(0)
+  const [satTimedOut, setSatTimedOut] = useState(false)
+  const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge || isHeadToHead || isSATTimed) ? 3 : 0)
   const [questionElapsed, setQuestionElapsed] = useState(0)
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
@@ -150,6 +153,26 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     }, 1000)
     return () => clearInterval(iv)
   }, [isTimedChallenge]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!isSATTimed || revealed || countdown > 0) return
+    const current = questions[index]
+    const limit = current?.subject === 'math' ? 82 : 71
+    setSatTimeLeft(limit)
+    setSatTimedOut(false)
+    const iv = setInterval(() => {
+      setSatTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(iv)
+          setSatTimedOut(true)
+          setRevealed(true)
+          return 0
+        }
+        return t - 1
+      })
+    }, 1000)
+    return () => clearInterval(iv)
+  }, [isSATTimed, index, countdown]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const current = questions[index]
   const selected = answers[current?.id]
@@ -302,8 +325,8 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         </div>
       )
     }
-    const modeLabel = isBeastMode ? 'BEAST MODE' : isSuddenDeath ? 'SUDDEN DEATH' : 'TIMED CHALLENGE'
-    const modeColor = isBeastMode ? 'from-slate-900 via-rose-950 to-slate-900' : isSuddenDeath ? 'from-gray-900 via-red-950 to-gray-900' : 'from-cyan-600 to-indigo-700'
+    const modeLabel = isBeastMode ? 'BEAST MODE' : isSuddenDeath ? 'SUDDEN DEATH' : isSATTimed ? 'SAT TIMED MODE' : 'TIMED CHALLENGE'
+    const modeColor = isBeastMode ? 'from-slate-900 via-rose-950 to-slate-900' : isSuddenDeath ? 'from-gray-900 via-red-950 to-gray-900' : isSATTimed ? 'from-emerald-700 to-teal-800' : 'from-cyan-600 to-indigo-700'
     return (
       <div className={`min-h-screen bg-gradient-to-br ${modeColor} flex flex-col items-center justify-center`}>
         <p className="text-white/60 text-sm font-bold uppercase tracking-widest mb-4">{modeLabel}</p>
@@ -337,6 +360,10 @@ export default function LearningSession({ config, onComplete, onQuit }) {
               : isTimedChallenge
               ? <span className={`text-xs font-black px-2.5 py-1 rounded-full ${challengeSecondsLeft <= 60 ? 'bg-rose-500 text-white animate-pulse' : 'bg-cyan-500 text-white'}`}>
                   ⏱ {Math.floor(challengeSecondsLeft / 60)}:{String(challengeSecondsLeft % 60).padStart(2, '0')}
+                </span>
+              : isSATTimed
+              ? <span className={`text-xs font-black px-2.5 py-1 rounded-full ${satTimeLeft <= 15 ? 'bg-rose-500 text-white animate-pulse' : satTimeLeft <= 30 ? 'bg-amber-500 text-white' : 'bg-teal-600 text-white'}`}>
+                  ⏱ {satTimeLeft}s
                 </span>
               : <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full">Learning</span>
             }
@@ -513,6 +540,14 @@ export default function LearningSession({ config, onComplete, onQuit }) {
           <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2.5 flex items-center gap-2">
             <span className="text-base">⚠️</span>
             <p className="text-sm text-amber-800 font-medium">{wrongStreak} wrong in a row — slow down and re-read carefully before selecting.</p>
+          </div>
+        )}
+
+        {/* SAT Timed out banner */}
+        {satTimedOut && isSATTimed && (
+          <div className="mt-3 rounded-xl bg-rose-100 border-2 border-rose-300 px-4 py-2.5 flex items-center gap-2">
+            <span className="text-base">⏰</span>
+            <p className="text-sm text-rose-800 font-bold">Time's up! On real SAT, move to next question immediately.</p>
           </div>
         )}
 

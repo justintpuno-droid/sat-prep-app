@@ -539,7 +539,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -2974,6 +2974,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <div className="text-xl mb-1.5">⏱</div>
                 <div className="font-bold text-sm text-cyan-900">Timed Challenge</div>
                 <div className="text-xs text-cyan-600 mt-0.5">15 Qs · 10 min · 1.5× XP</div>
+              </button>
+            )}
+            {onSATTimed && (
+              <button
+                onClick={onSATTimed}
+                className="text-left rounded-2xl border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-emerald-50 hover:from-teal-100 hover:to-emerald-100 hover:border-teal-400 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">🎯</div>
+                <div className="font-bold text-sm text-teal-900">SAT Timed</div>
+                <div className="text-xs text-teal-600 mt-0.5">Real SAT timing · 1.75× XP</div>
               </button>
             )}
             {onSuddenDeath && history.length >= 5 && (
