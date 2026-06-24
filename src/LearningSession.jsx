@@ -53,6 +53,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [formulaTab, setFormulaTab] = useState('math')
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [eliminated, setEliminated] = useState({}) // questionId → eliminated option id
+  const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge) ? 3 : 0)
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
   const timer = useTimer()
@@ -72,7 +73,11 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     setFlagged(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
   }
 
-  useEffect(() => { timer.start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (countdown <= 0) { timer.start(); return }
+    const t = setInterval(() => setCountdown(c => { if (c <= 1) { clearInterval(t); timer.start(); return 0 } return c - 1 }), 700)
+    return () => clearInterval(t)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-pause when tab is hidden (prevents timer drift and XP inflation)
   useEffect(() => {
@@ -248,6 +253,20 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   if (!current) return null
 
   const progress = (index / questions.length) * 100
+
+  if (countdown > 0) {
+    const modeLabel = isBeastMode ? 'BEAST MODE' : isSuddenDeath ? 'SUDDEN DEATH' : 'TIMED CHALLENGE'
+    const modeColor = isBeastMode ? 'from-slate-900 via-rose-950 to-slate-900' : isSuddenDeath ? 'from-gray-900 via-red-950 to-gray-900' : 'from-cyan-600 to-indigo-700'
+    return (
+      <div className={`min-h-screen bg-gradient-to-br ${modeColor} flex flex-col items-center justify-center`}>
+        <p className="text-white/60 text-sm font-bold uppercase tracking-widest mb-4">{modeLabel}</p>
+        <p className="text-white font-black text-8xl tabular-nums" style={{ textShadow: '0 0 40px rgba(255,255,255,0.4)' }}>
+          {countdown}
+        </p>
+        <p className="text-white/40 text-sm mt-6">{questions.length} questions</p>
+      </div>
+    )
+  }
 
   return (
     <div className={`min-h-screen ${isBeastMode ? 'bg-gradient-to-br from-slate-900 via-rose-950 to-slate-900' : isBlitzMode ? 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100' : 'bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100'}`}>
