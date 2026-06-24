@@ -556,6 +556,58 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               </div>
             </div>
 
+            {/* Domain Mastery Map */}
+            {stats && stats.domainList.length >= 3 && (() => {
+              const DOMAIN_GROUPS = [
+                { label: 'Math', color: 'indigo', domains: ['algebra','advanced-math','problem-solving-data','geometry-trig'] },
+                { label: 'Reading & Writing', color: 'violet', domains: ['information-ideas','craft-structure','expression-ideas','standard-english'] },
+              ]
+              const domainMap = Object.fromEntries(stats.domainList.map(d => [d.id, d]))
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">Domain Mastery Map</p>
+                  {DOMAIN_GROUPS.map(g => (
+                    <div key={g.label} className="mb-4 last:mb-0">
+                      <p className={`text-xs font-bold text-${g.color}-600 mb-2`}>{g.label}</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {g.domains.map(dId => {
+                          const d = domainMap[dId]
+                          if (!d) return (
+                            <div key={dId} className="rounded-xl bg-gray-50 border border-dashed border-gray-200 p-3 flex items-center justify-between">
+                              <span className="text-xs text-gray-400 truncate">{dId.replace(/-/g, ' ')}</span>
+                              <span className="text-[10px] text-gray-300 ml-1">no data</span>
+                            </div>
+                          )
+                          const { p, label, correct, total } = d
+                          const bg = p >= 85 ? 'bg-emerald-100 border-emerald-300' : p >= 70 ? 'bg-amber-50 border-amber-300' : 'bg-rose-50 border-rose-300'
+                          const fill = p >= 85 ? 'bg-emerald-400' : p >= 70 ? 'bg-amber-400' : 'bg-rose-400'
+                          const txt = p >= 85 ? 'text-emerald-800' : p >= 70 ? 'text-amber-800' : 'text-rose-700'
+                          const star = p >= 90 ? '⭐' : p >= 80 ? '✓' : p >= 65 ? '~' : '!'
+                          return (
+                            <div key={dId} className={`rounded-xl border p-3 ${bg}`}>
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-xs font-semibold text-gray-700 truncate leading-tight" style={{ maxWidth: '70%' }}>{label}</span>
+                                <span className={`text-xs font-black ${txt}`}>{star} {p}%</span>
+                              </div>
+                              <div className="h-1.5 bg-white/60 rounded-full overflow-hidden">
+                                <div className={`h-full ${fill} rounded-full`} style={{ width: `${p}%` }} />
+                              </div>
+                              <p className="text-[10px] text-gray-500 mt-1">{correct}/{total} correct</p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex gap-3 mt-3 pt-3 border-t border-gray-100">
+                    <span className="flex items-center gap-1 text-[10px] text-emerald-600"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />Mastered (≥85%)</span>
+                    <span className="flex items-center gap-1 text-[10px] text-amber-600"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />Improving (≥70%)</span>
+                    <span className="flex items-center gap-1 text-[10px] text-rose-600"><span className="w-2 h-2 rounded-full bg-rose-400 inline-block" />Needs work (&lt;70%)</span>
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* XP history chart */}
             {(() => {
               const today = new Date()
