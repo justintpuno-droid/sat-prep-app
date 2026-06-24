@@ -342,6 +342,54 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
     return { stars, label: labels[stars] }
   }, [score, questions])
 
+  const insights = useMemo(() => {
+    if (questions.length < 5) return []
+    const tips = []
+
+    // Worst domain
+    const domainEntries = Object.entries(score.byDomain).filter(([, s]) => s.total >= 3)
+    if (domainEntries.length >= 2) {
+      const [worstId, worstStats] = domainEntries.reduce((a, b) => (b[1].correct / b[1].total < a[1].correct / a[1].total) ? b : a)
+      const worstPct = Math.round((worstStats.correct / worstStats.total) * 100)
+      if (worstPct < 70) {
+        const label = worstId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+        tips.push({ icon: '📍', text: `${label} was your weakest area this session (${worstPct}%). Drill it to boost your score.`, color: 'bg-rose-50 border-rose-100 text-rose-800' })
+      }
+    }
+
+    // Fatigue: last 3 accuracy vs first 3
+    const firstThree = questions.slice(0, 3).filter(q => (answers[q.id] ?? null) === q.answer).length / 3
+    const lastThree = questions.slice(-3).filter(q => (answers[q.id] ?? null) === q.answer).length / 3
+    if (firstThree - lastThree >= 0.4 && questions.length >= 10) {
+      tips.push({ icon: '⚡', text: 'Your accuracy dropped toward the end — possible fatigue. Try shorter sessions or take a short break between questions.', color: 'bg-amber-50 border-amber-100 text-amber-800' })
+    }
+
+    // Answer bias
+    const max = Math.max(...Object.values(answerDist))
+    const biasedLetter = Object.entries(answerDist).find(([, v]) => v === max && v > questions.length * 0.4)?.[0]
+    if (biasedLetter && questions.length >= 10) {
+      tips.push({ icon: '🎯', text: `You chose "${biasedLetter}" on ${answerDist[biasedLetter]} of ${questions.length} questions. If that wasn't intentional, try re-reading before committing to an answer.`, color: 'bg-blue-50 border-blue-100 text-blue-800' })
+    }
+
+    // Speed: if avg time > 90s → pacing issue
+    if (questionTimes && Object.keys(questionTimes).length >= 5) {
+      const times = Object.values(questionTimes)
+      const avg = times.reduce((a, b) => a + b, 0) / times.length
+      if (avg > 100) {
+        tips.push({ icon: '⏱', text: `Your average pace was ${Math.round(avg)}s/question — above the ~85s SAT target. Practice scanning questions faster to build speed.`, color: 'bg-violet-50 border-violet-100 text-violet-800' })
+      } else if (avg < 25 && score.percent < 70) {
+        tips.push({ icon: '🐢', text: `You averaged only ${Math.round(avg)}s/question but scored ${score.percent}%. Slowing down slightly may improve accuracy.`, color: 'bg-orange-50 border-orange-100 text-orange-800' })
+      }
+    }
+
+    // Hard questions: if 0 correct on hard
+    if (byDifficulty[3]?.total >= 3 && byDifficulty[3].correct === 0) {
+      tips.push({ icon: '💪', text: `You didn't get any Hard questions right this session. Focus on understanding the concept behind each one — they carry the most score impact.`, color: 'bg-rose-50 border-rose-100 text-rose-800' })
+    }
+
+    return tips.slice(0, 3)
+  }, [questions, answers, score, questionTimes, byDifficulty, answerDist])
+
   const filteredQuestions = useMemo(() => {
     if (reviewFilter === 'correct') return questions.filter(q => (answers[q.id] ?? null) === q.answer)
     if (reviewFilter === 'incorrect') return wrongQuestions
@@ -773,6 +821,19 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
             <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mb-2">💪 Toughest Question Missed</p>
             <p className="text-sm text-gray-700 leading-snug line-clamp-3">{toughestWrong.question}</p>
             <p className="text-xs text-gray-400 mt-2">Correct answer: <span className="font-semibold text-emerald-700">{toughestWrong.answer}</span></p>
+          </div>
+        )}
+
+        {insights.length > 0 && (
+          <div className="mt-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">🔍 Session Insights</p>
+            <div className="space-y-2">
+              {insights.map((ins, i) => (
+                <div key={i} className={`rounded-xl border px-4 py-3 text-sm leading-relaxed ${ins.color}`}>
+                  <span className="mr-2">{ins.icon}</span>{ins.text}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
