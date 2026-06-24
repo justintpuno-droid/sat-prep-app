@@ -900,6 +900,45 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               )
             })()}
 
+            {/* Score Booster */}
+            {stats.scoreEstimate && stats.domainList.length >= 3 && (() => {
+              const mid = Math.round((stats.scoreEstimate.lo + stats.scoreEstimate.hi) / 2)
+              const weakDomains = stats.domainList.filter(d => d.total >= 5 && d.pct < 70).sort((a, b) => a.pct - b.pct).slice(0, 3)
+              if (weakDomains.length < 2) return null
+              const total = sessions.reduce((n, s) => n + s.score.total, 0)
+              const toScore = p => Math.round((400 + (p / 100) * 1200) / 10) * 10
+              const entries = weakDomains.map(d => {
+                const domainTotal = sessions.reduce((n, s) => n + s.questions.filter(q => q.domain === d.id).length, 0)
+                const domainCorrect = sessions.reduce((n, s) => n + s.questions.filter(q => q.domain === d.id && (s.answers[q.id] ?? null) === q.answer).length, 0)
+                const totalCorrect = sessions.reduce((n, s) => n + s.score.correct, 0)
+                const gained = domainTotal - domainCorrect
+                const newCorrect = totalCorrect + gained
+                const newPct = total > 0 ? (newCorrect / total) * 100 : 0
+                const newScore = toScore(newPct)
+                return { ...d, gained, gain: Math.max(0, newScore - mid) }
+              })
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">Score Booster</p>
+                  <p className="text-xs text-gray-400 mb-4">How much your estimated score improves if you master each area</p>
+                  <div className="space-y-3">
+                    {entries.filter(e => e.gain > 0).map(e => (
+                      <div key={e.id} className="flex items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-gray-700 truncate">{e.label}</p>
+                          <p className="text-[10px] text-gray-400">{e.pct}% → 100% · {e.gained} more correct needed</p>
+                        </div>
+                        <div className="shrink-0 bg-emerald-100 text-emerald-700 font-black text-sm rounded-xl px-3 py-1">
+                          +{e.gain} pts
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-gray-400 mt-3 text-center">Estimates assume all missed questions in that domain become correct. Rough projection only.</p>
+                </div>
+              )
+            })()}
+
             {/* Personal records */}
             {sessions.length >= 3 && stats.personalRecords && (
               <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl p-5 mb-4">
