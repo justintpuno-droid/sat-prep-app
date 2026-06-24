@@ -963,15 +963,41 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               )
             })()}
 
-            {/* SAT score trend chart */}
+            {/* SAT score trend chart with projection */}
             {stats.scoreEstimateTrend.length >= 3 && (() => {
               const vals = stats.scoreEstimateTrend.map(e => e.mid)
-              const minV = Math.min(...vals) - 50, maxV = Math.max(...vals) + 50
-              const range = Math.max(maxV - minV, 100)
-              const w = 260, h = 50
-              const pts = vals.map((v, i) => `${Math.round((i / (vals.length - 1)) * w)},${Math.round(h - ((v - minV) / range) * h)}`)
               const first = vals[0], last = vals[vals.length - 1]
               const up = last > first
+
+              // Linear regression slope (pts per session)
+              const n = vals.length
+              const slope = n > 1 ? (vals[n-1] - vals[0]) / (n - 1) : 0
+
+              // Exam date projection
+              let goalScore = null, projectedScore = null, daysLeft = null
+              try {
+                const goal = JSON.parse(localStorage.getItem('sat_prep_goal') ?? 'null')
+                if (goal?.target) goalScore = goal.target
+                if (goal?.examDate) {
+                  daysLeft = Math.ceil((new Date(goal.examDate + 'T12:00:00') - new Date()) / 86400000)
+                  const sessionsLeft = Math.max(0, daysLeft * 0.4)
+                  projectedScore = Math.min(1600, Math.max(400, Math.round(last + slope * sessionsLeft / 10) * 10))
+                }
+              } catch {}
+
+              const projPoints = projectedScore ? [...vals, projectedScore] : vals
+              const allVals = projPoints
+              const minV = Math.min(...allVals, goalScore ?? Infinity) - 50
+              const maxV = Math.max(...allVals, goalScore ?? -Infinity) + 50
+              const range = Math.max(maxV - minV, 200)
+              const w = 260, h = 70
+              const toY = v => Math.round(h - ((v - minV) / range) * h)
+              const pts = vals.map((v, i) => `${Math.round((i / (vals.length - 1 + (projectedScore ? 1 : 0))) * w)},${toY(v)}`)
+              const lastX = Math.round(((vals.length - 1) / (vals.length - 1 + (projectedScore ? 1 : 0))) * w)
+              const projX = w
+              const projY = projectedScore ? toY(projectedScore) : null
+              const goalY = goalScore ? toY(goalScore) : null
+
               return (
                 <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4">
                   <div className="flex items-center justify-between mb-3">
@@ -980,15 +1006,32 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                       {up ? '↑' : '↓'} {Math.abs(last - first)} pts
                     </span>
                   </div>
-                  <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-12">
+                  <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-16">
+                    {goalY !== null && (
+                      <>
+                        <line x1="0" y1={goalY} x2={w} y2={goalY} stroke="#f59e0b" strokeWidth="1" strokeDasharray="4 3" />
+                        <text x={w - 2} y={goalY - 3} fill="#f59e0b" fontSize="7" textAnchor="end" fontWeight="bold">Goal {goalScore}</text>
+                      </>
+                    )}
                     <polyline points={pts.join(' ')} fill="none" stroke="#6366f1" strokeWidth="2" strokeLinejoin="round" />
+                    {projectedScore && (
+                      <line x1={lastX} y1={toY(last)} x2={projX} y2={projY} stroke="#6366f1" strokeWidth="1.5" strokeDasharray="5 3" opacity="0.5" />
+                    )}
                     {vals.map((v, i) => (
-                      <circle key={i} cx={Math.round((i / (vals.length - 1)) * w)} cy={Math.round(h - ((v - minV) / range) * h)} r={i === vals.length - 1 ? 3 : 2} fill={i === vals.length - 1 ? '#6366f1' : '#c7d2fe'} />
+                      <circle key={i} cx={Math.round((i / (vals.length - 1 + (projectedScore ? 1 : 0))) * w)} cy={toY(v)} r={i === vals.length - 1 ? 3 : 2} fill={i === vals.length - 1 ? '#6366f1' : '#c7d2fe'} />
                     ))}
+                    {projectedScore && <circle cx={projX} cy={projY} r="3" fill="none" stroke="#6366f1" strokeWidth="1.5" opacity="0.5" />}
                   </svg>
                   <div className="flex justify-between mt-1">
                     <span className="text-xs text-gray-300">Earlier</span>
-                    <span className="text-xs font-bold text-indigo-600">Now: ~{last}</span>
+                    <div className="flex items-center gap-3">
+                      {projectedScore && daysLeft > 0 && (
+                        <span className={`text-xs font-bold ${projectedScore >= (goalScore ?? 0) ? 'text-emerald-600' : 'text-amber-600'}`}>
+                          Proj: ~{projectedScore} by exam
+                        </span>
+                      )}
+                      <span className="text-xs font-bold text-indigo-600">Now: ~{last}</span>
+                    </div>
                   </div>
                 </div>
               )
