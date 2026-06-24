@@ -1834,7 +1834,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               )}
               {onMathFlash && (
                 <button onClick={onMathFlash} className="text-xs font-semibold text-blue-600 hover:text-blue-800 border border-blue-200 bg-blue-50 rounded-lg px-3 py-1.5 transition-colors" title="Math Formula Flashcards">
-                  📐 Formulas
+                  🃏 Math Flash
                 </button>
               )}
               {onVocab && (
@@ -3340,6 +3340,43 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </button>
           </div>
         )}
+
+        {/* Difficulty Calibration Card */}
+        {history.length >= 20 && (() => {
+          const recent = history.filter(s => s.score.total >= 5).slice(-10)
+          if (recent.length < 5) return null
+          const allQ = recent.flatMap(s => s.questions.map(q => ({ ...q, correct: (s.answers[q.id] ?? null) === q.answer })))
+          const byDiff = { 1: { c: 0, t: 0 }, 2: { c: 0, t: 0 }, 3: { c: 0, t: 0 } }
+          for (const q of allQ) { byDiff[q.difficulty ?? 2].t++; if (q.correct) byDiff[q.difficulty ?? 2].c++ }
+          const easyPct = byDiff[1].t > 3 ? Math.round((byDiff[1].c / byDiff[1].t) * 100) : null
+          const hardPct = byDiff[3].t > 3 ? Math.round((byDiff[3].c / byDiff[3].t) * 100) : null
+          const overallPct = allQ.length > 0 ? Math.round((allQ.filter(q => q.correct).length / allQ.length) * 100) : 0
+          if (overallPct >= 90 && easyPct !== null && easyPct >= 90) {
+            return (
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-4 mb-4 flex items-center gap-3">
+                <span className="text-2xl shrink-0">🔥</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-amber-700 uppercase tracking-widest mb-0.5">Calibration: Level Up!</p>
+                  <p className="text-sm font-bold text-gray-800">You're dominating easy questions</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Try Beast Mode or Hard-only questions to push your ceiling higher.</p>
+                </div>
+              </div>
+            )
+          }
+          if (overallPct < 65 && hardPct !== null && hardPct < 40) {
+            return (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-4 mb-4 flex items-center gap-3">
+                <span className="text-2xl shrink-0">🎯</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-blue-700 uppercase tracking-widest mb-0.5">Calibration: Foundation First</p>
+                  <p className="text-sm font-bold text-gray-800">Hard questions need a solid base</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Focus on Easy and Medium to build fluency before tackling Hard questions.</p>
+                </div>
+              </div>
+            )
+          }
+          return null
+        })()}
 
         {/* Weekend XP bonus banner */}
         {(() => { const d = new Date().getDay(); return (d === 0 || d === 6) })() && (
