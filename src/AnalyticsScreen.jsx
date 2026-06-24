@@ -335,6 +335,18 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       scoreEstimateTrend.push({ i, mid, date: eligible[i].completedAt.slice(0, 10) })
     }
 
+    // 12-week contribution calendar (84 days, arranged Sun–Sat × 12 weeks)
+    const today12 = new Date(); today12.setHours(0,0,0,0)
+    const calGrid = []
+    for (let i = 83; i >= 0; i--) {
+      const d = new Date(today12); d.setDate(d.getDate() - i)
+      const key = d.toISOString().slice(0, 10)
+      const daySessions = sessions.filter(s => s.completedAt.slice(0, 10) === key)
+      const count = daySessions.length
+      const avgPct = count > 0 ? Math.round(daySessions.reduce((s, x) => s + x.score.percent, 0) / count) : 0
+      calGrid.push({ key, count, avgPct, dow: d.getDay(), weekLabel: i % 7 === 0 ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null })
+    }
+
     // Avg seconds per question by domain
     const speedByDomain = {}
     for (const s of sessions) {
@@ -351,7 +363,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       .map(([id, v]) => ({ id, label: (domainList.find(d => d.id === id) || {}).label ?? id, avg: Math.round(v.sum / v.n) }))
       .sort((a, b) => b.avg - a.avg)
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend, speedByDomainList }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend, speedByDomainList, calGrid }
   }, [sessions])
 
   return (
@@ -699,29 +711,51 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               </div>
             )}
 
-            {/* 30-day activity heatmap */}
-            {stats.heatmap.some(d => d.count > 0) && (
-              <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
-                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">30-Day Activity</p>
-                <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(15, minmax(0, 1fr))' }}>
-                  {stats.heatmap.map(d => {
-                    const bg = d.count === 0 ? 'bg-gray-100' : d.avgPct >= 85 ? 'bg-emerald-500' : d.avgPct >= 70 ? 'bg-emerald-300' : 'bg-emerald-100'
-                    return (
-                      <div
-                        key={d.key}
-                        className={`aspect-square rounded-sm ${bg} cursor-default`}
-                        title={`${d.label}: ${d.count ? `${d.count} session${d.count !== 1 ? 's' : ''} · ${d.avgPct}% avg` : 'No study'}`}
-                      />
-                    )
-                  })}
+            {/* 12-week contribution calendar */}
+            {stats.calGrid.some(d => d.count > 0) && (() => {
+              const weeks = []
+              for (let w = 0; w < 12; w++) weeks.push(stats.calGrid.slice(w * 7, w * 7 + 7))
+              const DOW = ['S','M','T','W','T','F','S']
+              const studiedDays = stats.calGrid.filter(d => d.count > 0).length
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">12-Week Activity</p>
+                    <span className="text-xs text-gray-400">{studiedDays} day{studiedDays !== 1 ? 's' : ''} studied</span>
+                  </div>
+                  <div className="flex gap-1">
+                    {/* Day-of-week labels */}
+                    <div className="flex flex-col gap-1 mr-1">
+                      {DOW.map((d, i) => (
+                        <div key={i} className="h-3.5 w-3 flex items-center justify-center">
+                          {i % 2 === 1 && <span className="text-[8px] text-gray-300 leading-none">{d}</span>}
+                        </div>
+                      ))}
+                    </div>
+                    {/* Week columns */}
+                    {weeks.map((week, wi) => (
+                      <div key={wi} className="flex flex-col gap-1 flex-1">
+                        {week.map((d, di) => {
+                          const bg = d.count === 0 ? 'bg-gray-100' : d.avgPct >= 85 ? 'bg-emerald-500' : d.avgPct >= 70 ? 'bg-emerald-300' : 'bg-emerald-100'
+                          return (
+                            <div
+                              key={di}
+                              className={`rounded-sm aspect-square ${bg}`}
+                              title={d.count ? `${d.key}: ${d.count} session${d.count !== 1 ? 's' : ''} · ${d.avgPct}%` : d.key}
+                            />
+                          )
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-2.5">
+                    <span className="text-xs text-gray-400">Less</span>
+                    {['bg-gray-100','bg-emerald-100','bg-emerald-300','bg-emerald-500'].map((c, i) => <div key={i} className={`w-3 h-3 rounded-sm ${c}`} />)}
+                    <span className="text-xs text-gray-400">More</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 mt-2">
-                  <span className="text-xs text-gray-400">Less</span>
-                  {['bg-gray-100','bg-emerald-100','bg-emerald-300','bg-emerald-500'].map((c, i) => <div key={i} className={`w-3 h-3 rounded-sm ${c}`} />)}
-                  <span className="text-xs text-gray-400">More</span>
-                </div>
-              </div>
-            )}
+              )
+            })()}
 
             {/* Score distribution histogram */}
             {sessions.length >= 5 && (() => {
