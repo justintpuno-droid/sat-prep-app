@@ -869,6 +869,45 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           </div>
         )}
 
+        {/* Session Highlights */}
+        {session.questions.length >= 5 && (() => {
+          const timings = session.questionTimings ?? {}
+          const highlights = []
+          const correctQs = session.questions.filter(q => (answers[q.id] ?? null) === q.answer)
+          const wrongQs = session.questions.filter(q => (answers[q.id] ?? null) !== q.answer && answers[q.id] !== undefined)
+          // Fastest correct answer
+          const fastCorrect = correctQs
+            .filter(q => timings[q.id])
+            .sort((a, b) => timings[a.id] - timings[b.id])[0]
+          if (fastCorrect && timings[fastCorrect.id] < 20) {
+            highlights.push({ icon: '⚡', text: `Fastest answer: "${(fastCorrect.stem ?? fastCorrect.text ?? '').slice(0, 40)}…" — ${Math.round(timings[fastCorrect.id])}s` })
+          }
+          // Hardest question gotten right
+          const hardRight = correctQs.filter(q => q.difficulty === 3)[0]
+          if (hardRight) highlights.push({ icon: '💪', text: `Cracked a Hard (Difficulty 3) question in ${domainById[hardRight.domain]?.label ?? hardRight.domain}` })
+          // Longest question (most time spent, still got right)
+          const persisted = correctQs.filter(q => timings[q.id] && timings[q.id] > 60).sort((a, b) => timings[b.id] - timings[a.id])[0]
+          if (persisted) highlights.push({ icon: '🧠', text: `Persisted ${Math.round(timings[persisted.id])}s on a tough question — and got it right!` })
+          // Max combo
+          if ((session.maxCombo ?? 0) >= 5) highlights.push({ icon: '🔥', text: `Hit a ${session.maxCombo}-answer combo streak!` })
+          // All correct
+          if (wrongQs.length === 0 && session.questions.length >= 10) highlights.push({ icon: '🏆', text: 'Perfect session — every question correct!' })
+          if (highlights.length === 0) return null
+          return (
+            <div className="bg-gradient-to-r from-slate-50 to-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-indigo-400 mb-2.5">Session Highlights</p>
+              <div className="space-y-2">
+                {highlights.slice(0, 3).map((h, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <span className="text-base shrink-0">{h.icon}</span>
+                    <p className="text-xs text-gray-700 leading-relaxed">{h.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Question review */}
         <div>
           <div className="flex items-center justify-between mb-3">
