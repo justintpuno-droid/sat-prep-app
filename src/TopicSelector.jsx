@@ -1451,15 +1451,15 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       <div className="w-full max-w-2xl">
 
         {/* Exam countdown banner */}
-        {daysLeft !== null && daysLeft > 0 && daysLeft <= 30 && (
-          <div className={`rounded-2xl px-4 py-3 mb-4 flex items-center gap-3 ${daysLeft <= 7 ? 'bg-rose-600 text-white' : daysLeft <= 14 ? 'bg-amber-500 text-white' : 'bg-indigo-600 text-white'}`}>
-            <span className="text-2xl shrink-0">{daysLeft <= 7 ? '🚨' : daysLeft <= 14 ? '⚠️' : '📅'}</span>
+        {daysLeft !== null && daysLeft >= 0 && (
+          <div className={`rounded-2xl px-4 py-3 mb-4 flex items-center gap-3 ${daysLeft <= 7 ? 'bg-rose-600 text-white' : daysLeft <= 14 ? 'bg-amber-500 text-white' : daysLeft <= 30 ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-white'}`}>
+            <span className="text-2xl shrink-0">{daysLeft === 0 ? '🎓' : daysLeft <= 7 ? '🚨' : daysLeft <= 14 ? '⚠️' : '📅'}</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-black leading-tight">
-                {daysLeft <= 7 ? `${daysLeft} day${daysLeft > 1 ? 's' : ''} until your SAT!` : `${daysLeft} days until your SAT`}
+                {daysLeft === 0 ? 'SAT Day is today — good luck!' : daysLeft <= 7 ? `${daysLeft} day${daysLeft > 1 ? 's' : ''} until your SAT!` : `${daysLeft} days until your SAT`}
               </p>
               <p className="text-xs opacity-80 mt-0.5">
-                {daysLeft <= 7 ? 'Focus on your weakest domains — every session counts!' : daysLeft <= 14 ? 'Two weeks left — push hard on weak areas!' : 'One month to go — stay consistent!'}
+                {daysLeft === 0 ? 'You\'ve prepared hard for this. Go get it!' : daysLeft <= 7 ? 'Crunch time — focus on your weakest domains!' : daysLeft <= 14 ? 'Two weeks left — push hard on weak areas!' : daysLeft <= 30 ? 'One month to go — stay consistent!' : 'Keep building your skills — steady wins the race!'}
               </p>
             </div>
             <div className="shrink-0 text-right">
