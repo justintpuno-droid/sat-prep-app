@@ -277,10 +277,17 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
       ``,
       `Practicing for the SAT 💪 Try to beat me!`,
     ]
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const text = lines.join('\n')
+    if (navigator.share) {
+      navigator.share({ text }).catch(() => {})
       setCopied(true)
       setTimeout(() => setCopied(false), 2500)
-    }).catch(() => {})
+    } else {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2500)
+      }).catch(() => {})
+    }
   }
 
   const modeColor = mode === 'learning' ? 'bg-indigo-100 text-indigo-700' : 'bg-violet-100 text-violet-700'
@@ -666,6 +673,33 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
 
         {/* Score card */}
         <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 mb-4">
+          {/* Recent trend sparkline */}
+          {(() => {
+            const history = loadHistory()
+            const recent = history.filter(s => s.score.total >= 5).slice(-7)
+            if (recent.length < 2) return null
+            const pts = recent.map(s => s.score.percent)
+            const min = Math.min(...pts) - 5
+            const range = Math.max(...pts) - min + 5
+            const W = 80, H = 28, pad = 4
+            const x = (i) => pad + (i / (pts.length - 1)) * (W - pad * 2)
+            const y = (v) => H - pad - ((v - min) / range) * (H - pad * 2)
+            const path = pts.map((v, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')
+            const trend = pts[pts.length - 1] - pts[0]
+            const color = trend >= 5 ? '#10b981' : trend <= -5 ? '#f43f5e' : '#94a3b8'
+            return (
+              <div className="flex items-center gap-2 mb-4 px-1">
+                <svg width={W} height={H} className="shrink-0">
+                  <path d={path} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  {pts.map((v, i) => <circle key={i} cx={x(i)} cy={y(v)} r="2.5" fill={i === pts.length - 1 ? color : '#e2e8f0'} />)}
+                </svg>
+                <span className="text-[11px] font-semibold" style={{ color }}>
+                  {trend >= 5 ? `↑ +${Math.round(trend)}pts trend` : trend <= -5 ? `↓ ${Math.round(trend)}pts trend` : '→ Stable'}
+                </span>
+              </div>
+            )
+          })()}
+
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <ScoreRing percent={score.percent} />
