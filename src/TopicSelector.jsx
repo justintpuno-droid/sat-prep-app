@@ -328,6 +328,18 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return seen.size
   }, [history])
 
+  const bestOfWeek = useMemo(() => {
+    const mon = new Date()
+    const day = mon.getDay()
+    mon.setDate(mon.getDate() - (day === 0 ? 6 : day - 1))
+    const monStr = mon.toISOString().slice(0, 10)
+    const weekSessions = history.filter(s => s.completedAt.slice(0, 10) >= monStr && s.score.total >= 5)
+    if (weekSessions.length < 2) return null
+    const best = weekSessions.reduce((a, b) => b.score.percent > a.score.percent ? b : a)
+    const dateStr = new Date(best.completedAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    return { pct: best.score.percent, date: dateStr, label: best.formatLabel }
+  }, [history])
+
   const totalFlagged = useMemo(() => {
     let count = 0
     for (const s of history) count += (s.flaggedIds ?? []).length
@@ -1127,6 +1139,18 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             )
           })()}
         </div>
+
+        {/* Best of the week highlight */}
+        {bestOfWeek && (
+          <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+            <span className="text-lg">🌟</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-400 font-medium">Best this week</p>
+              <p className="text-sm font-bold text-gray-800">{bestOfWeek.pct}% · {bestOfWeek.label}</p>
+              <p className="text-xs text-gray-400">{bestOfWeek.date}</p>
+            </div>
+          </div>
+        )}
 
         {/* SAT score goal tracker */}
         {(goalTarget !== null || estimatedScore !== null) && (

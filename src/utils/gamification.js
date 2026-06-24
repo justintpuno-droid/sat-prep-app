@@ -208,11 +208,18 @@ export function processSession(session, history, prevGam) {
     comebackBonus = 100
   }
 
-  const newXP = oldXP + xp.total + challengeBonus + comebackBonus + milestoneBonus
+  // Improvement bonus: beat your last session score by ≥10%
+  let improvementBonus = 0
+  const lastEligible = history.filter(s => s.score.total >= 5).slice(-1)[0]
+  if (lastEligible && session.score.total >= 5 && session.score.percent >= lastEligible.score.percent + 10) {
+    improvementBonus = 20
+  }
+
+  const newXP = oldXP + xp.total + challengeBonus + comebackBonus + milestoneBonus + improvementBonus
   const oldLevel = getLevelInfo(oldXP)
   const newLevel = getLevelInfo(newXP)
 
-  const totalXPEarned = xp.total + challengeBonus + comebackBonus + milestoneBonus
+  const totalXPEarned = xp.total + challengeBonus + comebackBonus + milestoneBonus + improvementBonus
   const xpLog = [...(prevGam.xpLog ?? []), { date: today, xp: totalXPEarned }].slice(-90)
 
   const gam = {
@@ -272,7 +279,7 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, challengeBonus, challengeCompleted, comebackBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
+  return { xp, challengeBonus, challengeCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────
