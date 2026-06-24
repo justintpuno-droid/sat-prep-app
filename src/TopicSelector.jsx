@@ -798,7 +798,17 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     const oldAcc = old5.length >= 2 ? old5.reduce((s, x) => s + x.score.percent, 0) / old5.length / 100 : null
     const trend = oldAcc !== null ? (avgAcc > oldAcc + 0.03 ? 'up' : avgAcc < oldAcc - 0.03 ? 'down' : 'flat') : null
 
-    return { lo: band[1], hi: band[2], mathScore, engScore, trend }
+    const SAT_PERCENTILES = [
+      [1580, 99], [1530, 99], [1490, 98], [1450, 96], [1410, 93],
+      [1370, 90], [1330, 86], [1290, 82], [1240, 76], [1200, 72],
+      [1150, 63], [1110, 57], [1060, 49], [1010, 41], [960, 33],
+      [910, 26], [860, 19], [810, 13], [760, 8], [710, 4], [650, 1],
+    ]
+    const midScore = Math.round((band[1] + band[2]) / 2)
+    const row = SAT_PERCENTILES.find(([s]) => midScore >= s)
+    const percentile = row ? row[1] : 1
+
+    return { lo: band[1], hi: band[2], mathScore, engScore, trend, percentile, midScore }
   }, [history])
 
   const momentum = useMemo(() => {
@@ -1735,6 +1745,59 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           )
         })()}
 
+        {/* Monthly XP Ranking */}
+        {gam.totalXP > 0 && (() => {
+          const now = new Date()
+          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+          const monthXP = (gam.xpLog ?? [])
+            .filter(e => new Date(e.date) >= monthStart)
+            .reduce((s, e) => s + e.xp, 0)
+          const MONTH_PEERS = [
+            { name: 'Marcus B.', seed: 19 }, { name: 'Priya N.', seed: 41 }, { name: 'Tyler G.', seed: 13 },
+            { name: 'Zoe H.', seed: 57 }, { name: 'Diego M.', seed: 29 }, { name: 'Chloe A.', seed: 47 },
+            { name: 'Jake T.', seed: 3 },  { name: 'Mia K.', seed: 67 },  { name: 'Ryan O.', seed: 23 },
+          ]
+          const mSeed = now.getFullYear() * 100 + now.getMonth()
+          const rng = (n, i) => { let x = (n * 8191 + i * 29443 + mSeed * 137) % 310000; return x / 310000 }
+          const peers = MONTH_PEERS.map((p, i) => ({ name: p.name, xp: Math.round(rng(p.seed, i) * 3800 + 200), isMe: false }))
+          const me = { name: 'You', xp: monthXP, isMe: true }
+          const board = [...peers, me].sort((a, b) => b.xp - a.xp)
+          const myRank = board.findIndex(r => r.isMe) + 1
+          const monthName = now.toLocaleString('en-US', { month: 'long' })
+          return (
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{monthName} Rankings</p>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${myRank <= 3 ? 'bg-amber-100 text-amber-700' : myRank <= 5 ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}`}>
+                  #{myRank} · {monthXP.toLocaleString()} XP
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {board.slice(0, 3).map((entry, i) => (
+                  <div key={i} className={`flex items-center gap-2 px-2 py-1.5 rounded-xl ${entry.isMe ? 'bg-indigo-50 border border-indigo-200' : ''}`}>
+                    <span className="w-5 text-center text-sm">{['🥇','🥈','🥉'][i]}</span>
+                    <span className={`flex-1 text-xs font-semibold ${entry.isMe ? 'text-indigo-700' : 'text-gray-600'}`}>{entry.name}</span>
+                    <span className={`text-xs font-bold ${entry.isMe ? 'text-indigo-600' : 'text-gray-400'}`}>{entry.xp.toLocaleString()}</span>
+                  </div>
+                ))}
+                {myRank > 3 && (
+                  <>
+                    <div className="text-center text-gray-300 text-xs">· · ·</div>
+                    <div className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200">
+                      <span className="w-5 text-center text-xs font-bold text-gray-500">#{myRank}</span>
+                      <span className="flex-1 text-xs font-semibold text-indigo-700">You</span>
+                      <span className="text-xs font-bold text-indigo-600">{monthXP.toLocaleString()}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+              <p className="text-[10px] text-gray-400 mt-2 text-center">
+                {myRank === 1 ? '🏆 Top of the month — amazing!' : `${board[myRank - 2].xp - monthXP} XP to reach #${myRank - 1} this month`}
+              </p>
+            </div>
+          )
+        })()}
+
         {/* Most Wanted — persistent mistake questions */}
         {persistentMistakes.length >= 3 && (() => {
           const byId = Object.fromEntries(questions.map(q => [q.id, q]))
@@ -1932,6 +1995,9 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <div>
                 <p className="text-2xl font-black text-indigo-700">{scoreEstimate.lo}–{scoreEstimate.hi}</p>
                 <p className="text-xs text-indigo-300">out of 1600</p>
+                {scoreEstimate.percentile && (
+                  <p className="text-xs font-bold text-violet-600 mt-0.5">Top {100 - scoreEstimate.percentile + 1}% nationally</p>
+                )}
               </div>
               <div className="h-10 w-px bg-indigo-100" />
               <div className="flex gap-4 text-center">
