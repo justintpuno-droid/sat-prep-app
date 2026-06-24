@@ -198,6 +198,20 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     const biasTotal = Object.values(wrongChoices).reduce((a, b) => a + b, 0)
     const answerBias = biasTotal >= 20 ? wrongChoices : null
 
+    // Performance by session format
+    const byFormat = {}
+    for (const s of sessions) {
+      const key = s.formatLabel ?? 'Unknown'
+      if (!byFormat[key]) byFormat[key] = { correct: 0, total: 0, count: 0 }
+      byFormat[key].count++
+      byFormat[key].correct += s.score.correct
+      byFormat[key].total += s.score.total
+    }
+    const formatStats = Object.entries(byFormat)
+      .filter(([, v]) => v.count >= 1)
+      .map(([label, v]) => ({ label, count: v.count, pct: pct(v.correct, v.total) }))
+      .sort((a, b) => b.count - a.count)
+
     // Personal records
     let bestSessionPct = 0, bestSessionDate = null, bestComboAll = 0, maxXPDay = 0
     for (const s of sessions) {
@@ -240,7 +254,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     // Questions per minute efficiency
     const qPerMin = totalTime > 0 ? (totalQ / (totalTime / 60)).toFixed(1) : null
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats }
   }, [sessions])
 
   return (
@@ -486,6 +500,25 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                       <p className="text-lg font-black text-indigo-700">{r.value}</p>
                       <p className="text-xs font-semibold text-gray-500 mt-0.5">{r.label}</p>
                       {r.sub && <p className="text-xs text-gray-400 mt-0.5">{r.sub}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Performance by format */}
+            {stats.formatStats.length >= 2 && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">Accuracy by Session Type</p>
+                <div className="space-y-2.5">
+                  {stats.formatStats.map(f => (
+                    <div key={f.label} className="flex items-center gap-3">
+                      <span className="text-xs text-gray-600 w-28 shrink-0 truncate">{f.label}</span>
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full ${barColor(f.pct)}`} style={{ width: `${f.pct}%` }} />
+                      </div>
+                      <span className={`text-xs font-bold w-10 text-right shrink-0 ${textColor(f.pct)}`}>{f.pct}%</span>
+                      <span className="text-xs text-gray-300 w-10 text-right shrink-0">{f.count}×</span>
                     </div>
                   ))}
                 </div>

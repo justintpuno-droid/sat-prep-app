@@ -1589,6 +1589,14 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         </div>
 
+        {/* Late-night study reminder */}
+        {history.length >= 3 && new Date().getHours() >= 22 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mb-4 flex items-center gap-2">
+            <span className="text-sm">🌙</span>
+            <p className="text-xs text-amber-700">Late night study? Sleep helps memory consolidation — don't skip rest before exam day!</p>
+          </div>
+        )}
+
         {/* Question bank stats */}
         <div className="flex items-center gap-2 text-xs text-gray-400 mb-3">
           <span>📚 {questions.length.toLocaleString()} questions in bank</span>
