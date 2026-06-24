@@ -53,6 +53,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [formulaTab, setFormulaTab] = useState('math')
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [eliminated, setEliminated] = useState({}) // questionId → eliminated option id
+  const [wrongStreak, setWrongStreak] = useState(0)
   const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge) ? 3 : 0)
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
@@ -157,6 +158,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     setSessionXP(prev => prev + xpGain)
     const newCombo = isCorrect ? combo + 1 : 0
     setCombo(newCombo)
+    setWrongStreak(isCorrect ? 0 : ws => ws + 1)
     if (newCombo > maxComboRef.current) {
       maxComboRef.current = newCombo
       setMaxCombo(newCombo)
@@ -422,6 +424,14 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             <span className={`text-base font-black px-3 py-1 rounded-full animate-bounce ${xpFlash.speed ? 'bg-amber-400 text-white' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}>
               +{xpFlash.amount} XP{xpFlash.speed ? ' ⚡' : ''}
             </span>
+          </div>
+        )}
+
+        {/* Wrong streak warning */}
+        {revealed && wrongStreak >= 3 && !isBlitzMode && (
+          <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-2.5 flex items-center gap-2">
+            <span className="text-base">⚠️</span>
+            <p className="text-sm text-amber-800 font-medium">{wrongStreak} wrong in a row — slow down and re-read carefully before selecting.</p>
           </div>
         )}
 
