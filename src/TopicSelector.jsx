@@ -2367,6 +2367,51 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
         )}
 
         {/* SAT score goal tracker */}
+        {/* Score milestone roadmap */}
+        {estimatedScore && (() => {
+          const MILESTONES = [
+            { score: 1000, label: '1000', icon: '🌱' },
+            { score: 1100, label: '1100', icon: '📗' },
+            { score: 1200, label: '1200', icon: '📘' },
+            { score: 1300, label: '1300', icon: '🏅' },
+            { score: 1400, label: '1400', icon: '🥇' },
+            { score: 1500, label: '1500', icon: '🚀' },
+            { score: 1600, label: '1600', icon: '🏆' },
+          ]
+          const achieved = MILESTONES.filter(m => estimatedScore >= m.score)
+          const nextMilestone = MILESTONES.find(m => estimatedScore < m.score)
+          if (!nextMilestone && achieved.length === MILESTONES.length) return null
+          return (
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Score Roadmap</p>
+              <div className="relative">
+                <div className="absolute top-4 left-0 right-0 h-1 bg-gray-100 rounded-full">
+                  <div className="h-full bg-indigo-400 rounded-full transition-all" style={{ width: `${((estimatedScore - 800) / 800) * 100}%` }} />
+                </div>
+                <div className="flex justify-between relative">
+                  {MILESTONES.map(m => {
+                    const done = estimatedScore >= m.score
+                    const isNext = m === nextMilestone
+                    return (
+                      <div key={m.score} className="flex flex-col items-center gap-1">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm border-2 transition-all ${done ? 'border-indigo-500 bg-indigo-500' : isNext ? 'border-indigo-300 bg-white animate-pulse' : 'border-gray-200 bg-white'}`}>
+                          {done ? <span className="text-white text-xs">✓</span> : <span className={isNext ? 'text-indigo-400' : 'text-gray-300'}>{m.icon}</span>}
+                        </div>
+                        <span className={`text-[9px] font-bold ${done ? 'text-indigo-600' : isNext ? 'text-indigo-400' : 'text-gray-300'}`}>{m.label}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              {nextMilestone && (
+                <p className="text-xs text-gray-400 mt-3 text-center">
+                  {nextMilestone.score - estimatedScore} pts to <span className="font-semibold text-indigo-600">{nextMilestone.label}</span> {nextMilestone.icon}
+                </p>
+              )}
+            </div>
+          )
+        })()}
+
         {(goalTarget !== null || estimatedScore !== null) && (
           <div className="bg-white rounded-2xl border-2 border-gray-200 p-4 mb-6">
             <div className="flex items-center justify-between mb-2">
