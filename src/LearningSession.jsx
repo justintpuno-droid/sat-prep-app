@@ -628,6 +628,26 @@ export default function LearningSession({ config, onComplete, onQuit }) {
           </div>
         )}
 
+        {/* Question mini-map */}
+        {questions.length <= 30 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {questions.map((q, i) => {
+              const ans = answers[q.id]
+              const isAnswered = ans !== undefined
+              const isRight = isAnswered && ans === q.answer
+              const isCurrent = i === index
+              return (
+                <div
+                  key={i}
+                  className={`rounded-full transition-all ${isCurrent ? 'w-3 h-3 ring-2 ring-indigo-500 ring-offset-1' : 'w-2.5 h-2.5'} ${
+                    isAnswered ? (isRight ? 'bg-emerald-400' : 'bg-rose-400') : (isCurrent ? 'bg-indigo-300' : 'bg-gray-200')
+                  }`}
+                />
+              )
+            })}
+          </div>
+        )}
+
         <div className="flex items-center gap-3 mb-5">
           <p className="text-xs text-gray-400">Question {index + 1} of {questions.length}</p>
           {(index + 1) % 7 === 0 && !revealed && (
