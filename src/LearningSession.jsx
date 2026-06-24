@@ -326,10 +326,18 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             </button>
           </div>
         </div>
-        <div className="max-w-2xl mx-auto px-4 pb-2">
+        <div className="max-w-2xl mx-auto px-4 pb-2 space-y-1">
           <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
             <div className="h-full bg-indigo-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
           </div>
+          {answeredCount > 0 && (
+            <div className="h-0.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${correctCount / answeredCount >= 0.8 ? 'bg-emerald-400' : correctCount / answeredCount >= 0.6 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                style={{ width: `${Math.round((correctCount / answeredCount) * 100)}%` }}
+              />
+            </div>
+          )}
         </div>
       </div>
 

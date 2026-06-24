@@ -354,6 +354,25 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return { id, label: domainById[id]?.label ?? id, pct: Math.round((st.correct / st.total) * 100), daysSince }
   }, [history])
 
+  const bestStudyTime = useMemo(() => {
+    if (history.length < 8) return null
+    const tod = { morning: { c: 0, t: 0 }, afternoon: { c: 0, t: 0 }, evening: { c: 0, t: 0 } }
+    for (const s of history) {
+      const h = new Date(s.completedAt).getHours()
+      const b = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'
+      tod[b].t += s.score.total; tod[b].c += s.score.correct
+    }
+    const best = Object.entries(tod)
+      .filter(([, v]) => v.t >= 10)
+      .sort(([, a], [, b]) => (b.c / b.t) - (a.c / a.t))[0]
+    if (!best) return null
+    const [name, stats] = best
+    const pct = Math.round((stats.c / stats.t) * 100)
+    const emoji = { morning: '🌅', afternoon: '☀️', evening: '🌙' }[name]
+    const label = { morning: 'morning', afternoon: 'afternoon', evening: 'evening' }[name]
+    return { label, emoji, pct }
+  }, [history])
+
   const dailyTarget = useMemo(() => {
     if (history.length < 3) return null
     const todayStr = new Date().toISOString().slice(0, 10)
@@ -1271,6 +1290,19 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           })()}
         </div>
 
+        {/* Best study time tip */}
+        {bestStudyTime && (() => {
+          const h = new Date().getHours()
+          const isBestTime = (bestStudyTime.label === 'morning' && h < 12) || (bestStudyTime.label === 'afternoon' && h >= 12 && h < 17) || (bestStudyTime.label === 'evening' && h >= 17)
+          if (!isBestTime) return null
+          return (
+            <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 mb-4 flex items-center gap-2">
+              <span className="text-sm">{bestStudyTime.emoji}</span>
+              <p className="text-xs text-amber-700">Peak performance time! You score {bestStudyTime.pct}% in the {bestStudyTime.label}.</p>
+            </div>
+          )
+        })()}
+
         {/* Personalized daily target */}
         {dailyTarget && (
           <div className={`rounded-2xl border px-4 py-3 mb-4 flex items-center gap-3 ${dailyTarget.color}`}>
@@ -1784,6 +1816,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
         })()}
 
         {/* Start button */}
+        {matchingCount > 0 && (
+          <p className="text-xs text-gray-400 text-center mb-2">
+            ~{Math.max(1, Math.round(matchingCount * 75 / 60))} min estimated
+          </p>
+        )}
         <button
           onClick={handleStart}
           disabled={matchingCount === 0}
