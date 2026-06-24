@@ -489,7 +489,32 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     ]
     const band = map.find(([thresh]) => avgAcc >= thresh)
     if (!band) return null
-    return { lo: band[1], hi: band[2] }
+
+    // Per-section estimates
+    const mathSections = history.filter(s => {
+      const ids = s.questions?.map(q => q.domain) ?? []
+      return ids.some(d => ['algebra','advanced-math','problem-solving-data','geometry-trig'].includes(d))
+    }).slice(-15)
+    const engSections = history.filter(s => {
+      const ids = s.questions?.map(q => q.domain) ?? []
+      return ids.some(d => ['information-ideas','craft-structure','expression-ideas','standard-english'].includes(d))
+    }).slice(-15)
+    const mathAcc = mathSections.length >= 2
+      ? mathSections.reduce((s, x) => s + x.score.percent, 0) / mathSections.length / 100
+      : avgAcc
+    const engAcc = engSections.length >= 2
+      ? engSections.reduce((s, x) => s + x.score.percent, 0) / engSections.length / 100
+      : avgAcc
+    const toSection = (acc) => Math.round((200 + acc * 600) / 10) * 10
+    const mathScore = toSection(mathAcc)
+    const engScore = toSection(engAcc)
+
+    // Trend vs 5 sessions ago
+    const old5 = history.filter(s => s.score.total >= 10).slice(-10, -5)
+    const oldAcc = old5.length >= 2 ? old5.reduce((s, x) => s + x.score.percent, 0) / old5.length / 100 : null
+    const trend = oldAcc !== null ? (avgAcc > oldAcc + 0.03 ? 'up' : avgAcc < oldAcc - 0.03 ? 'down' : 'flat') : null
+
+    return { lo: band[1], hi: band[2], mathScore, engScore, trend }
   }, [history])
 
   const miniCalendar = useMemo(() => {
@@ -1298,13 +1323,32 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
 
         {/* SAT Score Estimate */}
         {scoreEstimate && (
-          <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
-            <span className="text-lg shrink-0">📊</span>
-            <div>
+          <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl px-4 py-3 mb-4">
+            <div className="flex items-center justify-between mb-2">
               <p className="text-xs text-indigo-400 font-semibold uppercase tracking-widest">Est. SAT Score</p>
-              <p className="text-xl font-black text-indigo-700">{scoreEstimate.lo}–{scoreEstimate.hi}</p>
+              {scoreEstimate.trend && (
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${scoreEstimate.trend === 'up' ? 'bg-emerald-100 text-emerald-600' : scoreEstimate.trend === 'down' ? 'bg-rose-100 text-rose-600' : 'bg-gray-100 text-gray-500'}`}>
+                  {scoreEstimate.trend === 'up' ? '↑ Improving' : scoreEstimate.trend === 'down' ? '↓ Slipping' : '→ Steady'}
+                </span>
+              )}
             </div>
-            <p className="text-xs text-indigo-300 ml-auto">out of 1600</p>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="text-2xl font-black text-indigo-700">{scoreEstimate.lo}–{scoreEstimate.hi}</p>
+                <p className="text-xs text-indigo-300">out of 1600</p>
+              </div>
+              <div className="h-10 w-px bg-indigo-100" />
+              <div className="flex gap-4 text-center">
+                <div>
+                  <p className="text-xs text-indigo-400 font-medium">Math</p>
+                  <p className="text-base font-black text-indigo-600">{scoreEstimate.mathScore}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-indigo-400 font-medium">R&W</p>
+                  <p className="text-base font-black text-violet-600">{scoreEstimate.engScore}</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
