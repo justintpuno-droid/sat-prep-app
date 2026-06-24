@@ -417,7 +417,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -1159,8 +1159,25 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     })
   }
 
+  const [showXPToast, setShowXPToast] = useState(false)
+  useEffect(() => {
+    if (!pendingXP) return
+    setShowXPToast(true)
+    const t = setTimeout(() => { setShowXPToast(false); onClearPendingXP?.() }, 3000)
+    return () => clearTimeout(t)
+  }, [pendingXP])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 flex items-start justify-center px-4 py-12">
+      {/* XP toast */}
+      {showXPToast && pendingXP > 0 && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-bounce pointer-events-none">
+          <div className="bg-indigo-600 text-white text-sm font-black px-5 py-2.5 rounded-full shadow-lg flex items-center gap-2">
+            <span>⚡</span>
+            <span>+{pendingXP} XP</span>
+          </div>
+        </div>
+      )}
       <div className="w-full max-w-2xl">
 
         {/* Header */}
