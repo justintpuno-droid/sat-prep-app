@@ -398,9 +398,9 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         />
 
         {/* XP flash */}
-        {xpFlash && (
-          <div key={xpFlash.id} className="flex justify-end mb-2">
-            <span className="text-sm font-black text-amber-500 animate-bounce">
+        {xpFlash && xpFlash.correct && (
+          <div key={xpFlash.id} className="flex justify-end mb-2 pointer-events-none">
+            <span className={`text-base font-black px-3 py-1 rounded-full animate-bounce ${xpFlash.speed ? 'bg-amber-400 text-white' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}>
               +{xpFlash.amount} XP{xpFlash.speed ? ' ⚡' : ''}
             </span>
           </div>
