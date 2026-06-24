@@ -1303,6 +1303,25 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       .sort((a, b) => a.pct - b.pct)[0] ?? null
   }, [history])
 
+  const recentWeakDomains = useMemo(() => {
+    if (history.length < 3) return []
+    const recent = history.slice(-3)
+    const byDomain = {}
+    for (const sess of recent) {
+      for (const q of sess.questions) {
+        if (!byDomain[q.domain]) byDomain[q.domain] = { correct: 0, total: 0, id: q.domain }
+        byDomain[q.domain].total++
+        if ((sess.answers[q.id] ?? null) === q.answer) byDomain[q.domain].correct++
+      }
+    }
+    return Object.values(byDomain)
+      .filter(d => d.total >= 3)
+      .map(d => ({ ...d, pct: Math.round((d.correct / d.total) * 100), label: domainById[d.id]?.label ?? d.id }))
+      .filter(d => d.pct < 60)
+      .sort((a, b) => a.pct - b.pct)
+      .slice(0, 3)
+  }, [history])
+
   const powerDay = useMemo(() => {
     const todayStr = new Date().toISOString().slice(0, 10)
     const todaySess = history.filter(s => s.completedAt.startsWith(todayStr))
@@ -3497,6 +3516,27 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             })}
           </div>
         </div>
+
+        {/* Recent weak domains alert */}
+        {recentWeakDomains.length >= 2 && (
+          <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 mb-4">
+            <p className="text-xs font-bold text-rose-700 uppercase tracking-widest mb-2.5">🚨 Needs Work (Last 3 Sessions)</p>
+            <div className="space-y-2">
+              {recentWeakDomains.map(d => (
+                <div key={d.id} className="flex items-center gap-3">
+                  <span className="text-xs text-rose-700 font-semibold flex-1 truncate">{d.label}</span>
+                  <div className="w-16 h-1.5 bg-rose-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-rose-500 rounded-full" style={{ width: `${d.pct}%` }} />
+                  </div>
+                  <span className="text-xs font-black text-rose-600 w-8 text-right">{d.pct}%</span>
+                  <button onClick={() => onFocusPractice(d.id, null)} className="text-xs bg-rose-600 text-white font-bold px-2.5 py-1 rounded-lg hover:bg-rose-700 transition-colors shrink-0">
+                    Drill
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Monday weekly report card */}
         {xpWeekRace.dayOfWeek === 1 && xpWeekRace.lastWeekSessions > 0 && (
