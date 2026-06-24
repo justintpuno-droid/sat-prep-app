@@ -335,6 +335,19 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       scoreEstimateTrend.push({ i, mid, date: eligible[i].completedAt.slice(0, 10) })
     }
 
+    // Month-over-month accuracy (last 6 calendar months)
+    const monthlyAccuracy = []
+    for (let m = 5; m >= 0; m--) {
+      const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - m)
+      const monthKey = d.toISOString().slice(0, 7)
+      const monthSessions = sessions.filter(s => s.completedAt.slice(0, 7) === monthKey && s.score.total >= 5)
+      const avgPct = monthSessions.length > 0
+        ? Math.round(monthSessions.reduce((s, x) => s + x.score.percent, 0) / monthSessions.length)
+        : null
+      const label = d.toLocaleDateString('en-US', { month: 'short' })
+      monthlyAccuracy.push({ monthKey, label, avgPct, count: monthSessions.length })
+    }
+
     // 12-week contribution calendar (84 days, arranged Sun–Sat × 12 weeks)
     const today12 = new Date(); today12.setHours(0,0,0,0)
     const calGrid = []
@@ -363,7 +376,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       .map(([id, v]) => ({ id, label: (domainList.find(d => d.id === id) || {}).label ?? id, avg: Math.round(v.sum / v.n) }))
       .sort((a, b) => b.avg - a.avg)
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend, speedByDomainList, calGrid }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend, speedByDomainList, calGrid, monthlyAccuracy }
   }, [sessions])
 
   return (
@@ -816,6 +829,37 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 </div>
               </div>
             )}
+
+            {/* Month-over-month accuracy */}
+            {stats.monthlyAccuracy.filter(m => m.avgPct !== null).length >= 2 && (() => {
+              const withData = stats.monthlyAccuracy.filter(m => m.avgPct !== null)
+              const first = withData[0].avgPct, last = withData[withData.length - 1].avgPct
+              const maxPct = Math.max(...withData.map(m => m.avgPct), 60)
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Month-over-Month</p>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${last > first ? 'bg-emerald-100 text-emerald-700' : last < first ? 'bg-rose-100 text-rose-500' : 'bg-gray-100 text-gray-500'}`}>
+                      {last > first ? `↑ +${last - first}%` : last < first ? `↓ ${last - first}%` : '→ Flat'}
+                    </span>
+                  </div>
+                  <div className="flex items-end gap-2 h-16">
+                    {stats.monthlyAccuracy.map((m, i) => {
+                      const isCur = i === 5
+                      const h = m.avgPct !== null ? Math.max(4, Math.round((m.avgPct / maxPct) * 60)) : 4
+                      const color = m.avgPct === null ? 'bg-gray-100' : m.avgPct >= 80 ? 'bg-emerald-500' : m.avgPct >= 65 ? 'bg-amber-400' : 'bg-rose-400'
+                      return (
+                        <div key={m.monthKey} className="flex-1 flex flex-col items-center gap-1">
+                          {m.avgPct !== null && <span className="text-xs text-gray-400">{m.avgPct}%</span>}
+                          <div className={`w-full rounded-t-sm ${color} ${isCur ? 'ring-2 ring-indigo-400 ring-offset-1' : ''}`} style={{ height: `${h}px` }} title={m.avgPct !== null ? `${m.label}: ${m.avgPct}% avg (${m.count} sessions)` : `${m.label}: no data`} />
+                          <span className={`text-xs ${isCur ? 'text-indigo-600 font-bold' : 'text-gray-400'}`}>{m.label}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* Recent trend */}
             {stats.trend.length > 1 && (
