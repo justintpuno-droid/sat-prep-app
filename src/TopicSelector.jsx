@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { TAXONOMY } from './data/taxonomy'
+import { TAXONOMY, MATH_DOMAIN_IDS, ENG_DOMAIN_IDS } from './data/taxonomy'
 import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory } from './utils/history'
@@ -1327,6 +1327,21 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                           ? '🎉 Goal reached! Set a higher target.'
                           : `${goalTarget - estimatedScore} points to go`}
                       </p>
+                      {/* Estimated time to goal */}
+                      {goalTarget && estimatedScore && estimatedScore < goalTarget && history.length >= 5 && (() => {
+                        const recent = history.filter(s => s.score.total >= 5)
+                        if (recent.length < 4) return null
+                        const older = recent.slice(-6, -3)
+                        const newer = recent.slice(-3)
+                        const oldAvg = older.reduce((s, x) => s + x.score.percent, 0) / older.length
+                        const newAvg = newer.reduce((s, x) => s + x.score.percent, 0) / newer.length
+                        const gainPer3 = newAvg - oldAvg
+                        if (gainPer3 <= 0) return null
+                        const ptPerSession = gainPer3 * 12 / 3
+                        const sessionsNeeded = Math.ceil((goalTarget - estimatedScore) / ptPerSession)
+                        const weeksNeeded = Math.ceil(sessionsNeeded / 5)
+                        return <p className="text-xs text-indigo-400 mt-0.5 text-center">~{weeksNeeded}w at current pace</p>
+                      })()}
                     </div>
                   )}
                 </div>
@@ -1493,7 +1508,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
 
         {/* Subjects & Topics */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2">
             <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">Subjects & Topics</h2>
             <button
               onClick={() => {
@@ -1503,6 +1518,23 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               className="text-xs text-indigo-500 hover:text-indigo-700 font-medium transition-colors"
             >
               {allDomainIds.every(id => selectedDomains.has(id)) ? 'Deselect all' : 'Select all'}
+            </button>
+          </div>
+          {/* Quick section selectors */}
+          <div className="flex gap-2 mb-3">
+            <button onClick={() => setSelectedDomains(new Set(MATH_DOMAIN_IDS))}
+              className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
+                MATH_DOMAIN_IDS.every(id => selectedDomains.has(id)) && !ENG_DOMAIN_IDS.some(id => selectedDomains.has(id))
+                  ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300'
+              }`}>
+              📐 Math only
+            </button>
+            <button onClick={() => setSelectedDomains(new Set(ENG_DOMAIN_IDS))}
+              className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
+                ENG_DOMAIN_IDS.every(id => selectedDomains.has(id)) && !MATH_DOMAIN_IDS.some(id => selectedDomains.has(id))
+                  ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-gray-500 border-gray-200 hover:border-violet-300'
+              }`}>
+              📖 English only
             </button>
           </div>
 
