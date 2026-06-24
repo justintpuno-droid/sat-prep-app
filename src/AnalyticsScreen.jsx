@@ -1033,6 +1033,66 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               )
             })()}
 
+            {/* Progress Report Card */}
+            {sessions.length >= 5 && stats.domainList.length >= 2 && (() => {
+              const gradeFor = (p) => p >= 93 ? 'A+' : p >= 90 ? 'A' : p >= 87 ? 'A−' : p >= 83 ? 'B+' : p >= 80 ? 'B' : p >= 77 ? 'B−' : p >= 73 ? 'C+' : p >= 70 ? 'C' : p >= 67 ? 'C−' : p >= 60 ? 'D' : 'F'
+              const gradeColor = (p) => p >= 90 ? 'text-emerald-600' : p >= 80 ? 'text-indigo-600' : p >= 70 ? 'text-amber-600' : 'text-rose-500'
+              const overallGrade = gradeFor(stats.overallPct)
+              const est = stats.scoreEstimate ? Math.round((stats.scoreEstimate.lo + stats.scoreEstimate.hi) / 2) : null
+              const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+              function generateShareText() {
+                const lines = [
+                  `📊 SAT Prep Report Card — ${today}`,
+                  `Overall Grade: ${overallGrade} (${stats.overallPct}% accuracy)`,
+                  est ? `Estimated SAT Score: ~${est}` : '',
+                  `Sessions completed: ${sessions.length}`,
+                  `Study streak: ${stats.streak} day${stats.streak !== 1 ? 's' : ''}`,
+                  '',
+                  'Domain Breakdown:',
+                  ...stats.domainList.slice(0, 6).map(d => `  ${d.label}: ${gradeFor(d.pct)} (${d.pct}%)`),
+                  '',
+                  'Built with SAT Prep App',
+                ]
+                navigator.clipboard?.writeText(lines.filter(Boolean).join('\n')).then(() => {}).catch(() => {})
+              }
+              return (
+                <div className="bg-gradient-to-br from-slate-800 to-indigo-900 rounded-2xl p-5 mb-4 text-white">
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-0.5">Progress Report Card</p>
+                      <p className="text-xs text-white/50">{today}</p>
+                    </div>
+                    <button
+                      onClick={generateShareText}
+                      className="shrink-0 text-[10px] font-bold bg-white/20 hover:bg-white/30 px-2.5 py-1.5 rounded-xl transition-colors"
+                      title="Copy report to clipboard"
+                    >
+                      📋 Copy
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="text-center">
+                      <p className={`text-4xl font-black ${gradeColor(stats.overallPct)} drop-shadow`}>{overallGrade}</p>
+                      <p className="text-[10px] text-white/50 mt-0.5">Overall</p>
+                    </div>
+                    <div className="flex-1 space-y-1.5">
+                      {est && <div className="flex items-center gap-2"><span className="text-xs text-white/60 w-24">Est. SAT Score</span><span className="text-sm font-black text-white">~{est}</span></div>}
+                      <div className="flex items-center gap-2"><span className="text-xs text-white/60 w-24">Sessions done</span><span className="text-sm font-bold text-white">{sessions.length}</span></div>
+                      <div className="flex items-center gap-2"><span className="text-xs text-white/60 w-24">Study streak</span><span className="text-sm font-bold text-white">{stats.streak}d 🔥</span></div>
+                    </div>
+                  </div>
+                  <div className="border-t border-white/10 pt-3 grid grid-cols-2 gap-x-4 gap-y-1.5">
+                    {stats.domainList.slice(0, 6).map(d => (
+                      <div key={d.id} className="flex items-center justify-between gap-1">
+                        <p className="text-[10px] text-white/60 truncate">{d.label}</p>
+                        <span className={`text-xs font-black shrink-0 ${gradeColor(d.pct)}`}>{gradeFor(d.pct)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* Personal records */}
             {sessions.length >= 3 && stats.personalRecords && (
               <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl p-5 mb-4">
