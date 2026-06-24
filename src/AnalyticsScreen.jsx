@@ -442,6 +442,45 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               </div>
             )}
 
+            {/* Smart Insights panel */}
+            {sessions.length >= 5 && (() => {
+              const tips = []
+              // Worst domain
+              const domainEntries = Object.entries(stats.domainList.reduce((m, d) => { m[d.id] = d; return m }, {}))
+                .filter(([, d]) => d.total >= 10)
+              if (domainEntries.length >= 2) {
+                const worst = domainEntries.sort(([, a], [, b]) => (a.correct / a.total) - (b.correct / b.total))[0]
+                const wPct = Math.round((worst[1].correct / worst[1].total) * 100)
+                if (wPct < 70) tips.push({ icon: '🎯', text: `Focus on ${worst[1].label ?? worst[0].replace(/-/g,' ')} — you're at ${wPct}% there, your lowest domain.` })
+              }
+              // Speed
+              if (stats.qPerMin && stats.qPerMin < 0.6) {
+                tips.push({ icon: '⏱', text: `Your avg pace is ${(60 / stats.qPerMin).toFixed(0)}s/question. SAT targets ~85s. Try timed sessions to build speed.` })
+              }
+              // Plateau
+              if (stats.plateau) {
+                tips.push({ icon: '📊', text: 'Your scores have been flat the last 5 sessions. Try Beast Mode or a new domain to break through.' })
+              }
+              // Best time of day
+              if (stats.timeOfDay?.length >= 2) {
+                const best = stats.timeOfDay.reduce((a, b) => (b.pct > a.pct ? b : a))
+                if (best.pct > 70) tips.push({ icon: '🕐', text: `You perform best during ${best.label} (${best.pct}% accuracy). Schedule tough sessions then.` })
+              }
+              if (tips.length === 0) return null
+              return (
+                <div className="mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">💡 Personalized Insights</p>
+                  <div className="space-y-2">
+                    {tips.slice(0, 3).map((t, i) => (
+                      <div key={i} className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 text-sm text-indigo-800 leading-snug">
+                        <span className="mr-2">{t.icon}</span>{t.text}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* Gamification stats */}
             <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl p-4 mb-4 text-white">
               <div className="flex items-center gap-4">
