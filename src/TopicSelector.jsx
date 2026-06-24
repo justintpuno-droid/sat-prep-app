@@ -3,7 +3,7 @@ import { TAXONOMY, MATH_DOMAIN_IDS, ENG_DOMAIN_IDS } from './data/taxonomy'
 import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory } from './utils/history'
-import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, ACHIEVEMENTS } from './utils/gamification'
+import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, ACHIEVEMENTS, loadBoost, saveBoost } from './utils/gamification'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -291,6 +291,7 @@ function StudyCalendar({ sessions }) {
 export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
+  const [boostActive, setBoostActive] = useState(() => loadBoost())
   const gam = useMemo(() => loadGamification(), [])
   const levelInfo = useMemo(() => getLevelInfo(gam.totalXP), [gam])
   const levelColor = useMemo(() => getLevelColor(levelInfo.level), [levelInfo])
@@ -1976,6 +1977,35 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           if (!msg) return null
           return <p className="text-xs text-indigo-500 mt-2">💡 {msg}</p>
         })()}
+
+        {/* XP Boost power-up */}
+        {(gam.boosts ?? 0) > 0 && (
+          <div className={`rounded-2xl border-2 px-4 py-3 mb-4 flex items-center gap-3 transition-all ${boostActive ? 'border-amber-400 bg-amber-50' : 'border-gray-200 bg-white'}`}>
+            <span className="text-lg shrink-0">🚀</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-gray-800">
+                XP Boost {boostActive ? '— ACTIVE!' : `available (×${gam.boosts})`}
+              </p>
+              <p className="text-xs text-gray-400">{boostActive ? '2× XP applies to your next session' : 'Earned from 5-day streak milestone'}</p>
+            </div>
+            {!boostActive && (
+              <button
+                onClick={() => { saveBoost(true); setBoostActive(true) }}
+                className="shrink-0 text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-lg px-3 py-1.5 transition-colors"
+              >
+                Activate
+              </button>
+            )}
+            {boostActive && (
+              <button
+                onClick={() => { saveBoost(false); setBoostActive(false) }}
+                className="shrink-0 text-xs font-medium text-amber-600 hover:text-amber-800 transition-colors"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Daily motivational quote */}
         <div className="border-t border-gray-100 pt-4 mb-4 text-center">

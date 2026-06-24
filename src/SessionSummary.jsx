@@ -368,6 +368,8 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               {gamResult.comebackBonus > 0 && <span className="text-amber-300 font-bold">+{gamResult.comebackBonus} comeback!</span>}
               {gamResult.improvementBonus > 0 && <span className="text-emerald-300 font-bold">+{gamResult.improvementBonus} improved!</span>}
               {gamResult.milestoneBonus > 0 && <span className="text-emerald-300 font-bold">+{gamResult.milestoneBonus} milestone!</span>}
+              {gamResult.boostActive && <span className="text-amber-300 font-bold animate-pulse">🚀 2× BOOST!</span>}
+              {gamResult.earnedBoost && <span className="text-amber-200 font-bold">🚀 Boost earned!</span>}
             </div>
             {gamResult.sessionMilestone && (
               <div className="flex items-center gap-2.5 bg-white/20 rounded-xl px-3 py-2.5 mb-3">

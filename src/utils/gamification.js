@@ -199,7 +199,12 @@ const CHECKS = {
 
 // ─── Storage ───────────────────────────────────────────────────────────────
 
-function defaultGam() { return { totalXP: 0, achievements: {}, maxStreak: 0, xpLog: [] } }
+const BOOST_KEY = 'sat_prep_boost_active'
+export function loadBoost() { try { return JSON.parse(localStorage.getItem(BOOST_KEY)) ?? false } catch { return false } }
+export function saveBoost(v) { try { localStorage.setItem(BOOST_KEY, JSON.stringify(v)) } catch {} }
+export function consumeBoost() { try { localStorage.removeItem(BOOST_KEY) } catch {} }
+
+function defaultGam() { return { totalXP: 0, achievements: {}, maxStreak: 0, xpLog: [], boosts: 0 } }
 
 export function loadGamification() {
   try { return JSON.parse(localStorage.getItem(KEY)) ?? defaultGam() }
@@ -278,18 +283,33 @@ export function processSession(session, history, prevGam) {
     improvementBonus = 20
   }
 
-  const newXP = oldXP + xp.total + challengeBonus + comebackBonus + milestoneBonus + improvementBonus
+  // XP Boost power-up
+  const boostActive = loadBoost()
+  const boostMult = boostActive ? 2 : 1
+  const boostedXP = Math.round(xp.total * boostMult)
+  if (boostActive) consumeBoost()
+
+  const newXP = oldXP + boostedXP + challengeBonus + comebackBonus + milestoneBonus + improvementBonus
   const oldLevel = getLevelInfo(oldXP)
   const newLevel = getLevelInfo(newXP)
 
-  const totalXPEarned = xp.total + challengeBonus + comebackBonus + milestoneBonus + improvementBonus
+  const totalXPEarned = boostedXP + challengeBonus + comebackBonus + milestoneBonus + improvementBonus
   const xpLog = [...(prevGam.xpLog ?? []), { date: today, xp: totalXPEarned }].slice(-90)
+
+  // Award a boost at every 5-day streak milestone (5, 10, 15…)
+  const prevBoosts = prevGam.boosts ?? 0
+  const streakMilestone5 = streak > 0 && streak % 5 === 0
+  const alreadyAwardedThisStreak = (prevGam.lastBoostStreak ?? 0) >= streak
+  const newBoosts = streakMilestone5 && !alreadyAwardedThisStreak ? prevBoosts + 1 : prevBoosts
+  const earnedBoost = newBoosts > prevBoosts
 
   const gam = {
     ...prevGam,
     totalXP: newXP,
     maxStreak: Math.max(prevGam.maxStreak, streak),
     xpLog,
+    boosts: newBoosts,
+    ...(earnedBoost ? { lastBoostStreak: streak } : {}),
     ...(challengeBonus > 0 ? { dailyChallengeDate: today } : {}),
   }
 
@@ -342,7 +362,7 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, challengeBonus, challengeCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
+  return { xp, boostedXP, boostActive, earnedBoost, challengeBonus, challengeCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────
