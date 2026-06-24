@@ -1356,6 +1356,25 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       .slice(0, 3)
   }, [history])
 
+  const weakSkills = useMemo(() => {
+    if (history.length < 3) return []
+    const bySkill = {}
+    for (const sess of history) {
+      for (const q of sess.questions) {
+        if (!q.skill) continue
+        if (!bySkill[q.skill]) bySkill[q.skill] = { correct: 0, total: 0, domain: q.domain }
+        bySkill[q.skill].total++
+        if ((sess.answers[q.id] ?? null) === q.answer) bySkill[q.skill].correct++
+      }
+    }
+    const { skillById: skMap } = require('./data/taxonomy')
+    return Object.entries(bySkill)
+      .filter(([, s]) => s.total >= 5)
+      .map(([id, s]) => ({ id, pct: Math.round((s.correct / s.total) * 100), total: s.total, domain: s.domain, label: skMap?.[id]?.label ?? id }))
+      .sort((a, b) => a.pct - b.pct)
+      .slice(0, 3)
+  }, [history])
+
   const powerDay = useMemo(() => {
     const todayStr = new Date().toISOString().slice(0, 10)
     const todaySess = history.filter(s => s.completedAt.startsWith(todayStr))
@@ -2719,6 +2738,30 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
           )
         })()}
+
+        {/* Skill Spotlight — 3 weakest SAT skills */}
+        {weakSkills.length >= 2 && (
+          <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-4">
+            <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Skill Spotlight · Focus Here</p>
+            <div className="space-y-2.5">
+              {weakSkills.map((sk, i) => (
+                <div key={sk.id}>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className={`text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${i === 0 ? 'bg-rose-500 text-white' : i === 1 ? 'bg-amber-400 text-white' : 'bg-yellow-300 text-yellow-900'}`}>{i + 1}</span>
+                      <span className="text-xs font-medium text-gray-700 truncate">{sk.label}</span>
+                    </div>
+                    <span className={`text-xs font-bold shrink-0 ml-2 ${sk.pct < 50 ? 'text-rose-600' : sk.pct < 65 ? 'text-amber-600' : 'text-yellow-600'}`}>{sk.pct}%</span>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full ${sk.pct < 50 ? 'bg-rose-400' : sk.pct < 65 ? 'bg-amber-400' : 'bg-yellow-400'}`} style={{ width: `${sk.pct}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-gray-400 mt-3">Based on your last {history.length} sessions · each has ≥5 questions answered</p>
+          </div>
+        )}
 
         {/* Motivational nudge */}
         {nudge && (
