@@ -1281,6 +1281,40 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           } catch { return null }
         })()}
 
+        {/* Smart next-session recommendation */}
+        {(() => {
+          const pct = score.percent
+          const wrongQs = session.questions.filter(q => (answers[q.id] ?? null) !== q.answer)
+          if (wrongQs.length === 0 && pct >= 90) return (
+            <div className="mt-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-4">
+              <p className="text-xs font-black uppercase tracking-widest text-emerald-600 mb-1">Next Up</p>
+              <p className="text-sm font-bold text-gray-800">Ready for a harder challenge</p>
+              <p className="text-xs text-gray-500 mt-0.5">You scored {pct}% — try Beast Mode or SAT Timed for max XP.</p>
+            </div>
+          )
+          if (pct < 60 && wrongQs.length >= 5) {
+            const domainCounts = {}
+            for (const q of wrongQs) domainCounts[q.domain] = (domainCounts[q.domain] ?? 0) + 1
+            const worstDomain = Object.entries(domainCounts).sort((a, b) => b[1] - a[1])[0]
+            const domainLabel = domainById?.[worstDomain?.[0]]?.label ?? worstDomain?.[0] ?? 'your weakest area'
+            return (
+              <div className="mt-4 bg-rose-50 border-2 border-rose-200 rounded-2xl p-4">
+                <p className="text-xs font-black uppercase tracking-widest text-rose-500 mb-1">Next Up</p>
+                <p className="text-sm font-bold text-gray-800">Focus drill: {domainLabel}</p>
+                <p className="text-xs text-gray-500 mt-0.5">You missed {worstDomain?.[1]} questions here — tackle it head-on next session.</p>
+              </div>
+            )
+          }
+          if (session.questions.length < 10) return (
+            <div className="mt-4 bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-4">
+              <p className="text-xs font-black uppercase tracking-widest text-indigo-500 mb-1">Next Up</p>
+              <p className="text-sm font-bold text-gray-800">Go for a full 20-question session</p>
+              <p className="text-xs text-gray-500 mt-0.5">Short sessions are great warm-ups — try Quick Practice for more XP.</p>
+            </div>
+          )
+          return null
+        })()}
+
         <div className="mt-4 space-y-3">
           {wrongQuestions.length > 0 && onRetry && (
             <button
