@@ -48,6 +48,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [maxCombo, setMaxCombo] = useState(0)
   const [xpFlash, setXpFlash] = useState(null)
   const [milestone, setMilestone] = useState(null)
+  const [comboFlash, setComboFlash] = useState(null)
   const [showFormulas, setShowFormulas] = useState(false)
   const [formulaTab, setFormulaTab] = useState('math')
   const [showShortcuts, setShowShortcuts] = useState(false)
@@ -154,6 +155,11 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     if (newCombo > maxComboRef.current) {
       maxComboRef.current = newCombo
       setMaxCombo(newCombo)
+    }
+    if (isCorrect && (newCombo === 3 || newCombo === 5 || newCombo === 10 || newCombo === 15 || (newCombo > 0 && newCombo % 20 === 0)) && !milestone) {
+      const label = newCombo === 3 ? '🔥 3 Combo!' : newCombo === 5 ? '⚡ 5 Combo!' : newCombo === 10 ? '💥 10 Combo!' : newCombo === 15 ? '🌟 15 Combo!' : `🚀 ${newCombo} Combo!`
+      setComboFlash(label)
+      setTimeout(() => setComboFlash(null), 900)
     }
     if (isCorrect && (newCombo === 5 || newCombo === 10 || newCombo === 15 || (newCombo > 0 && newCombo % 20 === 0))) {
       const msgs = {
@@ -299,8 +305,12 @@ export default function LearningSession({ config, onComplete, onQuit }) {
                 </span>
               )}
               {combo >= 3 && (
-                <span className="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full animate-pulse">
-                  {combo}×
+                <span className={`text-xs font-black px-2 py-0.5 rounded-full transition-all ${
+                  combo >= 10 ? 'bg-rose-500 text-white animate-pulse scale-110' :
+                  combo >= 5  ? 'bg-orange-500 text-white animate-pulse' :
+                               'text-orange-600 bg-orange-50'
+                }`}>
+                  {combo >= 10 ? '🔥' : combo >= 5 ? '⚡' : '🎯'} {combo}×
                 </span>
               )}
             </div>
@@ -453,6 +463,15 @@ export default function LearningSession({ config, onComplete, onQuit }) {
           </div>
         )}
       </div>
+
+      {/* Combo flash pop */}
+      {comboFlash && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="text-4xl font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] animate-ping" style={{ animationIterationCount: 1, animationDuration: '600ms' }}>
+            {comboFlash}
+          </div>
+        </div>
+      )}
 
       {/* Combo milestone toast */}
       {milestone && (
