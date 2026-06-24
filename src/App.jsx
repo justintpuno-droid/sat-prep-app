@@ -8,7 +8,7 @@ import SessionHistory from './SessionHistory'
 import QuestionBank from './QuestionBank'
 import AnalyticsScreen from './AnalyticsScreen'
 import AchievementsScreen from './AchievementsScreen'
-import { saveToHistory, loadHistory } from './utils/history'
+import { saveToHistory, loadHistory, recordSRAnswer, getDueReviews, getSRCount } from './utils/history'
 import { loadGamification, saveGamification, processSession } from './utils/gamification'
 import { shuffle } from './utils/index'
 import allQuestions from './data/questions'
@@ -30,6 +30,10 @@ export default function App() {
 
   function handleSessionComplete(session) {
     saveToHistory(session)
+    for (const q of session.questions) {
+      const correct = (session.answers[q.id] ?? null) === q.answer
+      recordSRAnswer(q.id, correct)
+    }
     const history = loadHistory()
     const gam = loadGamification()
     const result = processSession(session, history, gam)
@@ -204,6 +208,18 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleSpacedRepetition() {
+    const due = getDueReviews(allQuestions)
+    if (due.length === 0) return
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Spaced Review',
+      sessionName: null,
+      questions: shuffle(due).slice(0, 20),
+    })
+    setScreen('learning')
+  }
+
   function handleQuick5() {
     setSessionConfig({
       mode: 'learning',
@@ -264,7 +280,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')

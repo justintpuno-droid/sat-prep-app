@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { TAXONOMY, MATH_DOMAIN_IDS, ENG_DOMAIN_IDS } from './data/taxonomy'
 import { domainById } from './data/taxonomy'
 import questions from './data/questions'
-import { loadHistory } from './utils/history'
+import { loadHistory, getSRCount } from './utils/history'
 import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze } from './utils/gamification'
 
 const DIFFICULTIES = [
@@ -306,7 +306,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -613,6 +613,8 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     for (const s of history) count += (s.flaggedIds ?? []).length
     return count
   }, [history])
+
+  const srDueCount = useMemo(() => getSRCount(), [history])
 
   const examReadiness = useMemo(() => {
     if (history.length < 5) return null
@@ -1069,6 +1071,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               {onFlaggedReview && totalFlagged > 0 && (
                 <button onClick={onFlaggedReview} className="relative text-xs font-semibold text-amber-700 hover:text-amber-900 border border-amber-200 bg-amber-50 rounded-lg px-3 py-1.5 transition-colors" title={`Review ${totalFlagged} flagged question${totalFlagged !== 1 ? 's' : ''}`}>
                   🚩 Flagged ({totalFlagged})
+                </button>
+              )}
+              {onSpacedRepetition && srDueCount > 0 && (
+                <button onClick={onSpacedRepetition} className="relative text-xs font-semibold text-teal-700 hover:text-teal-900 border border-teal-200 bg-teal-50 rounded-lg px-3 py-1.5 transition-colors animate-pulse" title={`${srDueCount} question${srDueCount !== 1 ? 's' : ''} scheduled for review today`}>
+                  🔁 Due ({srDueCount})
                 </button>
               )}
               {onQuestionBank && (

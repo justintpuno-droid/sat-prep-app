@@ -44,6 +44,53 @@ export function updateSessionNote(id, note) {
   } catch { return null }
 }
 
+// ─── Spaced repetition ─────────────────────────────────────────────────────
+const SR_KEY = 'sat_prep_sr'
+const SR_INTERVALS = [1, 3, 7] // days between reviews
+
+export function loadSR() {
+  try { return JSON.parse(localStorage.getItem(SR_KEY) || '{}') }
+  catch { return {} }
+}
+
+function saveSR(data) {
+  try { localStorage.setItem(SR_KEY, JSON.stringify(data)) } catch {}
+}
+
+export function recordSRAnswer(questionId, correct) {
+  const sr = loadSR()
+  const entry = sr[questionId] ?? { stage: 0, nextReview: null }
+  if (correct) {
+    const next = SR_INTERVALS[entry.stage] ?? null
+    if (next === null) {
+      delete sr[questionId] // graduated
+    } else {
+      const d = new Date(); d.setDate(d.getDate() + SR_INTERVALS[entry.stage])
+      sr[questionId] = { stage: entry.stage + 1, nextReview: d.toISOString().slice(0, 10) }
+    }
+  } else {
+    const d = new Date(); d.setDate(d.getDate() + SR_INTERVALS[0])
+    sr[questionId] = { stage: 0, nextReview: d.toISOString().slice(0, 10) }
+  }
+  saveSR(sr)
+}
+
+export function getDueReviews(allQuestions) {
+  const sr = loadSR()
+  const today = new Date().toISOString().slice(0, 10)
+  const dueIds = Object.entries(sr)
+    .filter(([, e]) => e.nextReview && e.nextReview <= today)
+    .map(([id]) => id)
+  const byId = Object.fromEntries(allQuestions.map(q => [q.id, q]))
+  return dueIds.map(id => byId[id]).filter(Boolean)
+}
+
+export function getSRCount() {
+  const sr = loadSR()
+  const today = new Date().toISOString().slice(0, 10)
+  return Object.values(sr).filter(e => e.nextReview && e.nextReview <= today).length
+}
+
 export function deleteSessions(ids) {
   try {
     const idSet = new Set(ids)
