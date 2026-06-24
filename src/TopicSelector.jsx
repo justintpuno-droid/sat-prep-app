@@ -309,6 +309,13 @@ function StudyCalendar({ sessions }) {
 export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
+  const streakAtRisk = useMemo(() => {
+    if (streak < 2) return false
+    const hour = new Date().getHours()
+    if (hour < 18) return false
+    const today = new Date().toISOString().slice(0, 10)
+    return !history.some(s => s.completedAt.slice(0, 10) === today)
+  }, [streak, history])
   const [boostActive, setBoostActive] = useState(() => loadBoost())
   const gam = useMemo(() => loadGamification(), [])
   const levelInfo = useMemo(() => getLevelInfo(gam.totalXP), [gam])
@@ -1308,6 +1315,23 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <p className="font-black text-sm">Power Day!</p>
               <p className="text-xs text-emerald-100">3+ sessions at 80%+ average. You're absolutely crushing it today!</p>
             </div>
+          </div>
+        )}
+
+        {/* Streak at risk warning */}
+        {streakAtRisk && (
+          <div className="bg-gradient-to-r from-rose-500 to-orange-500 rounded-2xl px-4 py-3 mb-4 text-white flex items-center gap-3 animate-pulse">
+            <span className="text-2xl shrink-0">🔥</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-sm leading-tight">{streak}-day streak at risk!</p>
+              <p className="text-xs text-rose-100 mt-0.5">Study before midnight to keep it alive</p>
+            </div>
+            <button
+              onClick={onQuick5}
+              className="shrink-0 bg-white/20 hover:bg-white/30 rounded-xl px-3 py-1.5 text-xs font-bold transition-colors"
+            >
+              Quick 5 →
+            </button>
           </div>
         )}
 
