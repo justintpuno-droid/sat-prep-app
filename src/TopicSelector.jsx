@@ -114,6 +114,24 @@ function getDomainOfDay() {
   return domains[idx % domains.length]
 }
 
+const SAT_TIPS = [
+  "Skip hard questions first — come back with fresh eyes.",
+  "On Reading: the answer is always supported by evidence in the passage.",
+  "Eliminate obviously wrong choices to improve your guessing odds.",
+  "On Math: plug in answer choices when algebra feels stuck.",
+  "Never leave a question blank — there's no penalty for guessing.",
+  "Read the question before the passage excerpt to know what to look for.",
+  "On Grammar: shorter answers are usually correct on Writing questions.",
+  "Check your work on math by substituting your answer back in.",
+  "Manage your time: ~1.5 min per question on average.",
+  "The SAT tests concepts, not memorization — understand the 'why'.",
+  "For Word-in-Context questions, always read the full sentence.",
+  "Mark confusing questions in your mind and return at the end.",
+  "On Desmos (calculator section): graph equations to visualize problems.",
+  "Passage-based: main idea questions are usually about the whole text.",
+  "Always re-read your answer choice in context before confirming.",
+]
+
 const MOTIVATIONAL_QUOTES = [
   { text: "The SAT is a skill, and skills can be learned.", author: "Princeton Review" },
   { text: "Every practice question is a step toward your goal score.", author: "" },
@@ -347,6 +365,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return seen.size
   }, [history])
 
+  const dailyTip = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    const seed = today.split('-').reduce((a, b) => a + parseInt(b, 10), 0)
+    return SAT_TIPS[(seed + 7) % SAT_TIPS.length]
+  }, [])
+
   const dailyQuote = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10)
     const seed = today.split('-').reduce((a, b) => a + parseInt(b, 10), 0)
@@ -457,6 +481,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     const band = map.find(([thresh]) => avgAcc >= thresh)
     if (!band) return null
     return { lo: band[1], hi: band[2] }
+  }, [history])
+
+  const scoreTrend = useMemo(() => {
+    const eligible = history.filter(s => s.score.total >= 5).slice(-15)
+    if (eligible.length < 4) return null
+    return eligible.map(s => s.score.percent)
   }, [history])
 
   const lastSessionSummary = useMemo(() => {
@@ -2028,6 +2058,29 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
+        {/* Score trend mini-chart */}
+        {scoreTrend && (
+          <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Score Trend</p>
+            <svg viewBox={`0 0 ${(scoreTrend.length - 1) * 20 + 8} 40`} className="w-full h-10">
+              <polyline
+                points={scoreTrend.map((p, i) => `${i * 20 + 4},${38 - (p / 100) * 34}`).join(' ')}
+                fill="none" stroke="#e0e7ff" strokeWidth="2" strokeLinejoin="round"
+              />
+              {scoreTrend.map((p, i) => (
+                <circle key={i} cx={i * 20 + 4} cy={38 - (p / 100) * 34} r={i === scoreTrend.length - 1 ? 3 : 2}
+                  fill={i === scoreTrend.length - 1 ? (p >= 80 ? '#10b981' : p >= 60 ? '#6366f1' : '#f43f5e') : '#c7d2fe'} />
+              ))}
+            </svg>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-gray-300">Oldest</p>
+              <p className={`text-xs font-bold ${scoreTrend[scoreTrend.length - 1] >= 80 ? 'text-emerald-600' : scoreTrend[scoreTrend.length - 1] >= 60 ? 'text-indigo-600' : 'text-rose-500'}`}>
+                Latest: {scoreTrend[scoreTrend.length - 1]}%
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* XP Boost power-up */}
         {(gam.boosts ?? 0) > 0 && (
           <div className={`rounded-2xl border-2 px-4 py-3 mb-4 flex items-center gap-3 transition-all ${boostActive ? 'border-amber-400 bg-amber-50' : 'border-gray-200 bg-white'}`}>
@@ -2057,10 +2110,19 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
-        {/* Daily motivational quote */}
-        <div className="border-t border-gray-100 pt-4 mb-4 text-center">
-          <p className="text-sm text-gray-500 italic leading-snug">"{dailyQuote.text}"</p>
-          {dailyQuote.author && <p className="text-xs text-gray-300 mt-1">— {dailyQuote.author}</p>}
+        {/* Daily SAT tip + motivational quote */}
+        <div className="border-t border-gray-100 pt-4 mb-4 space-y-3">
+          <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2.5 flex items-start gap-2">
+            <span className="text-sm shrink-0 mt-0.5">💡</span>
+            <div>
+              <p className="text-xs font-bold text-indigo-600 mb-0.5">SAT Tip of the Day</p>
+              <p className="text-xs text-indigo-700 leading-snug">{dailyTip}</p>
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-gray-500 italic leading-snug">"{dailyQuote.text}"</p>
+            {dailyQuote.author && <p className="text-xs text-gray-300 mt-1">— {dailyQuote.author}</p>}
+          </div>
         </div>
 
         {/* Start button */}
