@@ -39,6 +39,34 @@ export default function App() {
     setScreen('summary')
   }
 
+  function handleProblemAreasDrill() {
+    const history = loadHistory()
+    const byId = Object.fromEntries(allQuestions.map(q => [q.id, q]))
+    const wrongCount = {}, correctCount = {}
+    for (const s of history) {
+      for (const q of s.questions) {
+        const ans = s.answers[q.id] ?? null
+        if (ans === null) continue
+        if (ans === q.answer) correctCount[q.id] = (correctCount[q.id] ?? 0) + 1
+        else wrongCount[q.id] = (wrongCount[q.id] ?? 0) + 1
+      }
+    }
+    const persistentIds = Object.entries(wrongCount)
+      .filter(([id, w]) => w >= 2 && !(correctCount[id] >= w))
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 15)
+      .map(([id]) => id)
+    const persistentQs = persistentIds.map(id => byId[id]).filter(Boolean)
+    if (persistentQs.length === 0) return
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Problem Areas Drill',
+      sessionName: null,
+      questions: shuffle(persistentQs),
+    })
+    setScreen('learning')
+  }
+
   function handleWrongAnswerSprint() {
     const history = loadHistory()
     const byId = Object.fromEntries(allQuestions.map(q => [q.id, q]))
@@ -193,7 +221,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')

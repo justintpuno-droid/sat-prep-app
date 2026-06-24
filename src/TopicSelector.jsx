@@ -288,7 +288,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const gam = useMemo(() => loadGamification(), [])
@@ -401,6 +401,25 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     const [id, st] = candidate
     const daysSince = Math.round((Date.now() - new Date(st.lastSeen + 'T12:00:00').getTime()) / 86400000)
     return { id, label: domainById[id]?.label ?? id, pct: Math.round((st.correct / st.total) * 100), daysSince }
+  }, [history])
+
+  const persistentMistakes = useMemo(() => {
+    const wrongCount = {}
+    const correctCount = {}
+    for (const s of history) {
+      for (const q of s.questions) {
+        const answered = s.answers[q.id] ?? null
+        if (answered !== null) {
+          if (answered === q.answer) correctCount[q.id] = (correctCount[q.id] ?? 0) + 1
+          else wrongCount[q.id] = (wrongCount[q.id] ?? 0) + 1
+        }
+      }
+    }
+    return Object.entries(wrongCount)
+      .filter(([id, w]) => w >= 2 && !(correctCount[id] >= w))
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([id, w]) => ({ id, wrongCount: w }))
   }, [history])
 
   const masteredTopics = useMemo(() => {
@@ -859,6 +878,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               )}
             </div>
             <div className="flex gap-2">
+              {onProblemAreasDrill && persistentMistakes.length >= 2 && (
+                <button onClick={onProblemAreasDrill} className="text-xs font-semibold text-red-600 hover:text-red-800 border border-red-200 bg-red-50 rounded-lg px-3 py-1.5 transition-colors" title={`Drill your ${persistentMistakes.length} most persistent problem questions`}>
+                  ⚠️ Problem Areas
+                </button>
+              )}
               {onWrongAnswerSprint && recentWrongCount > 0 && (
                 <button onClick={onWrongAnswerSprint} className="text-xs font-semibold text-rose-600 hover:text-rose-800 border border-rose-200 bg-rose-50 rounded-lg px-3 py-1.5 transition-colors" title={`Drill ${Math.min(recentWrongCount, 15)} recent wrong answers`}>
                   🔁 Wrong ({recentWrongCount})
