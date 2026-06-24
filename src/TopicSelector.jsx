@@ -270,7 +270,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const gam = useMemo(() => loadGamification(), [])
@@ -353,6 +353,24 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     const daysSince = Math.round((Date.now() - new Date(st.lastSeen + 'T12:00:00').getTime()) / 86400000)
     return { id, label: domainById[id]?.label ?? id, pct: Math.round((st.correct / st.total) * 100), daysSince }
   }, [history])
+
+  const dailyTarget = useMemo(() => {
+    if (history.length < 3) return null
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const studiedToday = history.some(s => s.completedAt.startsWith(todayStr))
+    if (studiedToday) return null
+    if (weakDomain && weakDomain.pct < 60) {
+      const label = domainById[weakDomain.id]?.label ?? weakDomain.id
+      return { text: `Drill 10 ${label} questions`, icon: '🎯', color: 'text-rose-600 bg-rose-50 border-rose-200' }
+    }
+    const recent5 = history.filter(s => s.score.total >= 5).slice(-5)
+    if (recent5.length >= 3) {
+      const avg = recent5.reduce((s, x) => s + x.score.percent, 0) / recent5.length
+      if (avg < 65) return { text: 'Focus on accuracy today — aim for 70%+', icon: '📈', color: 'text-amber-600 bg-amber-50 border-amber-200' }
+      if (avg >= 80) return { text: 'Ready for Hard mode? Push your limits today', icon: '💪', color: 'text-indigo-600 bg-indigo-50 border-indigo-200' }
+    }
+    return { text: 'Complete a 15-question session to keep your streak', icon: '🔥', color: 'text-orange-600 bg-orange-50 border-orange-200' }
+  }, [history, weakDomain])
 
   const hotDomainThisWeek = useMemo(() => {
     const mon = new Date()
@@ -737,6 +755,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               )}
             </div>
             <div className="flex gap-2">
+              {onAdaptiveQuiz && history.length >= 3 && (
+                <button onClick={onAdaptiveQuiz} className="text-xs font-semibold text-violet-600 hover:text-violet-800 border border-violet-200 bg-violet-50 rounded-lg px-3 py-1.5 transition-colors" title="Smart quiz weighted to your weak spots">
+                  🧠 Adaptive
+                </button>
+              )}
               {onQuick5 && (
                 <button onClick={onQuick5} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 border border-indigo-200 bg-indigo-50 rounded-lg px-3 py-1.5 transition-colors" title="Quick 5-question warmup">
                   ⚡ Quick 5
@@ -1247,6 +1270,17 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             )
           })()}
         </div>
+
+        {/* Personalized daily target */}
+        {dailyTarget && (
+          <div className={`rounded-2xl border px-4 py-3 mb-4 flex items-center gap-3 ${dailyTarget.color}`}>
+            <span className="text-lg shrink-0">{dailyTarget.icon}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold opacity-70 mb-0.5">Today's target</p>
+              <p className="text-sm font-bold">{dailyTarget.text}</p>
+            </div>
+          </div>
+        )}
 
         {/* Hot domain this week */}
         {hotDomainThisWeek && (

@@ -81,6 +81,38 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleAdaptiveQuiz() {
+    const history = loadHistory()
+    const byDomain = {}
+    for (const s of history) {
+      for (const q of s.questions) {
+        if (!byDomain[q.domain]) byDomain[q.domain] = { correct: 0, total: 0 }
+        byDomain[q.domain].total++
+        if ((s.answers[q.id] ?? null) === q.answer) byDomain[q.domain].correct++
+      }
+    }
+    const weakDomains = Object.entries(byDomain)
+      .filter(([, v]) => v.total >= 3)
+      .sort(([, a], [, b]) => (a.correct / a.total) - (b.correct / b.total))
+      .slice(0, 3)
+      .map(([id]) => id)
+    let pool
+    if (weakDomains.length >= 2) {
+      const weakQs = allQuestions.filter(q => weakDomains.includes(q.domain))
+      const otherQs = allQuestions.filter(q => !weakDomains.includes(q.domain))
+      pool = [...shuffle(weakQs).slice(0, 10), ...shuffle(otherQs).slice(0, 5)]
+    } else {
+      pool = shuffle(allQuestions).slice(0, 15)
+    }
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Adaptive Quiz',
+      sessionName: null,
+      questions: shuffle(pool).slice(0, 15),
+    })
+    setScreen('learning')
+  }
+
   function handleQuick5() {
     setSessionConfig({
       mode: 'learning',
@@ -141,7 +173,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
