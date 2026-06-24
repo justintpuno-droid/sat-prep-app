@@ -1124,7 +1124,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       .reduce((n, s) => n + s.score.correct * 10 + (s.score.total - s.score.correct) * 5, 0)
     const thisWeek = calcXP(thisMonday, new Date(thisMonday.getTime() + 7 * 86400000))
     const lastWeek = calcXP(lastMonday, thisMonday)
-    return { thisWeek, lastWeek, diff: thisWeek - lastWeek, dayOfWeek }
+    const lastWeekSessions = history.filter(s => { const d = new Date(s.completedAt); return d >= lastMonday && d < thisMonday })
+    const lastWeekDays = new Set(lastWeekSessions.map(s => s.completedAt.slice(0, 10))).size
+    const lastWeekQ = lastWeekSessions.reduce((n, s) => n + s.score.total, 0)
+    const lastWeekC = lastWeekSessions.reduce((n, s) => n + s.score.correct, 0)
+    const lastWeekPct = lastWeekQ > 0 ? Math.round((lastWeekC / lastWeekQ) * 100) : 0
+    return { thisWeek, lastWeek, diff: thisWeek - lastWeek, dayOfWeek, lastWeekSessions: lastWeekSessions.length, lastWeekDays, lastWeekQ, lastWeekPct }
   }, [history])
 
   const recentAchievements = useMemo(() => {
@@ -3492,6 +3497,30 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             })}
           </div>
         </div>
+
+        {/* Monday weekly report card */}
+        {xpWeekRace.dayOfWeek === 1 && xpWeekRace.lastWeekSessions > 0 && (
+          <div className="bg-white border-2 border-indigo-100 rounded-2xl p-4 mb-4">
+            <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-3">📊 Last Week's Report</p>
+            <div className="grid grid-cols-3 gap-3 mb-3">
+              <div className="text-center">
+                <p className="text-xl font-black text-indigo-700">{xpWeekRace.lastWeekQ}</p>
+                <p className="text-[10px] text-gray-400">questions</p>
+              </div>
+              <div className="text-center">
+                <p className={`text-xl font-black ${xpWeekRace.lastWeekPct >= 80 ? 'text-emerald-600' : xpWeekRace.lastWeekPct >= 60 ? 'text-amber-600' : 'text-rose-500'}`}>{xpWeekRace.lastWeekPct}%</p>
+                <p className="text-[10px] text-gray-400">accuracy</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-black text-violet-600">{xpWeekRace.lastWeekDays}/7</p>
+                <p className="text-[10px] text-gray-400">days studied</p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 text-center">
+              {xpWeekRace.lastWeekDays >= 5 ? '🔥 Incredible consistency last week!' : xpWeekRace.lastWeekDays >= 3 ? '💪 Solid week — aim for one more day this week!' : '📈 Let\'s make this week stronger — aim for 5 days!'}
+            </p>
+          </div>
+        )}
 
         {/* Daily study time nudge */}
         {(() => {
