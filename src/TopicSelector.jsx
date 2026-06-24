@@ -3913,6 +3913,112 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
+        {/* Pomodoro Focus Timer */}
+        {(() => {
+          const POMO_KEY = 'sat_prep_pomo'
+          function loadPomo() { try { return JSON.parse(localStorage.getItem(POMO_KEY) ?? '{}') } catch { return {} } }
+          const [pomoState, setPomoState] = useState(() => loadPomo())
+          const [pomoSecs, setPomoSecs] = useState(() => {
+            const p = loadPomo()
+            if (!p.running || !p.startedAt) return 25 * 60
+            const elapsed = Math.floor((Date.now() - p.startedAt) / 1000)
+            return Math.max(0, 25 * 60 - elapsed)
+          })
+          const pomoRef = useRef(null)
+
+          useEffect(() => {
+            if (!pomoState.running) return
+            pomoRef.current = setInterval(() => {
+              setPomoSecs(s => {
+                if (s <= 1) {
+                  clearInterval(pomoRef.current)
+                  const p = loadPomo()
+                  const todayCount = p.todayCount ?? 0
+                  const today = new Date().toISOString().slice(0, 10)
+                  const newCount = (p.lastDate === today ? todayCount : 0) + 1
+                  const bonus = newCount >= 4 ? 200 : newCount >= 2 ? 100 : 75
+                  const updated = { running: false, lastDate: today, todayCount: newCount }
+                  localStorage.setItem(POMO_KEY, JSON.stringify(updated))
+                  setPomoState(updated)
+                  const g = loadGamification()
+                  saveGamification({ ...g, totalXP: (g.totalXP ?? 0) + bonus })
+                  setGam(prev => ({ ...prev, totalXP: (prev.totalXP ?? 0) + bonus }))
+                  return 25 * 60
+                }
+                return s - 1
+              })
+            }, 1000)
+            return () => clearInterval(pomoRef.current)
+          }, [pomoState.running])
+
+          const today = new Date().toISOString().slice(0, 10)
+          const todayCount = pomoState.lastDate === today ? (pomoState.todayCount ?? 0) : 0
+          const mins = Math.floor(pomoSecs / 60)
+          const secs = pomoSecs % 60
+          const pct = ((25 * 60 - pomoSecs) / (25 * 60)) * 100
+
+          function startPomo() {
+            const p = { running: true, startedAt: Date.now() }
+            localStorage.setItem(POMO_KEY, JSON.stringify({ ...loadPomo(), ...p }))
+            setPomoState(p)
+            setPomoSecs(25 * 60)
+          }
+
+          function cancelPomo() {
+            clearInterval(pomoRef.current)
+            const p = { ...loadPomo(), running: false }
+            localStorage.setItem(POMO_KEY, JSON.stringify(p))
+            setPomoState(p)
+            setPomoSecs(25 * 60)
+          }
+
+          return (
+            <div className="border border-gray-100 rounded-2xl p-4 mb-4 bg-white">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-gray-400">Focus Timer 🍅</p>
+                  <p className="text-xs text-gray-400 mt-0.5">25 min focus → +75 XP bonus</p>
+                </div>
+                <div className="flex gap-1">
+                  {[1,2,3,4].map(i => (
+                    <div key={i} className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-black border-2 ${i <= todayCount ? 'bg-rose-500 border-rose-500 text-white' : 'border-gray-200 text-gray-300'}`}>
+                      {i <= todayCount ? '🍅' : i}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="relative w-14 h-14 shrink-0">
+                  <svg className="w-14 h-14 -rotate-90" viewBox="0 0 44 44">
+                    <circle cx="22" cy="22" r="18" fill="none" stroke="#f1f5f9" strokeWidth="4" />
+                    <circle cx="22" cy="22" r="18" fill="none" stroke={pomoState.running ? '#ef4444' : '#e5e7eb'} strokeWidth="4"
+                      strokeDasharray={`${(pct / 100) * 2 * Math.PI * 18} ${2 * Math.PI * 18}`} strokeLinecap="round" />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-black text-gray-700">{String(mins).padStart(2,'0')}:{String(secs).padStart(2,'0')}</span>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  {pomoState.running ? (
+                    <div>
+                      <p className="text-sm font-bold text-gray-800 mb-1">Focus session in progress…</p>
+                      <button onClick={cancelPomo} className="text-xs text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg px-3 py-1 transition-colors">Cancel</button>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">Start a 25-min focus block and earn bonus XP when the timer ends.</p>
+                      <button onClick={startPomo} className="text-xs font-bold text-rose-600 border border-rose-200 bg-rose-50 rounded-lg px-4 py-1.5 hover:bg-rose-100 transition-colors">
+                        Start Timer 🍅
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {todayCount >= 4 && <p className="text-xs text-emerald-600 font-bold mt-2 text-center">🏆 4 pomodoros today — excellent focus!</p>}
+            </div>
+          )
+        })()}
+
         {/* Daily SAT tip + motivational quote */}
         <div className="border-t border-gray-100 pt-4 mb-4 space-y-3">
           <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2.5 flex items-start gap-2">
