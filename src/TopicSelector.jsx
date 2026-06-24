@@ -240,6 +240,103 @@ function VocabWordOfDay() {
   )
 }
 
+const SHOP_ITEMS = [
+  { id: 'boost',   icon: '🚀', name: '2× XP Boost',      desc: 'Double XP on your next session', cost: 150, color: 'border-violet-200 bg-violet-50', tag: 'text-violet-600', textColor: 'text-violet-900' },
+  { id: 'freeze',  icon: '🧊', name: 'Streak Freeze',     desc: 'Protect your streak for one day', cost: 200, color: 'border-blue-200 bg-blue-50',   tag: 'text-blue-600',   textColor: 'text-blue-900' },
+  { id: 'hint',    icon: '💡', name: 'Hint Pack (×5)',    desc: 'Eliminate a wrong answer 5 times', cost: 100, color: 'border-amber-200 bg-amber-50', tag: 'text-amber-600', textColor: 'text-amber-900' },
+  { id: 'spin',    icon: '🎰', name: 'Extra Spin',        desc: 'Spin the wheel again today', cost: 75,  color: 'border-emerald-200 bg-emerald-50', tag: 'text-emerald-600', textColor: 'text-emerald-900' },
+]
+
+function XPShop({ gam, onPurchase }) {
+  const [open, setOpen] = useState(false)
+  const [bought, setBought] = useState({})
+  const [flash, setFlash] = useState(null)
+  const xp = gam.totalXP ?? 0
+  const boosts = gam.boosts ?? 0
+  const freezes = gam.streakFreezes ?? 0
+  const hints = gam.hintCredits ?? 0
+
+  function buy(item) {
+    if (xp < item.cost || bought[item.id]) return
+    setBought(prev => ({ ...prev, [item.id]: true }))
+    onPurchase(item)
+    setFlash(item.id)
+    setTimeout(() => setFlash(null), 1500)
+  }
+
+  const canAfford = (cost) => xp >= cost
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="w-full flex items-center justify-between bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-200 rounded-2xl px-4 py-3 hover:border-amber-400 transition-all active:scale-[0.98] mb-4"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="text-xl">🛒</span>
+          <div className="text-left">
+            <p className="text-sm font-black text-amber-900">XP Shop</p>
+            <p className="text-xs text-amber-600">Spend XP on power-ups</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-xs font-bold text-amber-700">⭐ {xp.toLocaleString()} XP</p>
+          <p className="text-[10px] text-amber-500">available</p>
+        </div>
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center" onClick={e => { if (e.target === e.currentTarget) setOpen(false) }}>
+          <div className="bg-white w-full max-w-md rounded-t-3xl px-5 pt-5 pb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-lg font-black text-gray-900">XP Shop</p>
+                <p className="text-xs text-gray-400">⭐ {xp.toLocaleString()} XP available</p>
+              </div>
+              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-700 text-2xl leading-none">×</button>
+            </div>
+            {/* Inventory */}
+            <div className="flex gap-3 mb-4 pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-1.5 text-xs text-violet-600 font-semibold bg-violet-50 border border-violet-100 rounded-xl px-3 py-1.5">🚀 {boosts} boost{boosts !== 1 ? 's' : ''}</div>
+              <div className="flex items-center gap-1.5 text-xs text-blue-600 font-semibold bg-blue-50 border border-blue-100 rounded-xl px-3 py-1.5">🧊 {freezes} freeze{freezes !== 1 ? 's' : ''}</div>
+              <div className="flex items-center gap-1.5 text-xs text-amber-600 font-semibold bg-amber-50 border border-amber-100 rounded-xl px-3 py-1.5">💡 {hints} hints</div>
+            </div>
+            <div className="space-y-3">
+              {SHOP_ITEMS.map(item => {
+                const affordable = canAfford(item.cost)
+                const justBought = flash === item.id
+                return (
+                  <div key={item.id} className={`flex items-center justify-between rounded-2xl border-2 p-4 ${item.color}`}>
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{item.icon}</span>
+                      <div>
+                        <p className={`text-sm font-black ${item.textColor}`}>{item.name}</p>
+                        <p className="text-xs text-gray-500">{item.desc}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => buy(item)}
+                      disabled={!affordable || !!bought[item.id]}
+                      className={`shrink-0 ml-3 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                        justBought ? 'bg-emerald-500 text-white' :
+                        bought[item.id] ? 'bg-gray-200 text-gray-400 cursor-default' :
+                        affordable ? `bg-amber-400 text-amber-900 hover:bg-amber-500 active:scale-95` :
+                        'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      {justBought ? '✓ Bought!' : bought[item.id] ? 'Owned' : `⭐ ${item.cost}`}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 function DailySpin() {
   const today = new Date().toISOString().slice(0, 10)
   const initData = useMemo(() => loadSpin(), [])
@@ -455,7 +552,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
   const [boostActive, setBoostActive] = useState(() => loadBoost())
   const [freezeCount, setFreezeCount] = useState(() => loadGamification().streakFreezes ?? 0)
   const [freezeUsed, setFreezeUsed] = useState(false)
-  const gam = useMemo(() => loadGamification(), [])
+  const [gam, setGam] = useState(() => loadGamification())
   const levelInfo = useMemo(() => getLevelInfo(gam.totalXP), [gam])
   const levelColor = useMemo(() => getLevelColor(levelInfo.level), [levelInfo])
   const [examDate, setExamDate] = useState(() => loadExamDate())
@@ -491,6 +588,17 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
 
   const [prestigeInfo, setPrestigeInfo] = useState(() => getPrestigeInfo(loadGamification()))
   const [showPrestigeConfirm, setShowPrestigeConfirm] = useState(false)
+
+  function handleShopPurchase(item) {
+    const current = loadGamification()
+    let updated = { ...current, totalXP: (current.totalXP ?? 0) - item.cost }
+    if (item.id === 'boost') { saveBoost(true) }
+    else if (item.id === 'freeze') { updated.streakFreezes = (updated.streakFreezes ?? 0) + 1 }
+    else if (item.id === 'hint') { updated.hintCredits = (updated.hintCredits ?? 0) + 5 }
+    else if (item.id === 'spin') { localStorage.removeItem('sat_prep_spin') }
+    saveGamification(updated)
+    setGam(updated)
+  }
 
   function handlePrestige() {
     const currentGam = loadGamification()
@@ -2683,6 +2791,9 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
 
         {/* SAT Vocab Word of the Day */}
         <VocabWordOfDay />
+
+        {/* XP Shop */}
+        <XPShop gam={gam} onPurchase={handleShopPurchase} />
 
         {/* Daily Spin */}
         <DailySpin />
