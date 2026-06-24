@@ -628,13 +628,26 @@ export default function LearningSession({ config, onComplete, onQuit }) {
               <p className="text-sm text-gray-600 leading-relaxed">{current.explanation}</p>
             )}
             {selected !== current.answer && (() => {
+              const DOMAIN_TIPS = {
+                'algebra': 'Tip: substitute answer choices back into the equation to verify.',
+                'advanced-math': 'Tip: for function questions, plug in simple numbers (0, 1) to test each choice.',
+                'problem-solving-data': 'Tip: read the graph or table first, then read the question — don\'t guess from the visual.',
+                'geometry-trig': 'Tip: label what you know on the figure, then identify which formula applies.',
+                'information-ideas': 'Tip: the answer must be directly supported by the passage — avoid inferences.',
+                'craft-structure': 'Tip: ask what purpose the word/sentence serves in context, not just its general meaning.',
+                'expression-ideas': 'Tip: the best transition shows the logical relationship between ideas (contrast vs. addition).',
+                'standard-english': 'Tip: check subject-verb agreement by crossing out prepositional phrases between them.',
+              }
               const domain = domainById[current.domain]
               const skill = current.skill ? skillById[current.skill] : null
-              if (!domain && !skill) return null
+              const tip = DOMAIN_TIPS[current.domain]
               return (
-                <div className="flex flex-wrap gap-1.5 mt-2.5">
-                  {domain && <span className="text-[10px] font-bold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full border border-rose-200">{domain.label}</span>}
-                  {skill && <span className="text-[10px] font-medium bg-rose-50 text-rose-500 px-2 py-0.5 rounded-full border border-rose-100">{skill.label}</span>}
+                <div className="mt-2.5 space-y-1.5">
+                  <div className="flex flex-wrap gap-1.5">
+                    {domain && <span className="text-[10px] font-bold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full border border-rose-200">{domain.label}</span>}
+                    {skill && <span className="text-[10px] font-medium bg-rose-50 text-rose-500 px-2 py-0.5 rounded-full border border-rose-100">{skill.label}</span>}
+                  </div>
+                  {tip && <p className="text-[11px] text-gray-500 italic leading-relaxed">{tip}</p>}
                 </div>
               )
             })()}
