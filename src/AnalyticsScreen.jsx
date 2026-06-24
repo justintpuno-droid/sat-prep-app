@@ -1155,6 +1155,49 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               </div>
             )}
 
+            {/* Error Tag Breakdown */}
+            {(() => {
+              const ERROR_TAGS = [
+                { id: 'careless', label: 'Careless mistake', icon: '🤦', color: 'bg-amber-400', text: 'text-amber-700', bg: 'bg-amber-50', tip: 'Slow down on these — re-read before submitting.' },
+                { id: 'concept', label: 'Gap in knowledge', icon: '📚', color: 'bg-rose-400', text: 'text-rose-700', bg: 'bg-rose-50', tip: 'Focus Practice on these domains to fill the gap.' },
+                { id: 'misread', label: 'Misread question', icon: '👀', color: 'bg-violet-400', text: 'text-violet-700', bg: 'bg-violet-50', tip: 'Read the question twice before answering.' },
+                { id: 'time', label: 'Ran out of time', icon: '⏰', color: 'bg-blue-400', text: 'text-blue-700', bg: 'bg-blue-50', tip: 'Practice timed sessions to build speed.' },
+              ]
+              let tags
+              try { tags = JSON.parse(localStorage.getItem('sat_prep_error_tags') ?? '{}') } catch { tags = {} }
+              const counts = {}
+              for (const v of Object.values(tags)) counts[v] = (counts[v] ?? 0) + 1
+              const total = Object.values(counts).reduce((s, n) => s + n, 0)
+              if (total < 3) return null
+              const ranked = ERROR_TAGS.map(t => ({ ...t, n: counts[t.id] ?? 0 })).sort((a, b) => b.n - a.n).filter(t => t.n > 0)
+              const top = ranked[0]
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">Why I Miss Questions</p>
+                  <p className="text-xs text-gray-400 mb-4">Self-reported from {total} tagged wrong answers</p>
+                  <div className="space-y-3">
+                    {ranked.map(t => (
+                      <div key={t.id}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm text-gray-700">{t.icon} {t.label}</span>
+                          <span className={`text-sm font-bold ${t.text}`}>{t.n} · {Math.round((t.n / total) * 100)}%</span>
+                        </div>
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className={`h-full ${t.color} rounded-full`} style={{ width: `${Math.round((t.n / total) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {top && (
+                    <div className={`mt-4 rounded-xl border p-3 ${top.bg}`}>
+                      <p className={`text-xs font-bold ${top.text} mb-0.5`}>Top pattern: {top.icon} {top.label}</p>
+                      <p className="text-xs text-gray-500">{top.tip}</p>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
+
             {/* Mood vs Performance */}
             {stats.moodStats.length >= 2 && (
               <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
