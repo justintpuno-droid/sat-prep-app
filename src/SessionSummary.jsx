@@ -190,9 +190,24 @@ function StatRow({ label, correct, total }) {
   )
 }
 
+const ERROR_TAGS = [
+  { id: 'careless', label: 'Careless mistake', icon: '🤦' },
+  { id: 'concept', label: 'Gap in knowledge', icon: '📚' },
+  { id: 'misread', label: 'Misread question', icon: '👀' },
+  { id: 'time', label: 'Ran out of time', icon: '⏰' },
+]
+const ERROR_TAG_KEY = 'sat_prep_error_tags'
+function loadErrorTags() { try { return JSON.parse(localStorage.getItem(ERROR_TAG_KEY) ?? '{}') } catch { return {} } }
+function saveErrorTag(qId, tag) {
+  const prev = loadErrorTags()
+  const next = { ...prev, [qId]: tag }
+  try { localStorage.setItem(ERROR_TAG_KEY, JSON.stringify(next)) } catch {}
+}
+
 function QuestionRow({ question, userAnswer, index, isFlagged, timeSpent, highlight }) {
   const isCorrect = userAnswer === question.answer
   const [expanded, setExpanded] = useState(!isCorrect && highlight)
+  const [errorTag, setErrorTag] = useState(() => loadErrorTags()[question.id] ?? null)
   const skipped = userAnswer === null || userAnswer === undefined
 
   return (
@@ -229,6 +244,22 @@ function QuestionRow({ question, userAnswer, index, isFlagged, timeSpent, highli
             <div className="mt-4 bg-indigo-50 border border-indigo-100 rounded-xl p-4">
               <p className="text-xs font-semibold text-indigo-600 mb-1 uppercase tracking-wide">Explanation</p>
               <p className="text-sm text-gray-700 leading-relaxed">{question.explanation}</p>
+            </div>
+          )}
+          {!isCorrect && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-400 mb-2">Why did I miss this?</p>
+              <div className="flex flex-wrap gap-1.5">
+                {ERROR_TAGS.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => { const next = errorTag === t.id ? null : t.id; setErrorTag(next); saveErrorTag(question.id, next) }}
+                    className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-all ${errorTag === t.id ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-gray-200 text-gray-500 hover:border-indigo-300'}`}
+                  >
+                    {t.icon} {t.label}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
