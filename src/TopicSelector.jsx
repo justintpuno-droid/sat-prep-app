@@ -306,7 +306,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const [boostActive, setBoostActive] = useState(() => loadBoost())
@@ -481,6 +481,19 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     const band = map.find(([thresh]) => avgAcc >= thresh)
     if (!band) return null
     return { lo: band[1], hi: band[2] }
+  }, [history])
+
+  const miniCalendar = useMemo(() => {
+    const days = Array.from({ length: 14 }, (_, i) => {
+      const d = new Date(); d.setDate(d.getDate() - (13 - i))
+      const key = d.toISOString().slice(0, 10)
+      const daySessions = history.filter(s => s.completedAt.startsWith(key))
+      if (daySessions.length === 0) return { key, status: 'none' }
+      const best = Math.max(...daySessions.map(s => s.score.percent))
+      return { key, status: best >= 80 ? 'great' : best >= 60 ? 'ok' : 'low' }
+    })
+    const studied = days.filter(d => d.status !== 'none').length
+    return { days, studied }
   }, [history])
 
   const scoreTrend = useMemo(() => {
@@ -1849,6 +1862,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <div className="text-xs text-amber-600 mt-0.5">60 sec · rapid fire</div>
               </button>
             )}
+            {onTimedChallenge && (
+              <button
+                onClick={onTimedChallenge}
+                className="text-left rounded-2xl border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 to-sky-50 hover:from-cyan-100 hover:to-sky-100 hover:border-cyan-400 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">⏱</div>
+                <div className="font-bold text-sm text-cyan-900">Timed Challenge</div>
+                <div className="text-xs text-cyan-600 mt-0.5">15 Qs · 10 min · 1.5× XP</div>
+              </button>
+            )}
             {onSuddenDeath && history.length >= 5 && (
               <button
                 onClick={onSuddenDeath}
@@ -2054,6 +2077,28 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <p className="text-xs text-gray-400">{lastSessionSummary.ago} · {lastSessionSummary.formatLabel}</p>
               <p className="text-sm font-semibold text-gray-700">{lastSessionSummary.correct}/{lastSessionSummary.total} correct</p>
               {lastSessionSummary.domains && <p className="text-xs text-gray-400 truncate">{lastSessionSummary.domains}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* 14-day mini study calendar */}
+        {miniCalendar.studied > 0 && (
+          <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Last 14 Days</p>
+              <p className="text-xs text-gray-400">{miniCalendar.studied}/14 days studied</p>
+            </div>
+            <div className="flex gap-1">
+              {miniCalendar.days.map(({ key, status }) => (
+                <div key={key} className={`flex-1 h-5 rounded-sm ${
+                  status === 'great' ? 'bg-emerald-400' : status === 'ok' ? 'bg-amber-300' : status === 'low' ? 'bg-rose-300' : 'bg-gray-100'
+                }`} title={key} />
+              ))}
+            </div>
+            <div className="flex items-center gap-3 mt-1.5">
+              {[['bg-emerald-400','≥80%'],['bg-amber-300','60–80%'],['bg-rose-300','<60%'],['bg-gray-100','No study']].map(([c,l]) => (
+                <div key={l} className="flex items-center gap-1"><div className={`w-2 h-2 rounded-sm ${c}`}/><span className="text-xs text-gray-300">{l}</span></div>
+              ))}
             </div>
           </div>
         )}

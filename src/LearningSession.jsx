@@ -30,9 +30,12 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const isBeastMode = config.formatLabel === 'Beast Mode'
   const isBlitzMode = config.formatLabel === 'Blitz Mode'
   const isSuddenDeath = config.formatLabel === 'Sudden Death'
+  const isTimedChallenge = config.formatLabel === 'Timed Challenge'
+  const timedSeconds = config.timedChallengeSeconds ?? null
   const hasMathQuestions = questions.some(q => q.subject === 'math')
 
   const [blitzSeconds, setBlitzSeconds] = useState(60)
+  const [challengeSecondsLeft, setChallengeSecondsLeft] = useState(timedSeconds ?? 600)
   const blitzFinishedRef = useRef(false)
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState({})
@@ -117,6 +120,17 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     }, 1000)
     return () => clearInterval(iv)
   }, [isBlitzMode]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!isTimedChallenge) return
+    const iv = setInterval(() => {
+      setChallengeSecondsLeft(s => {
+        if (s <= 1) { clearInterval(iv); finishRef.current?.(); return 0 }
+        return s - 1
+      })
+    }, 1000)
+    return () => clearInterval(iv)
+  }, [isTimedChallenge]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const current = questions[index]
   const selected = answers[current?.id]
@@ -248,6 +262,10 @@ export default function LearningSession({ config, onComplete, onQuit }) {
               ? <span className="text-xs font-black bg-orange-500 text-white px-2.5 py-1 rounded-full">⚡ BLITZ</span>
               : isSuddenDeath
               ? <span className="text-xs font-black bg-red-900 text-white px-2.5 py-1 rounded-full animate-pulse">💀 SUDDEN DEATH</span>
+              : isTimedChallenge
+              ? <span className={`text-xs font-black px-2.5 py-1 rounded-full ${challengeSecondsLeft <= 60 ? 'bg-rose-500 text-white animate-pulse' : 'bg-cyan-500 text-white'}`}>
+                  ⏱ {Math.floor(challengeSecondsLeft / 60)}:{String(challengeSecondsLeft % 60).padStart(2, '0')}
+                </span>
               : <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full">Learning</span>
             }
             <span className={`text-sm ${isBeastMode ? 'text-gray-300' : 'text-gray-600'}`}>
