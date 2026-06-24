@@ -96,6 +96,11 @@ function getHint(achId, stats, gam) {
     case 'all-formats':      return { hint: 'Try Quick 5, Beast, Blitz, Adaptive, and Sudden Death modes', pct: Math.min(100, Math.round((stats.formatsUsed / 5) * 100)) }
     case 'timed-ace':        return { hint: 'Score 90%+ on a Timed Challenge', pct: 0 }
     case 'xp-10000':         return h('Total XP', gam.totalXP, 10000)
+    case 'ramp-master':      return { hint: 'Complete Ramp Mode with 15/15', pct: 0 }
+    case 'hearts-iron':      return { hint: 'Finish Hearts Mode without losing a life', pct: 0 }
+    case 'sat-ace':          return { hint: 'Score 90%+ on SAT Timed Mode', pct: 0 }
+    case 'scholar':          return h('Days studied', stats.studyDays, 30)
+    case 'comeback-king':    return h('Comeback sessions (60%→80%)', stats.comebacks, 3)
     default:                 return null
   }
 }
@@ -142,7 +147,12 @@ export default function AchievementsScreen({ onBack }) {
     const earlyMorningSessions = history.filter(s => new Date(s.completedAt).getHours() < 7).length
     const formatSet = new Set(history.map(s => s.formatLabel))
     const formatsUsed = ['Quick 5','Beast Mode','Blitz Mode','Adaptive Quiz','Sudden Death'].filter(f => formatSet.has(f)).length
-    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed }
+    const studyDays = new Set(history.map(s => s.completedAt.slice(0, 10))).size
+    let comebacks = 0
+    for (let i = 1; i < history.length; i++) {
+      if (history[i-1].score.percent < 60 && history[i].score.percent >= 80) comebacks++
+    }
+    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed, studyDays, comebacks }
   }, [history])
 
   const visibleAchievements = useMemo(() => {
