@@ -2578,6 +2578,43 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
+        {/* Final Week Study Plan */}
+        {daysLeft !== null && daysLeft >= 1 && daysLeft <= 7 && (() => {
+          const todayIdx = 7 - daysLeft
+          const DAYS = [
+            { icon: '📊', label: 'Full Diagnostic', tip: 'Take a timed full practice test to see where you stand.', action: onFullPractice },
+            { icon: '📖', label: 'Reading & Grammar', tip: 'Focus on Standard English conventions — grammar rules.', action: onGrammarRef },
+            { icon: '📐', label: 'Math Review', tip: 'Review formulas and drill your weakest math domain.', action: onMathRef },
+            { icon: '🔁', label: 'Wrong Answer Sprint', tip: 'Review every question you got wrong this week.', action: onWrongAnswerSprint },
+            { icon: '⚡', label: 'Blitz Mode', tip: 'Practice speed — 40 questions, 60 sec each.', action: onBlitzMode },
+            { icon: '🎯', label: 'Weak Spot Drill', tip: 'One last focus session on your weakest domain.', action: onFocusPractice ? () => onFocusPractice(weakDomain?.id ?? 'algebra') : null },
+            { icon: '😴', label: 'Rest Day', tip: "Don't study tonight. Sleep 8+ hours. You're ready.", action: null },
+          ]
+          const todayPlan = DAYS[Math.min(todayIdx, 6)]
+          return (
+            <div className="bg-gradient-to-r from-rose-500 to-orange-500 rounded-2xl p-4 mb-4 text-white">
+              <p className="text-[10px] font-black uppercase tracking-widest text-rose-200 mb-1">
+                🚨 Final Week — {daysLeft} day{daysLeft !== 1 ? 's' : ''} to go
+              </p>
+              <p className="text-base font-black mb-2">Today: {todayPlan.label}</p>
+              <p className="text-xs text-rose-100 leading-relaxed mb-3">{todayPlan.tip}</p>
+              <div className="flex gap-1.5 flex-wrap mb-3">
+                {DAYS.slice(0, 7 - (daysLeft - 1)).map((d, i) => (
+                  <span key={i} className={`text-[10px] px-1.5 py-0.5 rounded-lg font-bold ${i === todayIdx ? 'bg-white text-rose-600' : 'bg-rose-400/50 text-rose-100 line-through'}`}>{d.icon}</span>
+                ))}
+              </div>
+              {todayPlan.action && daysLeft > 1 && (
+                <button
+                  onClick={todayPlan.action}
+                  className="bg-white text-rose-600 font-black text-xs px-4 py-2 rounded-xl hover:bg-rose-50 transition-colors"
+                >
+                  Start now →
+                </button>
+              )}
+            </div>
+          )
+        })()}
+
         {/* Streak at risk warning */}
         {streakAtRisk && !freezeUsed && (
           <div className="bg-gradient-to-r from-rose-500 to-orange-500 rounded-2xl px-4 py-3 mb-4 text-white flex items-center gap-3 animate-pulse">
