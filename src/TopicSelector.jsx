@@ -1034,6 +1034,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                   🔥 {streak}d {gam.maxStreak > streak ? <span className="opacity-60 font-normal">(best {gam.maxStreak}d)</span> : '🏆'}
                 </span>
               )}
+              {freezeCount > 0 && (
+                <span className="text-xs font-semibold text-blue-400 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full" title={`${freezeCount} streak freeze${freezeCount !== 1 ? 's' : ''} available`}>
+                  🧊×{freezeCount}
+                </span>
+              )}
+              {weeklyChallenge.done && (
+                <span className="text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-100 px-2 py-0.5 rounded-full">
+                  📋 Week ✓
+                </span>
+              )}
             </div>
             <div className="flex gap-2">
               {onProblemAreasDrill && persistentMistakes.length >= 2 && (
