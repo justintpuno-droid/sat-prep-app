@@ -1,10 +1,14 @@
-import { useMemo } from 'react'
-import { loadGamification, getLevelInfo, getLevelColor, ACHIEVEMENTS, getPrestigeInfo } from './utils/gamification'
+import { useMemo, useState } from 'react'
+import { loadGamification, getLevelInfo, getLevelColor, ACHIEVEMENTS, getPrestigeInfo, saveGamification } from './utils/gamification'
 import { loadHistory } from './utils/history'
 
-const AVATAR_ICONS = ['🎓', '⭐', '🔥', '⚡', '🦁', '🧠', '🚀', '💎', '🏆', '🌟']
-
-function getAvatar(level) { return AVATAR_ICONS[Math.min(level - 1, AVATAR_ICONS.length - 1)] }
+const AVATAR_OPTIONS = [
+  '🎓','⭐','🔥','⚡','🦁','🧠','🚀','💎','🏆','🌟',
+  '🦊','🐉','🦅','🐺','🦋','🎯','🌈','🏄','🧊','👾',
+]
+const AVATAR_KEY = 'sat_prep_avatar'
+function loadAvatar() { return localStorage.getItem(AVATAR_KEY) ?? '🎓' }
+function saveAvatar(v) { localStorage.setItem(AVATAR_KEY, v) }
 
 function computeStreak(sessions) {
   const dates = new Set(sessions.map(s => s.completedAt.slice(0, 10)))
@@ -16,6 +20,8 @@ function computeStreak(sessions) {
 export default function ProfileScreen({ onBack }) {
   const gam = useMemo(() => loadGamification(), [])
   const history = useMemo(() => loadHistory(), [])
+  const [avatar, setAvatar] = useState(loadAvatar)
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false)
   const levelInfo = useMemo(() => getLevelInfo(gam.totalXP), [gam])
   const levelColor = useMemo(() => getLevelColor(levelInfo.level), [levelInfo])
   const prestigeInfo = useMemo(() => getPrestigeInfo(gam), [gam])
@@ -56,18 +62,39 @@ export default function ProfileScreen({ onBack }) {
     return out
   }, [history])
 
-  const avatar = getAvatar(levelInfo.level)
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 px-4 py-10">
       <div className="max-w-md mx-auto">
         <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-600 mb-6 transition-colors">← Back</button>
 
+        {/* Avatar picker modal */}
+        {showAvatarPicker && (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-6" onClick={e => { if (e.target === e.currentTarget) setShowAvatarPicker(false) }}>
+            <div className="bg-white rounded-3xl p-6 w-full max-w-sm">
+              <p className="text-base font-black text-gray-900 mb-4 text-center">Choose Your Avatar</p>
+              <div className="grid grid-cols-5 gap-3 mb-5">
+                {AVATAR_OPTIONS.map(icon => (
+                  <button key={icon} onClick={() => { setAvatar(icon); saveAvatar(icon); setShowAvatarPicker(false) }}
+                    className={`w-full aspect-square rounded-2xl text-2xl flex items-center justify-center transition-all ${icon === avatar ? `${levelColor.ring} scale-110 shadow-lg` : 'bg-gray-50 hover:bg-gray-100'}`}>
+                    {icon}
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setShowAvatarPicker(false)} className="w-full py-2.5 rounded-2xl border border-gray-200 text-sm text-gray-500 hover:bg-gray-50 transition-colors">Cancel</button>
+            </div>
+          </div>
+        )}
+
         {/* Profile header */}
         <div className={`rounded-3xl border-2 ${levelColor.border} bg-white p-6 mb-5 text-center`}>
-          <div className={`w-20 h-20 rounded-full ${levelColor.ring} flex items-center justify-center text-4xl mx-auto mb-3`}>
-            {avatar}
-          </div>
+          <button onClick={() => setShowAvatarPicker(true)} className="relative group mx-auto mb-3 block w-20">
+            <div className={`w-20 h-20 rounded-full ${levelColor.ring} flex items-center justify-center text-4xl`}>
+              {avatar}
+            </div>
+            <div className="absolute inset-0 rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span className="text-white text-xs font-bold">Edit</span>
+            </div>
+          </button>
           <div className="flex items-center justify-center gap-2 mb-1">
             <p className={`text-xl font-black ${levelColor.text}`}>Level {levelInfo.level}</p>
             {prestigeInfo.title && <span className="text-xs font-bold text-amber-600">{prestigeInfo.title}</span>}
