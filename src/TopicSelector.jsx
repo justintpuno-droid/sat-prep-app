@@ -614,7 +614,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, onStrategyGuide, onStudyNotes, onGrammarRef, onMathRef, onDigitalSAT, onBreathing, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onSkillFocus, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, onStrategyGuide, onStudyNotes, onGrammarRef, onMathRef, onDigitalSAT, onBreathing, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -2797,7 +2797,17 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                       <span className={`text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${i === 0 ? 'bg-rose-500 text-white' : i === 1 ? 'bg-amber-400 text-white' : 'bg-yellow-300 text-yellow-900'}`}>{i + 1}</span>
                       <span className="text-xs font-medium text-gray-700 truncate">{sk.label}</span>
                     </div>
-                    <span className={`text-xs font-bold shrink-0 ml-2 ${sk.pct < 50 ? 'text-rose-600' : sk.pct < 65 ? 'text-amber-600' : 'text-yellow-600'}`}>{sk.pct}%</span>
+                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                      <span className={`text-xs font-bold ${sk.pct < 50 ? 'text-rose-600' : sk.pct < 65 ? 'text-amber-600' : 'text-yellow-600'}`}>{sk.pct}%</span>
+                      {onSkillFocus && (
+                        <button
+                          onClick={() => onSkillFocus(sk.id, sk.label, sk.domain)}
+                          className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg px-2 py-0.5 hover:bg-indigo-100 transition-colors"
+                        >
+                          Drill →
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div className={`h-full rounded-full ${sk.pct < 50 ? 'bg-rose-400' : sk.pct < 65 ? 'bg-amber-400' : 'bg-yellow-400'}`} style={{ width: `${sk.pct}%` }} />
