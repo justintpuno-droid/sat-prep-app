@@ -4,7 +4,7 @@ import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory, getSRCount } from './utils/history'
 import { SAT_VOCAB } from './data/vocab'
-import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze, getPrestigeInfo, doPrestige, saveGamification, getTodayTripleChallenges, getTripleChallengeProgress, isChallengeComplete } from './utils/gamification'
+import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze, getPrestigeInfo, doPrestige, saveGamification, getTodayTripleChallenges, getTripleChallengeProgress, isChallengeComplete, getWeeklyBoss } from './utils/gamification'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -1511,6 +1511,39 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 </>
               ) : (
                 <p className="text-xs font-bold text-yellow-300">🎉 All tiers complete this month!</p>
+              )}
+            </div>
+          )
+        })()}
+
+        {/* Weekly Boss */}
+        {(() => {
+          const boss = getWeeklyBoss()
+          const pct = Math.round((boss.currentHP / boss.hp) * 100)
+          return (
+            <div className={`rounded-2xl border-2 p-4 mb-4 ${boss.defeated ? 'border-amber-300 bg-amber-50' : 'border-rose-200 bg-gradient-to-r from-rose-50 to-orange-50'}`}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-black uppercase tracking-widest text-rose-500">Weekly Boss</p>
+                {boss.defeated
+                  ? <span className="text-xs font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">🏆 Defeated!</span>
+                  : <span className="text-xs font-semibold text-rose-400">{boss.currentHP}/{boss.hp} HP</span>}
+              </div>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-4xl">{boss.icon}</span>
+                <div>
+                  <p className="font-black text-base text-gray-900">{boss.name}</p>
+                  <p className="text-xs text-gray-500 italic">{boss.flavor}</p>
+                </div>
+              </div>
+              {!boss.defeated ? (
+                <>
+                  <div className="h-3 bg-gray-200 rounded-full overflow-hidden mb-1.5">
+                    <div className="h-full bg-gradient-to-r from-rose-500 to-orange-400 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+                  </div>
+                  <p className="text-[10px] text-gray-400">Practice <span className="font-bold text-rose-600">{boss.domain.replace(/-/g, ' ')}</span> questions to deal damage · Defeat for <span className="font-bold text-amber-600">{boss.xp} XP</span></p>
+                </>
+              ) : (
+                <p className="text-xs font-semibold text-amber-700 text-center">You slayed the boss this week! New boss arrives Monday 🗡️</p>
               )}
             </div>
           )

@@ -285,6 +285,56 @@ export function saveGamification(gam) {
   try { localStorage.setItem(KEY, JSON.stringify(gam)) } catch {}
 }
 
+// ─── Weekly Boss ───────────────────────────────────────────────────────────
+
+const BOSS_KEY = 'sat_prep_boss'
+const BOSSES = [
+  { domain: 'algebra',            name: 'The Algebra Overlord',   icon: '🧮', hp: 100, xp: 500, flavor: 'Master of equations and unknowns' },
+  { domain: 'advanced-math',      name: 'Calculus Crusher',        icon: '📐', hp: 100, xp: 500, flavor: 'Ruler of functions and exponents' },
+  { domain: 'information-ideas',  name: 'The Inference Inquisitor',icon: '📖', hp: 100, xp: 500, flavor: 'Twists every passage into a trap' },
+  { domain: 'craft-structure',    name: 'Lord of Language',        icon: '🖊️', hp: 100, xp: 500, flavor: 'Guardian of rhetoric and style' },
+  { domain: 'problem-solving-data',name:'Data Dragon',             icon: '📊', hp: 100, xp: 500, flavor: 'Hoards statistics and graphs' },
+  { domain: 'geometry-trig',      name: 'The Geometry Golem',     icon: '📏', hp: 100, xp: 500, flavor: 'Built entirely of triangles' },
+  { domain: 'standard-english',   name: 'Grammar Gorgon',         icon: '🐍', hp: 100, xp: 500, flavor: 'Turns careless writers to stone' },
+  { domain: 'expression-ideas',   name: 'The Revision Reaper',    icon: '✍️', hp: 100, xp: 500, flavor: 'Punishes weak transitions' },
+]
+
+function weekKey() {
+  const d = new Date()
+  const jan1 = new Date(d.getFullYear(), 0, 1)
+  const week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7)
+  return `${d.getFullYear()}-W${week}`
+}
+
+export function getWeeklyBoss() {
+  const wk = weekKey()
+  try {
+    const stored = JSON.parse(localStorage.getItem(BOSS_KEY) ?? 'null')
+    if (stored?.weekKey === wk) return stored
+  } catch {}
+  const seed = wk.split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)
+  const boss = BOSSES[Math.abs(seed) % BOSSES.length]
+  const fresh = { weekKey: wk, domain: boss.domain, name: boss.name, icon: boss.icon, hp: boss.hp, xp: boss.xp, flavor: boss.flavor, currentHP: boss.hp, defeated: false }
+  try { localStorage.setItem(BOSS_KEY, JSON.stringify(fresh)) } catch {}
+  return fresh
+}
+
+export function saveBoss(boss) { try { localStorage.setItem(BOSS_KEY, JSON.stringify(boss)) } catch {} }
+
+export function applyBossResult(sessionQuestions, sessionAnswers) {
+  const boss = getWeeklyBoss()
+  if (boss.defeated) return boss
+  let dmg = 0
+  for (const q of sessionQuestions) {
+    if (q.domain === boss.domain && (sessionAnswers[q.id] ?? null) === q.answer) dmg += 10
+  }
+  if (dmg === 0) return boss
+  const newHP = Math.max(0, boss.currentHP - dmg)
+  const updated = { ...boss, currentHP: newHP, defeated: newHP === 0 }
+  saveBoss(updated)
+  return updated
+}
+
 // ─── XP + achievements ────────────────────────────────────────────────────
 
 function currentStreak(history) {
@@ -320,6 +370,8 @@ export function processSession(session, history, prevGam) {
   const streak = currentStreak(history)
   const xp = calcXP(session, streak)
   const oldXP = prevGam.totalXP
+  // Update weekly boss progress
+  const bossResult = applyBossResult(session.questions ?? [], session.answers ?? {})
 
   // Check daily challenge completion
   const today = new Date().toISOString().slice(0, 10)
@@ -461,7 +513,7 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, boostedXP, boostActive, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, weeklyBonus, weeklyCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned }
+  return { xp, boostedXP, boostActive, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, weeklyBonus, weeklyCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned, bossResult }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────
