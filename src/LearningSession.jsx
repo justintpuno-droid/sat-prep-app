@@ -72,6 +72,11 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [confidenceMap, setConfidenceMap] = useState({})
   const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge || isHeadToHead || isSATTimed || isHeartsMode || isSurvivalMode) ? 3 : 0)
   const [questionElapsed, setQuestionElapsed] = useState(0)
+  const [showWarmup, setShowWarmup] = useState(() => {
+    if (countdown > 0) return false
+    const domains = new Set(questions.map(q => q.domain))
+    return domains.size === 1
+  })
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
   const questionTimingsRef = useRef({})
@@ -99,10 +104,11 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   }
 
   useEffect(() => {
+    if (showWarmup) return
     if (countdown <= 0) { timer.start(); return }
     const t = setInterval(() => setCountdown(c => { if (c <= 1) { clearInterval(t); timer.start(); return 0 } return c - 1 }), 700)
     return () => clearInterval(t)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [showWarmup]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Per-question pacing ticker
   useEffect(() => {
@@ -363,6 +369,40 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   if (!current) return null
 
   const progress = (index / questions.length) * 100
+
+  if (showWarmup) {
+    const domainId = questions[0]?.domain
+    const domainName = domainById[domainId]?.label ?? domainId
+    const WARMUP_TIPS = {
+      'algebra': { icon: '🔢', color: 'from-indigo-600 to-blue-700', tip: 'Isolate the variable step by step. Cross out prepositional phrases to find subjects.', key: 'Try: plug answer choices in to verify.' },
+      'advanced-math': { icon: '📐', color: 'from-violet-600 to-indigo-700', tip: 'Plug in simple values (0, 1, −1) to test function behavior.', key: 'Vertex form: y = a(x−h)² + k. Remember: inside = horizontal, opposite direction.' },
+      'problem-solving-data': { icon: '📊', color: 'from-teal-600 to-emerald-700', tip: 'Read the graph BEFORE reading the question.', key: 'Scatterplot: find slope and y-intercept. Watch out: correlation ≠ causation.' },
+      'geometry-trig': { icon: '📏', color: 'from-emerald-600 to-teal-700', tip: 'Label everything on the figure. Identify the formula you need FIRST.', key: 'Pythagorean triples: 3-4-5, 5-12-13. Special right: 30-60-90, 45-45-90.' },
+      'information-ideas': { icon: '📖', color: 'from-amber-500 to-orange-600', tip: 'The answer must be directly supported by the text — no stretching.', key: 'For inference questions: the safest, most limited claim is usually right.' },
+      'craft-structure': { icon: '🖊️', color: 'from-rose-500 to-pink-600', tip: 'Ask: what purpose does this word/sentence serve in the passage?', key: 'Rhetoric = the choice, not just the content. Look at why the author chose this.' },
+      'expression-ideas': { icon: '✍️', color: 'from-orange-500 to-amber-600', tip: 'Transitions: contrast = however/although, addition = furthermore, cause = therefore.', key: 'For "best supports the claim" — look for specific evidence, not generalizations.' },
+      'standard-english': { icon: '📝', color: 'from-slate-600 to-gray-700', tip: 'Cross out prepositional phrases to find the real subject.', key: 'FANBOYS + comma = joins two independent clauses. Semicolons = period.' },
+    }
+    const w = WARMUP_TIPS[domainId] ?? { icon: '🎯', color: 'from-indigo-600 to-violet-700', tip: 'Take a breath. Read each question carefully before selecting an answer.', key: 'Trust your instincts — your first answer is often right.' }
+    return (
+      <div className={`min-h-screen bg-gradient-to-br ${w.color} flex flex-col items-center justify-center px-6 text-white`}>
+        <p className="text-white/50 text-xs font-bold uppercase tracking-widest mb-6">Domain Warmup</p>
+        <span className="text-6xl mb-4">{w.icon}</span>
+        <p className="text-2xl font-black text-center mb-2">{domainName}</p>
+        <div className="bg-white/15 rounded-2xl p-5 max-w-sm w-full mb-4 text-center">
+          <p className="text-white font-medium leading-relaxed mb-3">{w.tip}</p>
+          <p className="text-white/70 text-xs italic">{w.key}</p>
+        </div>
+        <button
+          onClick={() => { setShowWarmup(false); timer.start() }}
+          className="bg-white/20 hover:bg-white/30 text-white font-bold px-8 py-3 rounded-2xl transition-colors mt-2"
+        >
+          Let's go →
+        </button>
+        <p className="text-white/30 text-xs mt-4">{questions.length} questions · tap to start</p>
+      </div>
+    )
+  }
 
   if (countdown > 0) {
     if (isHeadToHead && rival) {
