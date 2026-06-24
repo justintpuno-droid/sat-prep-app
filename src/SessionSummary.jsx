@@ -634,6 +634,31 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           </div>
         </div>
 
+        {/* Session timeline: colored dots in answer order */}
+        {questions.length >= 5 && (
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4">
+            <p className="text-xs text-gray-400 font-semibold mb-2">Answer timeline</p>
+            <div className="flex flex-wrap gap-1">
+              {questions.map((q, i) => {
+                const correct = (answers[q.id] ?? null) === q.answer
+                const flagged = flaggedSet.has(q.id)
+                return (
+                  <div
+                    key={q.id}
+                    className={`w-4 h-4 rounded-sm ${correct ? 'bg-emerald-400' : 'bg-rose-400'} ${flagged ? 'ring-2 ring-amber-400 ring-offset-0.5' : ''}`}
+                    title={`Q${i + 1}: ${correct ? 'Correct' : 'Wrong'}${flagged ? ' 🚩' : ''}`}
+                  />
+                )
+              })}
+            </div>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="flex items-center gap-1 text-xs text-gray-400"><span className="w-3 h-3 rounded-sm bg-emerald-400 inline-block" /> Correct</span>
+              <span className="flex items-center gap-1 text-xs text-gray-400"><span className="w-3 h-3 rounded-sm bg-rose-400 inline-block" /> Wrong</span>
+              {flaggedSet.size > 0 && <span className="flex items-center gap-1 text-xs text-gray-400"><span className="w-3 h-3 rounded-sm bg-gray-200 ring-2 ring-amber-400 inline-block" /> Flagged</span>}
+            </div>
+          </div>
+        )}
+
         {/* Question review */}
         <div>
           <div className="flex items-center justify-between mb-3">

@@ -198,6 +198,19 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     const biasTotal = Object.values(wrongChoices).reduce((a, b) => a + b, 0)
     const answerBias = biasTotal >= 20 ? wrongChoices : null
 
+    // Score distribution histogram
+    const scoreDist = [
+      { label: '<60%', min: 0, max: 60, color: 'bg-rose-400', count: 0 },
+      { label: '60-69', min: 60, max: 70, color: 'bg-amber-400', count: 0 },
+      { label: '70-79', min: 70, max: 80, color: 'bg-yellow-400', count: 0 },
+      { label: '80-89', min: 80, max: 90, color: 'bg-emerald-400', count: 0 },
+      { label: '90%+', min: 90, max: 101, color: 'bg-emerald-600', count: 0 },
+    ]
+    for (const s of sessions) {
+      const bucket = scoreDist.find(b => s.score.percent >= b.min && s.score.percent < b.max)
+      if (bucket) bucket.count++
+    }
+
     // Wrong answers per session trend: recent 5 vs prior 5
     let wrongTrend = null
     {
@@ -282,7 +295,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     // Questions per minute efficiency
     const qPerMin = totalTime > 0 ? (totalQ / (totalTime / 60)).toFixed(1) : null
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist }
   }, [sessions])
 
   return (
@@ -567,6 +580,26 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 </div>
               </div>
             )}
+
+            {/* Score distribution histogram */}
+            {sessions.length >= 5 && (() => {
+              const maxCount = Math.max(...stats.scoreDist.map(b => b.count), 1)
+              const mode = stats.scoreDist.reduce((a, b) => b.count > a.count ? b : a)
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">Score Distribution</p>
+                  <div className="flex items-end gap-2 h-16">
+                    {stats.scoreDist.map(b => (
+                      <div key={b.label} className="flex-1 flex flex-col items-center gap-1">
+                        <div className={`w-full rounded-t-sm ${b.color} transition-all`} style={{ height: `${(b.count / maxCount) * 64}px` }} title={`${b.count} sessions`} />
+                        <span className="text-xs text-gray-400 leading-none">{b.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2">Most sessions: <span className="font-semibold text-gray-700">{mode.label}</span> ({mode.count} sessions)</p>
+                </div>
+              )
+            })()}
 
             {/* Performance by format */}
             {stats.formatStats.length >= 2 && (
