@@ -442,7 +442,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -2753,6 +2753,31 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <div className="text-xs text-red-300 mt-0.5">One wrong = game over · 3× XP</div>
               </button>
             )}
+          </div>
+        )}
+
+        {/* Head-to-Head */}
+        {onHeadToHead && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-base">⚔️</span>
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Head-to-Head</p>
+              <span className="text-xs bg-violet-100 text-violet-600 font-bold px-2 py-0.5 rounded-full">1.5× XP</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2.5">
+              {[
+                { key: 'rookie',  icon: '🌱', name: 'Riley',  sub: 'Rookie · ~65%',  from: 'from-emerald-50',  border: 'border-emerald-200', text: 'text-emerald-900', sub2: 'text-emerald-600' },
+                { key: 'average', icon: '⚡', name: 'Jordan', sub: 'Average · ~75%', from: 'from-blue-50',     border: 'border-blue-200',    text: 'text-blue-900',    sub2: 'text-blue-600' },
+                { key: 'elite',   icon: '🔥', name: 'Alex',   sub: 'Elite · ~88%',  from: 'from-rose-50',     border: 'border-rose-200',    text: 'text-rose-900',    sub2: 'text-rose-500' },
+              ].map(r => (
+                <button key={r.key} onClick={() => onHeadToHead(r.key)}
+                  className={`rounded-2xl border-2 ${r.border} bg-gradient-to-b ${r.from} to-white p-3 text-center hover:scale-[0.98] transition-all active:scale-95`}>
+                  <div className="text-2xl mb-1">{r.icon}</div>
+                  <p className={`text-xs font-black ${r.text}`}>{r.name}</p>
+                  <p className={`text-[10px] ${r.sub2} mt-0.5`}>{r.sub}</p>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

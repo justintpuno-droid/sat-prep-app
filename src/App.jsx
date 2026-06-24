@@ -273,6 +273,24 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleHeadToHead(rival) {
+    const RIVALS = {
+      rookie:  { name: 'Riley',  icon: '🌱', label: 'Rookie (~65%)',   accuracy: 0.65 },
+      average: { name: 'Jordan', icon: '⚡', label: 'Average (~75%)',  accuracy: 0.75 },
+      elite:   { name: 'Alex',   icon: '🔥', label: 'Elite (~88%)',    accuracy: 0.88 },
+    }
+    const r = RIVALS[rival] ?? RIVALS.average
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: `Head-to-Head vs ${r.name}`,
+      sessionName: null,
+      questions: shuffle(allQuestions).slice(0, 15),
+      xpMultiplier: 1.5,
+      rival: r,
+    })
+    setScreen('learning')
+  }
+
   function handlePracticeFromBank(questions) {
     setSessionConfig({
       mode: 'learning',
@@ -284,7 +302,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')

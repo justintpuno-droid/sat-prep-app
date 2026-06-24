@@ -31,6 +31,8 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const isBlitzMode = config.formatLabel === 'Blitz Mode'
   const isSuddenDeath = config.formatLabel === 'Sudden Death'
   const isTimedChallenge = config.formatLabel === 'Timed Challenge'
+  const isHeadToHead = config.formatLabel?.startsWith('Head-to-Head')
+  const rival = config.rival ?? null
   const timedSeconds = config.timedChallengeSeconds ?? null
   const hasMathQuestions = questions.some(q => q.subject === 'math')
 
@@ -54,7 +56,9 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [eliminated, setEliminated] = useState({}) // questionId → eliminated option id
   const [wrongStreak, setWrongStreak] = useState(0)
-  const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge) ? 3 : 0)
+  const [rivalCorrect, setRivalCorrect] = useState(0)
+  const [rivalTotal, setRivalTotal] = useState(0)
+  const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge || isHeadToHead) ? 3 : 0)
   const [questionElapsed, setQuestionElapsed] = useState(0)
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
@@ -194,6 +198,12 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     setXpFlash({ amount: xpGain, correct: isCorrect, speed: speedBonus > 0, id: Date.now() })
     setTimeout(() => setXpFlash(null), 900)
 
+    if (rival) {
+      const rivalGetsIt = Math.random() < rival.accuracy
+      setRivalCorrect(c => c + (rivalGetsIt ? 1 : 0))
+      setRivalTotal(t => t + 1)
+    }
+
     if (isBlitzMode) {
       setTimeout(() => {
         if (blitzFinishedRef.current) return
@@ -227,6 +237,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       answers,
       score: scoreQuestions(answered, answers),
       flaggedIds: [...flagged],
+      rivalResult: rival ? { name: rival.name, correct: rivalCorrect, total: rivalTotal } : null,
       maxCombo: maxComboRef.current,
       xpMultiplier: config.xpMultiplier ?? 1.0,
     })
@@ -270,6 +281,27 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const progress = (index / questions.length) * 100
 
   if (countdown > 0) {
+    if (isHeadToHead && rival) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 flex flex-col items-center justify-center px-6">
+          <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-8">Head-to-Head Battle</p>
+          <div className="flex items-center gap-8 mb-8">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-500 flex items-center justify-center text-3xl mb-2">🎓</div>
+              <p className="text-white font-bold text-sm">You</p>
+            </div>
+            <div className="text-white/60 text-2xl font-black">VS</div>
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-2xl bg-rose-500 flex items-center justify-center text-3xl mb-2">{rival.icon}</div>
+              <p className="text-white font-bold text-sm">{rival.name}</p>
+              <p className="text-white/40 text-xs">{rival.label}</p>
+            </div>
+          </div>
+          <p className="text-white font-black text-8xl tabular-nums" style={{ textShadow: '0 0 40px rgba(255,255,255,0.4)' }}>{countdown}</p>
+          <p className="text-white/40 text-sm mt-6">{questions.length} questions</p>
+        </div>
+      )
+    }
     const modeLabel = isBeastMode ? 'BEAST MODE' : isSuddenDeath ? 'SUDDEN DEATH' : 'TIMED CHALLENGE'
     const modeColor = isBeastMode ? 'from-slate-900 via-rose-950 to-slate-900' : isSuddenDeath ? 'from-gray-900 via-red-950 to-gray-900' : 'from-cyan-600 to-indigo-700'
     return (
@@ -396,10 +428,23 @@ export default function LearningSession({ config, onComplete, onQuit }) {
           </div>
         </div>
         <div className="max-w-2xl mx-auto px-4 pb-2 space-y-1">
-          <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
-            <div className="h-full bg-indigo-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
-          </div>
-          {answeredCount > 0 && (
+          {isHeadToHead && rival && answeredCount > 0 ? (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-indigo-500 w-6 shrink-0">You</span>
+              <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden relative">
+                <div className="absolute inset-y-0 left-0 bg-indigo-500 rounded-full transition-all duration-500" style={{ width: `${(correctCount / answeredCount) * 100}%` }} />
+                <div className="absolute inset-y-0 left-0 bg-rose-400 rounded-full transition-all duration-500 opacity-50" style={{ width: `${rivalTotal > 0 ? (rivalCorrect / rivalTotal) * 100 : 0}%` }} />
+              </div>
+              <span className="text-[10px] font-bold text-rose-400 w-7 shrink-0 text-right">{rival.icon}</span>
+              <span className="text-[10px] font-bold text-indigo-600 w-8 shrink-0 text-right">{Math.round((correctCount/answeredCount)*100)}%</span>
+              <span className="text-[10px] text-rose-400 font-bold w-8 shrink-0">{rivalTotal > 0 ? Math.round((rivalCorrect/rivalTotal)*100) : 0}%</span>
+            </div>
+          ) : (
+            <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-full bg-indigo-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+            </div>
+          )}
+          {answeredCount > 0 && !isHeadToHead && (
             <div className="h-0.5 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${correctCount / answeredCount >= 0.8 ? 'bg-emerald-400' : correctCount / answeredCount >= 0.6 ? 'bg-amber-400' : 'bg-rose-400'}`}

@@ -419,6 +419,34 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
       {(gamResult?.leveledUp || score.percent === 100) && <Confetti />}
       <div className="max-w-2xl mx-auto">
 
+        {/* Head-to-Head result */}
+        {session.rivalResult && (() => {
+          const r = session.rivalResult
+          const myPct = score.percent
+          const rivalPct = r.total > 0 ? Math.round((r.correct / r.total) * 100) : 0
+          const won = myPct > rivalPct
+          const tied = myPct === rivalPct
+          return (
+            <div className={`rounded-2xl p-5 mb-5 text-center ${won ? 'bg-gradient-to-r from-indigo-600 to-violet-600' : tied ? 'bg-gradient-to-r from-gray-500 to-gray-600' : 'bg-gradient-to-r from-rose-500 to-rose-700'} text-white`}>
+              <p className="text-3xl mb-2">{won ? '🏆' : tied ? '🤝' : '😤'}</p>
+              <p className="text-lg font-black mb-1">{won ? 'You Won!' : tied ? 'It\'s a Tie!' : 'You Lost!'}</p>
+              <div className="flex items-center justify-center gap-6 mt-3">
+                <div className="text-center">
+                  <p className="text-2xl font-black">{myPct}%</p>
+                  <p className="text-white/70 text-xs">You</p>
+                </div>
+                <p className="text-white/40 text-lg font-bold">VS</p>
+                <div className="text-center">
+                  <p className="text-2xl font-black">{rivalPct}%</p>
+                  <p className="text-white/70 text-xs">{r.name}</p>
+                </div>
+              </div>
+              {won && <p className="text-white/70 text-xs mt-3">+50 bonus XP for winning!</p>}
+              {!won && !tied && <p className="text-white/70 text-xs mt-3">Rematch? Try again!</p>}
+            </div>
+          )
+        })()}
+
         {/* Personal record banner */}
         {gamResult?.sessionRank?.isSessionPB && score.total >= 10 && (
           <div className="mb-5 bg-gradient-to-r from-amber-400 to-amber-500 rounded-2xl px-5 py-4 flex items-center gap-3 shadow-lg">
