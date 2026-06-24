@@ -467,7 +467,7 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 px-4 py-10">
       {gamResult?.leveledUp && !levelUpDismissed && <LevelUpModal gamResult={gamResult} onDismiss={() => setLevelUpDismissed(true)} />}
-      {(gamResult?.leveledUp || score.percent === 100) && <Confetti />}
+      {(gamResult?.leveledUp || score.percent >= 90) && <Confetti />}
       <div className="max-w-2xl mx-auto">
 
         {/* Boss defeated banner */}

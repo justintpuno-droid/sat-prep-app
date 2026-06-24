@@ -711,6 +711,40 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return seen.size
   }, [history])
 
+  // Daily Login Reward
+  const LOGIN_REWARD_KEY = 'sat_prep_login_reward'
+  const [loginReward, setLoginReward] = useState(() => {
+    try {
+      const today = new Date().toISOString().slice(0, 10)
+      const data = JSON.parse(localStorage.getItem(LOGIN_REWARD_KEY) ?? '{}')
+      if (data.lastClaimed === today) return null
+      const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1)
+      const yStr = yesterday.toISOString().slice(0, 10)
+      const consec = data.lastClaimed === yStr ? (data.consecutive ?? 0) + 1 : 1
+      const rewards = [25, 50, 75, 100, 150, 100, 250]
+      const xp = rewards[Math.min(consec - 1, rewards.length - 1)]
+      return { consec, xp, isMilestone: consec === 7 || consec % 7 === 0 }
+    } catch { return null }
+  })
+  const [loginRewardClaimed, setLoginRewardClaimed] = useState(false)
+
+  function claimLoginReward() {
+    if (!loginReward || loginRewardClaimed) return
+    try {
+      const today = new Date().toISOString().slice(0, 10)
+      const prev = JSON.parse(localStorage.getItem(LOGIN_REWARD_KEY) ?? '{}')
+      const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1)
+      const yStr = yesterday.toISOString().slice(0, 10)
+      const consec = prev.lastClaimed === yStr ? (prev.consecutive ?? 0) + 1 : 1
+      localStorage.setItem(LOGIN_REWARD_KEY, JSON.stringify({ lastClaimed: today, consecutive: consec }))
+    } catch {}
+    const updated = { ...loadGamification(), totalXP: (loadGamification().totalXP ?? 0) + loginReward.xp }
+    saveGamification(updated)
+    setGam(updated)
+    setLoginRewardClaimed(true)
+    setTimeout(() => setLoginReward(null), 1500)
+  }
+
   const streakRecovery = useMemo(() => {
     if (streak > 0 || history.length < 3) return null
     const today = new Date()
@@ -1534,6 +1568,36 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 Not yet
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Daily Login Reward modal */}
+      {loginReward && !loginRewardClaimed && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" onClick={claimLoginReward}>
+          <div className="bg-white rounded-3xl p-8 max-w-xs w-full text-center shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="text-5xl mb-3">{loginReward.isMilestone ? '🏆' : '🎁'}</div>
+            <p className="text-xs font-black uppercase tracking-widest text-indigo-400 mb-1">Daily Reward</p>
+            <p className="text-2xl font-black text-gray-900 mb-1">Day {loginReward.consec}</p>
+            {loginReward.isMilestone && <p className="text-xs text-amber-600 font-bold mb-2">7-Day Milestone!</p>}
+            <div className="bg-indigo-600 text-white rounded-2xl px-6 py-4 mb-5">
+              <p className="text-4xl font-black">+{loginReward.xp}</p>
+              <p className="text-sm opacity-80">XP earned</p>
+            </div>
+            <div className="flex gap-1.5 justify-center mb-5">
+              {[25,50,75,100,150,100,250].map((r, i) => (
+                <div key={i} className={`flex-1 rounded-lg py-1 text-[10px] font-bold ${i < loginReward.consec ? 'bg-indigo-600 text-white' : i === loginReward.consec ? 'bg-indigo-100 text-indigo-600 border-2 border-indigo-400' : 'bg-gray-100 text-gray-400'}`}>
+                  {r}
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-gray-400 mb-4">Come back tomorrow for Day {loginReward.consec + 1}!</p>
+            <button
+              onClick={claimLoginReward}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black text-base shadow-lg hover:from-indigo-700 hover:to-violet-700 active:scale-[0.98] transition-all"
+            >
+              {loginRewardClaimed ? '✓ Claimed!' : `Claim +${loginReward.xp} XP →`}
+            </button>
           </div>
         </div>
       )}
