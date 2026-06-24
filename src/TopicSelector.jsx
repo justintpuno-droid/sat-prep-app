@@ -682,6 +682,43 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       .filter(Boolean)
   }, [gam])
 
+  const nearUnlocks = useMemo(() => {
+    const byDomain = {}
+    for (const s of history) for (const q of s.questions) {
+      if (!byDomain[q.domain]) byDomain[q.domain] = { c: 0, t: 0 }
+      byDomain[q.domain].t++
+      if ((s.answers?.[q.id] ?? null) === q.answer) byDomain[q.domain].c++
+    }
+    const hardCorrect = history.reduce((n, s) => {
+      for (const q of s.questions) if (q.difficulty === 3 && (s.answers[q.id] ?? null) === q.answer) n++
+      return n
+    }, 0)
+    const dates = new Set(history.map(s => s.completedAt.slice(0, 10)))
+    const d = new Date(); let streak = 0
+    while (dates.has(d.toISOString().slice(0, 10))) { streak++; d.setDate(d.getDate() - 1) }
+    const totalQ = history.reduce((n, s) => n + s.score.total, 0)
+    const masteredDomains = Object.values(byDomain).filter(v => v.t >= 20 && v.c / v.t >= 0.8).length
+    const progressFor = {
+      'century':      Math.min(100, Math.round((totalQ / 100) * 100)),
+      'five-hundred': Math.min(100, Math.round((totalQ / 500) * 100)),
+      'thousand':     Math.min(100, Math.round((totalQ / 1000) * 100)),
+      'xp-1000':      Math.min(100, Math.round((gam.totalXP / 1000) * 100)),
+      'xp-5000':      Math.min(100, Math.round((gam.totalXP / 5000) * 100)),
+      'xp-10000':     Math.min(100, Math.round((gam.totalXP / 10000) * 100)),
+      'streak-3':     Math.min(100, Math.round((streak / 3) * 100)),
+      'streak-7':     Math.min(100, Math.round((streak / 7) * 100)),
+      'streak-14':    Math.min(100, Math.round((streak / 14) * 100)),
+      'hard-worker':  Math.min(100, Math.round((hardCorrect / 25) * 100)),
+      'hard-elite':   Math.min(100, Math.round((hardCorrect / 50) * 100)),
+      'domain-master-5': Math.min(100, Math.round((masteredDomains / 5) * 100)),
+    }
+    return ACHIEVEMENTS
+      .filter(a => !gam.achievements[a.id] && progressFor[a.id] !== undefined && progressFor[a.id] >= 30)
+      .map(a => ({ ...a, pct: progressFor[a.id] }))
+      .sort((a, b) => b.pct - a.pct)
+      .slice(0, 3)
+  }, [history, gam])
+
   const domainMastery = useMemo(() => {
     const stats = {}
     for (const sess of history) {
@@ -1275,6 +1312,29 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             <div className="min-w-0">
               <p className="text-xs font-bold text-amber-700">Achievement{recentAchievements.length > 1 ? 's' : ''} Unlocked!</p>
               <p className="text-xs text-amber-600 truncate">{recentAchievements.map(a => `${a.icon} ${a.title}`).join(' · ')}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Near-unlock achievements */}
+        {nearUnlocks.length > 0 && (
+          <div className="bg-white border border-indigo-100 rounded-2xl px-4 py-3 mb-4">
+            <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-2.5">Almost there...</p>
+            <div className="space-y-2">
+              {nearUnlocks.map(a => (
+                <div key={a.id} className="flex items-center gap-2.5">
+                  <span className="text-lg shrink-0">{a.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-xs font-semibold text-gray-700 truncate">{a.title}</span>
+                      <span className="text-xs text-indigo-500 font-bold ml-1">{a.pct}%</span>
+                    </div>
+                    <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-400 rounded-full transition-all" style={{ width: `${a.pct}%` }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
