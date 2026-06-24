@@ -539,7 +539,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -3139,6 +3139,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <div className="text-xl mb-1.5">🎯</div>
                 <div className="font-bold text-sm text-teal-900">SAT Timed</div>
                 <div className="text-xs text-teal-600 mt-0.5">Real SAT timing · 1.75× XP</div>
+              </button>
+            )}
+            {onHeartsMode && (
+              <button
+                onClick={onHeartsMode}
+                className="text-left rounded-2xl border-2 border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50 hover:from-rose-100 hover:to-pink-100 hover:border-rose-400 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">❤️</div>
+                <div className="font-bold text-sm text-rose-900">Hearts Mode</div>
+                <div className="text-xs text-rose-500 mt-0.5">5 lives · 2× XP</div>
               </button>
             )}
             {onSuddenDeath && history.length >= 5 && (

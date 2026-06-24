@@ -33,6 +33,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const isTimedChallenge = config.formatLabel === 'Timed Challenge'
   const isHeadToHead = config.formatLabel?.startsWith('Head-to-Head')
   const isSATTimed = config.formatLabel === 'SAT Timed Mode'
+  const isHeartsMode = config.formatLabel === 'Hearts Mode'
   const rival = config.rival ?? null
   const timedSeconds = config.timedChallengeSeconds ?? null
   const hasMathQuestions = questions.some(q => q.subject === 'math')
@@ -61,7 +62,9 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [rivalTotal, setRivalTotal] = useState(0)
   const [satTimeLeft, setSatTimeLeft] = useState(0)
   const [satTimedOut, setSatTimedOut] = useState(false)
-  const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge || isHeadToHead || isSATTimed) ? 3 : 0)
+  const [hearts, setHearts] = useState(isHeartsMode ? 5 : null)
+  const [heartBroken, setHeartBroken] = useState(false)
+  const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge || isHeadToHead || isSATTimed || isHeartsMode) ? 3 : 0)
   const [questionElapsed, setQuestionElapsed] = useState(0)
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
@@ -238,6 +241,16 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     if (isSuddenDeath && !isCorrect) {
       setTimeout(() => finishRef.current(), 1400)
     }
+
+    if (isHeartsMode && !isCorrect) {
+      setHeartBroken(true)
+      setTimeout(() => setHeartBroken(false), 600)
+      setHearts(h => {
+        const next = Math.max(0, (h ?? 1) - 1)
+        if (next === 0) setTimeout(() => finishRef.current(), 1500)
+        return next
+      })
+    }
   }
 
   function handleNext() {
@@ -325,15 +338,16 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         </div>
       )
     }
-    const modeLabel = isBeastMode ? 'BEAST MODE' : isSuddenDeath ? 'SUDDEN DEATH' : isSATTimed ? 'SAT TIMED MODE' : 'TIMED CHALLENGE'
-    const modeColor = isBeastMode ? 'from-slate-900 via-rose-950 to-slate-900' : isSuddenDeath ? 'from-gray-900 via-red-950 to-gray-900' : isSATTimed ? 'from-emerald-700 to-teal-800' : 'from-cyan-600 to-indigo-700'
+    const modeLabel = isBeastMode ? 'BEAST MODE' : isSuddenDeath ? 'SUDDEN DEATH' : isSATTimed ? 'SAT TIMED MODE' : isHeartsMode ? 'HEARTS MODE' : 'TIMED CHALLENGE'
+    const modeColor = isBeastMode ? 'from-slate-900 via-rose-950 to-slate-900' : isSuddenDeath ? 'from-gray-900 via-red-950 to-gray-900' : isSATTimed ? 'from-emerald-700 to-teal-800' : isHeartsMode ? 'from-rose-500 to-pink-600' : 'from-cyan-600 to-indigo-700'
     return (
       <div className={`min-h-screen bg-gradient-to-br ${modeColor} flex flex-col items-center justify-center`}>
         <p className="text-white/60 text-sm font-bold uppercase tracking-widest mb-4">{modeLabel}</p>
+        {isHeartsMode && <p className="text-5xl mb-4">❤️❤️❤️❤️❤️</p>}
         <p className="text-white font-black text-8xl tabular-nums" style={{ textShadow: '0 0 40px rgba(255,255,255,0.4)' }}>
           {countdown}
         </p>
-        <p className="text-white/40 text-sm mt-6">{questions.length} questions</p>
+        <p className="text-white/40 text-sm mt-6">{questions.length} questions · 5 lives</p>
       </div>
     )
   }
@@ -364,6 +378,12 @@ export default function LearningSession({ config, onComplete, onQuit }) {
               : isSATTimed
               ? <span className={`text-xs font-black px-2.5 py-1 rounded-full ${satTimeLeft <= 15 ? 'bg-rose-500 text-white animate-pulse' : satTimeLeft <= 30 ? 'bg-amber-500 text-white' : 'bg-teal-600 text-white'}`}>
                   ⏱ {satTimeLeft}s
+                </span>
+              : isHeartsMode
+              ? <span className={`text-sm font-black tracking-tight ${heartBroken ? 'animate-pulse' : ''}`}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <span key={i} className={i < (hearts ?? 5) ? 'text-rose-500' : 'text-gray-200'}>{i < (hearts ?? 5) ? '❤️' : '🖤'}</span>
+                  ))}
                 </span>
               : <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full">Learning</span>
             }
@@ -548,6 +568,16 @@ export default function LearningSession({ config, onComplete, onQuit }) {
           <div className="mt-3 rounded-xl bg-rose-100 border-2 border-rose-300 px-4 py-2.5 flex items-center gap-2">
             <span className="text-base">⏰</span>
             <p className="text-sm text-rose-800 font-bold">Time's up! On real SAT, move to next question immediately.</p>
+          </div>
+        )}
+        {isHeartsMode && revealed && hearts === 0 && selected !== current.answer && (
+          <div className="mt-3 rounded-xl bg-rose-100 border-2 border-rose-400 px-4 py-2.5 text-center">
+            <p className="text-base font-black text-rose-700">💔 No hearts left — session ending…</p>
+          </div>
+        )}
+        {isHeartsMode && revealed && hearts !== null && hearts <= 1 && hearts > 0 && selected !== current.answer && (
+          <div className="mt-3 rounded-xl bg-amber-50 border border-amber-300 px-4 py-2.5 text-center">
+            <p className="text-sm font-bold text-amber-700">⚠️ Last heart — one more wrong and it's over!</p>
           </div>
         )}
 
