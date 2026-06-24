@@ -184,6 +184,26 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleFlaggedReview() {
+    const history = loadHistory()
+    const byId = Object.fromEntries(allQuestions.map(q => [q.id, q]))
+    const seen = new Set()
+    const flaggedQs = []
+    for (const s of [...history].reverse()) {
+      for (const id of s.flaggedIds ?? []) {
+        if (!seen.has(id) && byId[id]) { seen.add(id); flaggedQs.push(byId[id]) }
+      }
+    }
+    if (flaggedQs.length === 0) return
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Flagged Review',
+      sessionName: null,
+      questions: shuffle(flaggedQs).slice(0, 20),
+    })
+    setScreen('learning')
+  }
+
   function handleQuick5() {
     setSessionConfig({
       mode: 'learning',
@@ -244,7 +264,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')

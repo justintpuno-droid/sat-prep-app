@@ -306,7 +306,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -1022,6 +1022,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               {onQuick5 && (
                 <button onClick={onQuick5} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 border border-indigo-200 bg-indigo-50 rounded-lg px-3 py-1.5 transition-colors" title="Quick 5-question warmup">
                   ⚡ Quick 5
+                </button>
+              )}
+              {onFlaggedReview && totalFlagged > 0 && (
+                <button onClick={onFlaggedReview} className="relative text-xs font-semibold text-amber-700 hover:text-amber-900 border border-amber-200 bg-amber-50 rounded-lg px-3 py-1.5 transition-colors" title={`Review ${totalFlagged} flagged question${totalFlagged !== 1 ? 's' : ''}`}>
+                  🚩 Flagged ({totalFlagged})
                 </button>
               )}
               {onQuestionBank && (
