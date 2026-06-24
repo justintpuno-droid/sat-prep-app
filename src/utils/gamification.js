@@ -116,6 +116,11 @@ export const ACHIEVEMENTS = [
   { id: 'vocab-10',         icon: '📖', title: 'Word Collector',    desc: 'Master 10 SAT vocabulary words' },
   { id: 'vocab-30',         icon: '📚', title: 'Vocabulary Pro',    desc: 'Master 30 SAT vocabulary words' },
   { id: 'vocab-all',        icon: '🎓', title: 'Word Master',       desc: 'Master all 60 SAT vocabulary words' },
+  { id: 'ramp-master',      icon: '📈', title: 'Ramp Master',      desc: 'Complete Ramp Mode with a perfect score (15/15)' },
+  { id: 'hearts-iron',     icon: '💘', title: 'Iron Heart',        desc: 'Complete Hearts Mode without losing a single life' },
+  { id: 'sat-ace',         icon: '🎯', title: 'SAT Ace',           desc: 'Score 90%+ on SAT Timed Mode' },
+  { id: 'scholar',         icon: '🏫', title: 'Scholar',           desc: 'Study on 30 different days' },
+  { id: 'comeback-king',   icon: '👑', title: 'Comeback King',     desc: 'Bounce back from a bad session 3 times (below 60% → 80%+)' },
   // Secret achievements (hidden until unlocked)
   { id: 'midnight-scholar', icon: '🌑', title: 'Midnight Scholar',  desc: '???', hidden: true },
   { id: 'perfect-beast',    icon: '🦁', title: 'Perfect Beast',     desc: '???', hidden: true },
@@ -256,6 +261,11 @@ const CHECKS = {
   'vocab-10':  () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 10 } catch { return false } },
   'vocab-30':  () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 30 } catch { return false } },
   'vocab-all': () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 60 } catch { return false } },
+  'ramp-master':  (h) => h.some(s => s.formatLabel === 'Ramp Mode' && s.score.total === 15 && s.score.correct === 15),
+  'hearts-iron':  (h) => h.some(s => s.formatLabel === 'Hearts Mode' && s.score.percent === 100),
+  'sat-ace':      (h) => h.some(s => s.formatLabel === 'SAT Timed Mode' && s.score.percent >= 90),
+  'scholar':      (h) => { const days = new Set(h.map(s => s.completedAt.slice(0, 10))); return days.size >= 30 },
+  'comeback-king':(h) => { let comebacks = 0; for (let i = 1; i < h.length; i++) { if (h[i-1].score.percent < 60 && h[i].score.percent >= 80) comebacks++ } return comebacks >= 3 },
 }
 
 // ─── Storage ───────────────────────────────────────────────────────────────
