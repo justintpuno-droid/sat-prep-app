@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import QuestionCard from './components/QuestionCard'
 import { useTimer } from './hooks/useTimer'
 import { formatTime, scoreQuestions } from './utils/index'
-import { loadGamification } from './utils/gamification'
+import { loadGamification, saveGamification } from './utils/gamification'
 import { domainById, skillById } from './data/taxonomy'
 
 function BlitzCircle({ seconds }) {
@@ -27,7 +27,7 @@ function BlitzCircle({ seconds }) {
 
 export default function LearningSession({ config, onComplete, onQuit }) {
   const { questions } = config
-  const gam = loadGamification()
+  const [gam, setGam] = useState(() => loadGamification())
   const isBeastMode = config.formatLabel === 'Beast Mode'
   const isBlitzMode = config.formatLabel === 'Blitz Mode'
   const isSuddenDeath = config.formatLabel === 'Sudden Death'
@@ -81,9 +81,15 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     if (wrongOpts.length === 0) return
     const victim = wrongOpts[Math.floor(Math.random() * wrongOpts.length)]
     setEliminated(prev => ({ ...prev, [q.id]: victim.id }))
-    setSessionXP(prev => Math.max(0, prev - 10))
-    setXpFlash({ amount: -10, correct: false, speed: false, id: Date.now() })
-    setTimeout(() => setXpFlash(null), 900)
+    if ((gam.hintCredits ?? 0) > 0) {
+      const next = { ...gam, hintCredits: gam.hintCredits - 1 }
+      saveGamification(next)
+      setGam(next)
+    } else {
+      setSessionXP(prev => Math.max(0, prev - 10))
+      setXpFlash({ amount: -10, correct: false, speed: false, id: Date.now() })
+      setTimeout(() => setXpFlash(null), 900)
+    }
   }
 
   function toggleFlag(id) {
@@ -696,7 +702,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
                     : 'text-indigo-400 border-indigo-200 hover:bg-indigo-50'
                 }`}
               >
-                💡 {eliminated[current.id] ? 'Hint used (−10 XP)' : 'Hint (−10 XP)'}
+                💡 {eliminated[current.id] ? 'Hint used' : (gam.hintCredits ?? 0) > 0 ? `Hint (${gam.hintCredits} left)` : 'Hint (−10 XP)'}
               </button>
             ) : <div />}
           </div>
