@@ -485,6 +485,28 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return seen.size
   }, [history])
 
+  const streakRecovery = useMemo(() => {
+    if (streak > 0 || history.length < 3) return null
+    const today = new Date()
+    const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1)
+    const dayBefore = new Date(today); dayBefore.setDate(today.getDate() - 2)
+    const yStr = yesterday.toISOString().slice(0, 10)
+    const dbStr = dayBefore.toISOString().slice(0, 10)
+    // Check if student had a streak that ended yesterday or day before
+    const studiedDates = new Set(history.map(s => s.completedAt.slice(0, 10)))
+    if (!studiedDates.has(yStr) && !studiedDates.has(dbStr)) return null
+    // Compute what the streak was
+    let prevStreak = 0
+    let d = new Date(yesterday)
+    while (studiedDates.has(d.toISOString().slice(0, 10))) {
+      prevStreak++
+      d.setDate(d.getDate() - 1)
+    }
+    if (prevStreak < 2) return null
+    const todaySessCount = history.filter(s => s.completedAt.startsWith(today.toISOString().slice(0, 10))).length
+    return { prevStreak, todaySessCount }
+  }, [streak, history])
+
   const dailyTip = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10)
     const seed = today.split('-').reduce((a, b) => a + parseInt(b, 10), 0)
@@ -1707,6 +1729,30 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
           )
         })()}
+
+        {/* Streak recovery card */}
+        {streakRecovery && (
+          <div className="bg-gradient-to-r from-rose-50 to-amber-50 border-2 border-rose-200 rounded-2xl p-4 mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">💔</span>
+              <div className="flex-1">
+                <p className="text-sm font-black text-gray-800">Your {streakRecovery.prevStreak}-day streak broke!</p>
+                <p className="text-xs text-gray-600 mt-0.5">
+                  {streakRecovery.todaySessCount >= 2
+                    ? '✅ Comeback complete! Study tomorrow to start a new streak.'
+                    : `Complete ${2 - streakRecovery.todaySessCount} more session${2 - streakRecovery.todaySessCount > 1 ? 's' : ''} today for a +100 XP comeback bonus!`}
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-xs font-bold text-rose-600">{streakRecovery.todaySessCount}/2</p>
+                <p className="text-xs text-gray-400">sessions</p>
+              </div>
+            </div>
+            <div className="mt-2 h-1.5 bg-rose-100 rounded-full overflow-hidden">
+              <div className="h-full bg-rose-400 rounded-full transition-all" style={{ width: `${(streakRecovery.todaySessCount / 2) * 100}%` }} />
+            </div>
+          </div>
+        )}
 
         {/* Recent activity feed */}
         {history.length >= 2 && (
