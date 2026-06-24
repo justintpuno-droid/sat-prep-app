@@ -539,7 +539,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -1509,6 +1509,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               {onSpacedRepetition && srDueCount > 0 && (
                 <button onClick={onSpacedRepetition} className="relative text-xs font-semibold text-teal-700 hover:text-teal-900 border border-teal-200 bg-teal-50 rounded-lg px-3 py-1.5 transition-colors animate-pulse" title={`${srDueCount} question${srDueCount !== 1 ? 's' : ''} scheduled for review today`}>
                   🔁 Due ({srDueCount})
+                </button>
+              )}
+              {onProfile && (
+                <button onClick={onProfile} className="text-xs font-semibold text-gray-600 hover:text-gray-900 border border-gray-200 bg-white rounded-lg px-3 py-1.5 transition-colors" title="Your Profile">
+                  👤 Profile
                 </button>
               )}
               {onMathFlash && (

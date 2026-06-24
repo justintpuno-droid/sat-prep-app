@@ -10,6 +10,7 @@ import AnalyticsScreen from './AnalyticsScreen'
 import AchievementsScreen from './AchievementsScreen'
 import VocabFlash from './VocabFlash'
 import MathFlash from './MathFlash'
+import ProfileScreen from './ProfileScreen'
 import { saveToHistory, loadHistory, recordSRAnswer, getDueReviews, getSRCount } from './utils/history'
 import { loadGamification, saveGamification, processSession } from './utils/gamification'
 import { shuffle } from './utils/index'
@@ -302,7 +303,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
@@ -323,4 +324,6 @@ export default function App() {
     return <VocabFlash onBack={() => setScreen('home')} onXP={xp => { const gam = loadGamification(); saveGamification({ ...gam, totalXP: gam.totalXP + xp }) }} />
   if (screen === 'math-flash')
     return <MathFlash onBack={() => setScreen('home')} />
+  if (screen === 'profile')
+    return <ProfileScreen onBack={() => setScreen('home')} />
 }
