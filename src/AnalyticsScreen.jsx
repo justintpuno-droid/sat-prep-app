@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { loadHistory } from './utils/history'
 import { loadGamification, getLevelInfo, ACHIEVEMENTS } from './utils/gamification'
 import { pct, formatTime, shuffle } from './utils/index'
@@ -34,9 +34,49 @@ function computeStreak(sessions) {
   return streak
 }
 
+const COLLEGES = [
+  { name: 'Harvard University',     sat25: 1580, sat75: 1600 },
+  { name: 'MIT',                    sat25: 1510, sat75: 1580 },
+  { name: 'Stanford University',    sat25: 1500, sat75: 1570 },
+  { name: 'Yale University',        sat25: 1500, sat75: 1570 },
+  { name: 'Princeton University',   sat25: 1510, sat75: 1580 },
+  { name: 'Columbia University',    sat25: 1510, sat75: 1560 },
+  { name: 'UPenn / Wharton',        sat25: 1500, sat75: 1570 },
+  { name: 'Duke University',        sat25: 1500, sat75: 1570 },
+  { name: 'Dartmouth College',      sat25: 1490, sat75: 1570 },
+  { name: 'Northwestern University',sat25: 1510, sat75: 1570 },
+  { name: 'Johns Hopkins',          sat25: 1510, sat75: 1570 },
+  { name: 'Brown University',       sat25: 1490, sat75: 1570 },
+  { name: 'Cornell University',     sat25: 1450, sat75: 1550 },
+  { name: 'Rice University',        sat25: 1490, sat75: 1570 },
+  { name: 'Vanderbilt University',  sat25: 1490, sat75: 1570 },
+  { name: 'Notre Dame',             sat25: 1450, sat75: 1550 },
+  { name: 'Georgetown University',  sat25: 1400, sat75: 1550 },
+  { name: 'Emory University',       sat25: 1430, sat75: 1540 },
+  { name: 'Carnegie Mellon',        sat25: 1460, sat75: 1560 },
+  { name: 'UC Berkeley',            sat25: 1310, sat75: 1530 },
+  { name: 'UCLA',                   sat25: 1290, sat75: 1510 },
+  { name: 'University of Michigan', sat25: 1360, sat75: 1530 },
+  { name: 'UNC Chapel Hill',        sat25: 1290, sat75: 1480 },
+  { name: 'UT Austin',              sat25: 1230, sat75: 1480 },
+  { name: 'Georgia Tech',           sat25: 1360, sat75: 1530 },
+  { name: 'University of Virginia', sat25: 1340, sat75: 1510 },
+  { name: 'Washington University (St. Louis)', sat25: 1500, sat75: 1570 },
+  { name: 'Tufts University',       sat25: 1430, sat75: 1540 },
+  { name: 'Boston University',      sat25: 1330, sat75: 1500 },
+  { name: 'NYU',                    sat25: 1300, sat75: 1510 },
+  { name: 'Purdue University',      sat25: 1180, sat75: 1430 },
+  { name: 'Penn State',             sat25: 1170, sat75: 1380 },
+  { name: 'University of Florida',  sat25: 1290, sat75: 1460 },
+  { name: 'Ohio State University',  sat25: 1260, sat75: 1470 },
+  { name: 'Indiana University',     sat25: 1150, sat75: 1380 },
+  { name: 'Arizona State',          sat25: 1100, sat75: 1350 },
+]
+
 export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements }) {
   const sessions = useMemo(() => loadHistory(), [])
   const gam = useMemo(() => loadGamification(), [])
+  const [collegeSearch, setCollegeSearch] = useState('')
   const levelInfo = useMemo(() => getLevelInfo(gam.totalXP), [gam])
   const achievementsCount = Object.keys(gam.achievements).length
   const weekXP = useMemo(() => {
@@ -865,6 +905,60 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                     })}
                   </div>
                   {next && <p className="text-xs text-gray-400 mt-3 text-center">+{next.min - mid} pts to unlock <span className="font-semibold text-indigo-600">{next.label}</span></p>}
+                </div>
+              )
+            })()}
+
+            {/* College SAT Range Lookup */}
+            {stats.scoreEstimate && (() => {
+              const mid = Math.round((stats.scoreEstimate.lo + stats.scoreEstimate.hi) / 2)
+              const q = collegeSearch.toLowerCase()
+              const matches = q.length < 2 ? [] : COLLEGES.filter(c => c.name.toLowerCase().includes(q)).slice(0, 5)
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">College SAT Lookup</p>
+                  <input
+                    type="text"
+                    value={collegeSearch}
+                    onChange={e => setCollegeSearch(e.target.value)}
+                    placeholder="🎓 Search a college…"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-gray-700"
+                  />
+                  {matches.length === 0 && q.length >= 2 && (
+                    <p className="text-xs text-gray-400 text-center py-2">No matches — try another spelling</p>
+                  )}
+                  {matches.length === 0 && q.length < 2 && (
+                    <p className="text-xs text-gray-400">Type a school name to see if you're in range. Your est. score: <span className="font-bold text-indigo-600">~{mid}</span></p>
+                  )}
+                  <div className="space-y-2">
+                    {matches.map(college => {
+                      const avg = Math.round((college.sat25 + college.sat75) / 2)
+                      const inRange = mid >= college.sat25 && mid <= college.sat75
+                      const above = mid > college.sat75
+                      const gap25 = college.sat25 - mid
+                      const gap75 = college.sat75 - mid
+                      const barW = Math.min(100, Math.max(0, ((mid - college.sat25) / (college.sat75 - college.sat25)) * 100))
+                      return (
+                        <div key={college.name} className={`rounded-xl p-3 border ${above ? 'bg-emerald-50 border-emerald-200' : inRange ? 'bg-indigo-50 border-indigo-200' : 'bg-rose-50 border-rose-100'}`}>
+                          <div className="flex items-start justify-between gap-2 mb-1.5">
+                            <p className="text-sm font-bold text-gray-800 leading-snug">{college.name}</p>
+                            <span className={`text-xs font-bold shrink-0 px-2 py-0.5 rounded-full ${above ? 'bg-emerald-100 text-emerald-700' : inRange ? 'bg-indigo-100 text-indigo-700' : 'bg-rose-100 text-rose-600'}`}>
+                              {above ? '✓ Above' : inRange ? '✓ In range' : `${gap25}+ pts needed`}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-gray-400 mb-1.5">Middle 50%: {college.sat25}–{college.sat75} · avg ~{avg}</p>
+                          <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="absolute inset-y-0 left-0 bg-gray-300 rounded-full" style={{ width: '100%' }} />
+                            <div className={`absolute inset-y-0 left-0 rounded-full ${above ? 'bg-emerald-400' : inRange ? 'bg-indigo-400' : 'bg-rose-300'}`}
+                              style={{ width: `${Math.max(2, barW)}%` }} />
+                          </div>
+                          {!above && !inRange && gap25 > 0 && (
+                            <p className="text-[10px] text-rose-500 mt-1">Need +{gap25} pts to reach the 25th percentile ({college.sat25})</p>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               )
             })()}
