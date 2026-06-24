@@ -164,6 +164,8 @@ export default function ProfileScreen({ onBack }) {
               { label: 'Hard Qs Correct', value: stats.hardCorrect, sub: 'difficulty level 3', color: 'text-rose-600' },
               { label: 'Best Session', value: `${stats.bestPct}%`, sub: 'all-time high', color: 'text-amber-600' },
               { label: 'Best Combo', value: `${stats.bestCombo}x`, sub: 'consecutive correct', color: 'text-orange-600' },
+              { label: 'Time Studied', value: stats.totalTime >= 3600 ? `${Math.round(stats.totalTime / 3600)}h` : `${Math.round(stats.totalTime / 60)}m`, sub: 'total study time', color: 'text-teal-600' },
+              { label: 'Avg Accuracy', value: `${stats.overallPct}%`, sub: `${history.length} sessions`, color: 'text-blue-600' },
             ].map(s => (
               <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-4">
                 <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
@@ -259,6 +261,24 @@ export default function ProfileScreen({ onBack }) {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Danger zone */}
+        <div className="mt-4 border border-gray-200 rounded-2xl p-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Data & Privacy</p>
+          <button
+            onClick={() => {
+              if (window.confirm('Reset all progress? This cannot be undone.')) {
+                const keys = ['sat_prep_gamification','sat_prep_history','sat_prep_goal','sat_prep_qod','sat_prep_boost_active','sat_prep_sr','sat_prep_spin','sat_prep_vocab','sat_prep_math_flash','sat_prep_daily_challenges','sat_prep_avatar','sat_prep_boss','sat_prep_qoh','sat_prep_wrong_journal','sat_prep_study_hour','sat_prep_score_milestones','sat_prep_onboarded']
+                keys.forEach(k => localStorage.removeItem(k))
+                window.location.reload()
+              }
+            }}
+            className="w-full py-2.5 rounded-xl border border-rose-200 text-rose-600 text-sm font-semibold hover:bg-rose-50 transition-colors"
+          >
+            Reset All Progress
+          </button>
+          <p className="text-[10px] text-gray-400 mt-1.5 text-center">Clears sessions, XP, achievements, and all saved data.</p>
         </div>
 
       </div>
