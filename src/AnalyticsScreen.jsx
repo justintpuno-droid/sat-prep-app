@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { loadHistory } from './utils/history'
 import { loadGamification, getLevelInfo, ACHIEVEMENTS } from './utils/gamification'
 import { pct, formatTime, shuffle } from './utils/index'
-import { domainById } from './data/taxonomy'
+import { domainById, skillById } from './data/taxonomy'
 
 function barColor(p) {
   return p >= 80 ? 'bg-emerald-500' : p >= 60 ? 'bg-amber-500' : 'bg-rose-500'
@@ -99,6 +99,21 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     ].filter(({ d }) => byDiff[d].total > 0).map(({ d, label, color, text }) => ({
       label, color, text, ...byDiff[d], p: pct(byDiff[d].correct, byDiff[d].total)
     }))
+
+    // Skill-level breakdown
+    const bySkill = {}
+    for (const sess of sessions) {
+      for (const q of sess.questions) {
+        if (!q.skill) continue
+        if (!bySkill[q.skill]) bySkill[q.skill] = { correct: 0, total: 0, domain: q.domain }
+        bySkill[q.skill].total++
+        if ((sess.answers[q.id] ?? null) === q.answer) bySkill[q.skill].correct++
+      }
+    }
+    const skillList = Object.entries(bySkill)
+      .filter(([, s]) => s.total >= 5)
+      .map(([id, s]) => ({ id, label: skillById[id]?.label ?? id.replace(/-/g, ' '), ...s, p: pct(s.correct, s.total) }))
+      .sort((a, b) => a.p - b.p)
 
     // Weak questions: most frequently missed across all sessions (deduplicated by question ID)
     const qStats = {}
@@ -376,7 +391,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       .map(([id, v]) => ({ id, label: (domainList.find(d => d.id === id) || {}).label ?? id, avg: Math.round(v.sum / v.n) }))
       .sort((a, b) => b.avg - a.avg)
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend, speedByDomainList, calGrid, monthlyAccuracy }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, skillList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend, speedByDomainList, calGrid, monthlyAccuracy }
   }, [sessions])
 
   return (
@@ -1221,6 +1236,37 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 )
               })()}
             </div>
+
+            {/* Skill breakdown */}
+            {stats.skillList.length >= 3 && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 mt-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">Skill Breakdown</p>
+                <p className="text-xs text-gray-400 mb-4">Your accuracy on specific SAT skill types (min 5 attempts)</p>
+                <div className="space-y-3">
+                  {stats.skillList.slice(0, 12).map(sk => (
+                    <div key={sk.id}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-700 font-medium leading-tight capitalize">{sk.label}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-400">{sk.correct}/{sk.total}</span>
+                          <span className={`text-xs font-bold w-8 text-right ${textColor(sk.p)}`}>{sk.p}%</span>
+                        </div>
+                      </div>
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className={`h-full ${barColor(sk.p)} rounded-full`} style={{ width: `${sk.p}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {stats.skillList.length > 0 && (
+                  <div className="mt-4 p-3 bg-rose-50 border border-rose-100 rounded-xl">
+                    <p className="text-xs font-semibold text-rose-600">Weakest skill</p>
+                    <p className="text-sm font-bold text-gray-800 capitalize">{stats.skillList[0].label}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{stats.skillList[0].p}% accuracy — target this for the biggest score gain</p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Speed by domain */}
             {stats.speedByDomainList.length >= 3 && (
