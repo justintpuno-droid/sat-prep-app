@@ -41,6 +41,7 @@ export default function QuestionBank({ onBack, onPractice }) {
   const [pageSize, setPageSize] = useState(10)
   const [page, setPage] = useState(1)
   const [expandedQ, setExpandedQ] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Domains visible in sidebar based on section selection
   const visibleDomains = useMemo(
@@ -82,15 +83,18 @@ export default function QuestionBank({ onBack, onPractice }) {
     setPage(1)
   }
 
-  const filtered = useMemo(
-    () => allQuestions.filter(q =>
-      (section === 'all' || q.subject === section) &&
-      selectedDomains.has(q.domain) &&
-      diffFilter.has(q.difficulty) &&
-      (skillFilter === 'all' || q.skill === skillFilter)
-    ),
-    [section, selectedDomains, diffFilter, skillFilter]
-  )
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    return allQuestions.filter(x =>
+      (section === 'all' || x.subject === section) &&
+      selectedDomains.has(x.domain) &&
+      diffFilter.has(x.difficulty) &&
+      (skillFilter === 'all' || x.skill === skillFilter) &&
+      (!q || x.question.toLowerCase().includes(q) ||
+        x.options?.some(o => o.text?.toLowerCase().includes(q)) ||
+        DOMAIN_MAP[x.domain]?.label?.toLowerCase().includes(q))
+    )
+  }, [section, selectedDomains, diffFilter, skillFilter, searchQuery])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
   const safePage = Math.min(page, totalPages)
@@ -187,6 +191,17 @@ export default function QuestionBank({ onBack, onPractice }) {
 
           {/* ── Main content ──────────────────────────────────────────────── */}
           <div className="flex-1 min-w-0">
+
+            {/* Search bar */}
+            <div className="mb-3">
+              <input
+                type="search"
+                placeholder="Search questions, domains, or answer choices…"
+                value={searchQuery}
+                onChange={e => { setSearchQuery(e.target.value); setPage(1) }}
+                className="w-full text-sm border border-gray-200 rounded-xl px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 placeholder-gray-300 transition-all"
+              />
+            </div>
 
             {/* Top filters bar */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-4 py-3 mb-4 flex flex-wrap items-center gap-4">
