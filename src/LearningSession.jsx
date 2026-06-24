@@ -68,6 +68,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [heartBroken, setHeartBroken] = useState(false)
   const [survivalWrongStreak, setSurvivalWrongStreak] = useState(0)
   const [survivalBest, setSurvivalBest] = useState(0)
+  const [confidenceMap, setConfidenceMap] = useState({})
   const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge || isHeadToHead || isSATTimed || isHeartsMode || isSurvivalMode) ? 3 : 0)
   const [questionElapsed, setQuestionElapsed] = useState(0)
   const questionStartRef = useRef(Date.now())
@@ -302,6 +303,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       maxCombo: maxComboRef.current,
       xpMultiplier: config.xpMultiplier ?? 1.0,
       questionTimings: questionTimingsRef.current,
+      confidenceMap,
     })
   }
 
@@ -709,24 +711,40 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         )}
 
         {revealed && !isBlitzMode && (
-          <div className="mt-4 flex items-center gap-3">
-            <button
-              onClick={() => toggleFlag(current.id)}
-              className={`flex items-center gap-1.5 text-xs transition-colors px-2 py-1 rounded-lg shrink-0 ${
-                flagged.has(current.id)
-                  ? 'text-amber-500 bg-amber-50'
-                  : 'text-gray-300 hover:text-amber-400 hover:bg-amber-50'
-              }`}
-              title={flagged.has(current.id) ? 'Remove flag' : 'Flag for review'}
-            >
-              🚩 {flagged.has(current.id) ? 'Flagged' : 'Flag'}
-            </button>
-            <button
-              onClick={handleNext}
-              className="flex-1 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors"
-            >
-              {isLast ? 'Finish Session' : 'Next Question →'}
-            </button>
+          <div className="mt-4 space-y-2.5">
+            {!confidenceMap[current.id] && (
+              <div className="flex gap-2">
+                <span className="text-xs text-gray-400 self-center shrink-0">Confidence:</span>
+                {[['🤔', 'Guessed', 'bg-gray-100 text-gray-600 hover:bg-gray-200'], ['😐', 'Unsure', 'bg-amber-50 text-amber-700 hover:bg-amber-100'], ['💪', 'Confident', 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100']].map(([icon, label, cls]) => (
+                  <button key={label} onClick={() => setConfidenceMap(m => ({ ...m, [current.id]: label }))}
+                    className={`flex-1 text-xs font-semibold px-2 py-1.5 rounded-lg transition-all ${cls}`}>
+                    {icon} {label}
+                  </button>
+                ))}
+              </div>
+            )}
+            {confidenceMap[current.id] && (
+              <p className="text-xs text-gray-400 text-center">Logged: {confidenceMap[current.id]} {confidenceMap[current.id] === 'Confident' ? '💪' : confidenceMap[current.id] === 'Unsure' ? '😐' : '🤔'}</p>
+            )}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => toggleFlag(current.id)}
+                className={`flex items-center gap-1.5 text-xs transition-colors px-2 py-1 rounded-lg shrink-0 ${
+                  flagged.has(current.id)
+                    ? 'text-amber-500 bg-amber-50'
+                    : 'text-gray-300 hover:text-amber-400 hover:bg-amber-50'
+                }`}
+                title={flagged.has(current.id) ? 'Remove flag' : 'Flag for review'}
+              >
+                🚩 {flagged.has(current.id) ? 'Flagged' : 'Flag'}
+              </button>
+              <button
+                onClick={handleNext}
+                className="flex-1 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors"
+              >
+                {isLast ? 'Finish Session' : 'Next Question →'}
+              </button>
+            </div>
           </div>
         )}
       </div>

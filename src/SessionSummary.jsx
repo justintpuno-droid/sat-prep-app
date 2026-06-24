@@ -677,6 +677,36 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           )
         })()}
 
+        {/* Confidence calibration */}
+        {(() => {
+          const cm = session.confidenceMap ?? {}
+          if (Object.keys(cm).length < 3) return null
+          const confident = questions.filter(q => cm[q.id] === 'Confident')
+          const confWrong = confident.filter(q => (answers[q.id] ?? null) !== q.answer)
+          const guessed = questions.filter(q => cm[q.id] === 'Guessed')
+          const guessRight = guessed.filter(q => (answers[q.id] ?? null) === q.answer)
+          if (confWrong.length === 0 && guessRight.length === 0) return null
+          return (
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">🎯 Confidence Calibration</p>
+              <div className="space-y-2">
+                {confWrong.length > 0 && (
+                  <div className="rounded-xl bg-rose-50 border border-rose-100 px-3 py-2">
+                    <p className="text-xs font-bold text-rose-700">😮 Overconfident: {confWrong.length} wrong despite 'Confident'</p>
+                    <p className="text-xs text-rose-500 mt-0.5">These are your blind spots — review them carefully.</p>
+                  </div>
+                )}
+                {guessRight.length > 0 && (
+                  <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2">
+                    <p className="text-xs font-bold text-amber-700">🍀 Lucky guess: {guessRight.length} correct despite 'Guessed'</p>
+                    <p className="text-xs text-amber-500 mt-0.5">Don't rely on guesses — make sure you know why these are right.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Score predictor (full adaptive tests only) */}
         {SCORE_PREDICTOR_FORMATS.has(format) && phaseData?.length > 0 && phaseData.every(p => p.gotHardMod2 !== null) && (
           <ScorePredictor phaseData={phaseData} answers={answers} />
