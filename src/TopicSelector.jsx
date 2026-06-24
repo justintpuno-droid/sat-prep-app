@@ -614,7 +614,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onSkillFocus, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, onStrategyGuide, onStudyNotes, onGrammarRef, onMathRef, onDigitalSAT, onBreathing, onScoreCalculator, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onSkillFocus, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, onStrategyGuide, onStudyNotes, onGrammarRef, onMathRef, onDigitalSAT, onBreathing, onScoreCalculator, onConfidenceBooster, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -1820,6 +1820,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               {onFlaggedReview && totalFlagged > 0 && (
                 <button onClick={onFlaggedReview} className="relative text-xs font-semibold text-amber-700 hover:text-amber-900 border border-amber-200 bg-amber-50 rounded-lg px-3 py-1.5 transition-colors" title={`Review ${totalFlagged} flagged question${totalFlagged !== 1 ? 's' : ''}`}>
                   🚩 Flagged ({totalFlagged})
+                </button>
+              )}
+              {onConfidenceBooster && history.length >= 5 && (
+                <button onClick={onConfidenceBooster} className="text-xs font-semibold text-emerald-700 hover:text-emerald-900 border border-emerald-200 bg-emerald-50 rounded-lg px-3 py-1.5 transition-colors" title="10 questions you've already mastered — great before the exam!">
+                  💪 Confidence Boost
                 </button>
               )}
               {onSpacedRepetition && srDueCount > 0 && (

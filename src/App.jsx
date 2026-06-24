@@ -296,6 +296,25 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleConfidenceBooster() {
+    const history = loadHistory()
+    const correctIds = new Set()
+    for (const s of history) {
+      for (const q of s.questions) {
+        if ((s.answers?.[q.id] ?? null) === q.answer) correctIds.add(q.id)
+      }
+    }
+    const pool = allQuestions.filter(q => correctIds.has(q.id))
+    const questions = shuffle(pool).slice(0, Math.min(pool.length, 10))
+    if (questions.length === 0) {
+      const fallback = shuffle(allQuestions.filter(q => q.difficulty === 1)).slice(0, 10)
+      setSessionConfig({ mode: 'learning', formatLabel: 'Confidence Booster', sessionName: null, questions: fallback })
+    } else {
+      setSessionConfig({ mode: 'learning', formatLabel: 'Confidence Booster', sessionName: null, questions })
+    }
+    setScreen('learning')
+  }
+
   function handlePowerHour() {
     const pool = [...shuffle(allQuestions), ...shuffle(allQuestions)].slice(0, 80)
     setSessionConfig({
@@ -405,7 +424,7 @@ export default function App() {
     return <Onboarding onDone={() => setOnboarded(true)} />
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onSkillFocus={handleSkillFocus} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} onSATTimed={handleSATTimed} onHeartsMode={handleHeartsMode} onSurvivalMode={handleSurvivalMode} onRampMode={handleRampMode} onWrongJournal={() => setScreen('wrong-journal')} onQuickAssessment={handleQuickAssessment} onPowerHour={handlePowerHour} onStrategyGuide={() => setScreen('strategy-guide')} onStudyNotes={() => setScreen('study-notes')} onGrammarRef={() => setScreen('grammar-ref')} onMathRef={() => setScreen('math-ref')} onDigitalSAT={() => setScreen('digital-sat')} onBreathing={() => setScreen('breathing')} onScoreCalculator={() => setScreen('score-calculator')} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onSkillFocus={handleSkillFocus} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} onSATTimed={handleSATTimed} onHeartsMode={handleHeartsMode} onSurvivalMode={handleSurvivalMode} onRampMode={handleRampMode} onWrongJournal={() => setScreen('wrong-journal')} onQuickAssessment={handleQuickAssessment} onPowerHour={handlePowerHour} onStrategyGuide={() => setScreen('strategy-guide')} onStudyNotes={() => setScreen('study-notes')} onGrammarRef={() => setScreen('grammar-ref')} onMathRef={() => setScreen('math-ref')} onDigitalSAT={() => setScreen('digital-sat')} onBreathing={() => setScreen('breathing')} onScoreCalculator={() => setScreen('score-calculator')} onConfidenceBooster={handleConfidenceBooster} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
