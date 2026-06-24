@@ -728,6 +728,27 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
   })
   const [loginRewardClaimed, setLoginRewardClaimed] = useState(false)
 
+  const MOOD_KEY = 'sat_prep_mood'
+  const [mood, setMood] = useState(() => {
+    try {
+      const d = JSON.parse(localStorage.getItem(MOOD_KEY) ?? '{}')
+      return d.date === new Date().toISOString().slice(0, 10) ? d.mood : null
+    } catch { return null }
+  })
+  function saveMood(m) {
+    try { localStorage.setItem(MOOD_KEY, JSON.stringify({ date: new Date().toISOString().slice(0, 10), mood: m })) } catch {}
+    setMood(m)
+  }
+
+  const MOODS = [
+    { id: 'energized', icon: '💪', label: 'Energized', color: 'bg-emerald-500', lightBg: 'bg-emerald-50', text: 'text-emerald-700', suggestion: 'Beast Mode', suggestDesc: 'Push your limits today!', action: onBeastMode },
+    { id: 'focused',   icon: '🎯', label: 'Focused',   color: 'bg-indigo-500', lightBg: 'bg-indigo-50', text: 'text-indigo-700',  suggestion: 'SAT Timed',  suggestDesc: 'Simulate real exam conditions.', action: onSATTimed },
+    { id: 'okay',      icon: '😊', label: 'Okay',      color: 'bg-amber-400',  lightBg: 'bg-amber-50',  text: 'text-amber-700',  suggestion: 'Quick Practice', suggestDesc: 'A solid 15-question session.', action: onQuickPractice },
+    { id: 'tired',     icon: '😴', label: 'Tired',     color: 'bg-blue-400',   lightBg: 'bg-blue-50',   text: 'text-blue-700',   suggestion: 'Blitz Mode',  suggestDesc: 'Short and punchy — just 15 min.', action: onBlitzMode },
+    { id: 'confused',  icon: '😕', label: 'Stuck',     color: 'bg-violet-500', lightBg: 'bg-violet-50', text: 'text-violet-700', suggestion: 'Wrong Answer Sprint', suggestDesc: 'Review mistakes to unlock patterns.', action: onWrongAnswerSprint },
+  ]
+  const currentMood = MOODS.find(m => m.id === mood)
+
   function claimLoginReward() {
     if (!loginReward || loginRewardClaimed) return
     try {
@@ -3349,6 +3370,44 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-0.5">Today's Insight</p>
               <p className="text-sm text-indigo-900 font-medium leading-snug">{personalInsight.text}</p>
             </div>
+          </div>
+        )}
+
+        {/* Mood Check-in */}
+        {!mood ? (
+          <div className="bg-white border-2 border-gray-100 rounded-2xl p-4 mb-4">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">How are you feeling today?</p>
+            <div className="flex gap-2 flex-wrap">
+              {MOODS.map(m => (
+                <button
+                  key={m.id}
+                  onClick={() => saveMood(m.id)}
+                  className="flex-1 min-w-[72px] flex flex-col items-center gap-1 py-2.5 rounded-xl border-2 border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all"
+                >
+                  <span className="text-xl">{m.icon}</span>
+                  <span className="text-[10px] font-bold text-gray-500">{m.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : currentMood && (
+          <div className={`${currentMood.lightBg} border-2 rounded-2xl p-4 mb-4 flex items-center justify-between gap-3`} style={{ borderColor: '' }}>
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="text-2xl shrink-0">{currentMood.icon}</span>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Mood · {currentMood.label}</p>
+                <p className={`text-sm font-bold ${currentMood.text} truncate`}>Try: {currentMood.suggestion}</p>
+                <p className="text-xs text-gray-400">{currentMood.suggestDesc}</p>
+              </div>
+            </div>
+            {currentMood.action && (
+              <button
+                onClick={currentMood.action}
+                className={`shrink-0 text-xs font-bold text-white px-3 py-2 rounded-xl transition-colors ${currentMood.color} hover:opacity-90`}
+              >
+                Go →
+              </button>
+            )}
           </div>
         )}
 
