@@ -354,6 +354,20 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return { id, label: domainById[id]?.label ?? id, pct: Math.round((st.correct / st.total) * 100), daysSince }
   }, [history])
 
+  const scoreEstimate = useMemo(() => {
+    const eligible = history.filter(s => s.score.total >= 10).slice(-20)
+    if (eligible.length < 3) return null
+    const avgAcc = eligible.reduce((sum, x) => sum + x.score.percent, 0) / eligible.length / 100
+    const map = [
+      [0.95, 1450, 1550], [0.90, 1350, 1450], [0.85, 1250, 1350],
+      [0.80, 1150, 1250], [0.75, 1050, 1150], [0.70, 950, 1050],
+      [0.65, 850, 950],   [0.60, 750, 850],   [0.55, 650, 750], [0, 400, 649],
+    ]
+    const band = map.find(([thresh]) => avgAcc >= thresh)
+    if (!band) return null
+    return { lo: band[1], hi: band[2] }
+  }, [history])
+
   const bestStudyTime = useMemo(() => {
     if (history.length < 8) return null
     const tod = { morning: { c: 0, t: 0 }, afternoon: { c: 0, t: 0 }, evening: { c: 0, t: 0 } }
@@ -909,6 +923,18 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </>
           )}
         </div>
+
+        {/* SAT Score Estimate */}
+        {scoreEstimate && (
+          <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+            <span className="text-lg shrink-0">📊</span>
+            <div>
+              <p className="text-xs text-indigo-400 font-semibold uppercase tracking-widest">Est. SAT Score</p>
+              <p className="text-xl font-black text-indigo-700">{scoreEstimate.lo}–{scoreEstimate.hi}</p>
+            </div>
+            <p className="text-xs text-indigo-300 ml-auto">out of 1600</p>
+          </div>
+        )}
 
         {/* Exam readiness composite score */}
         {examReadiness && (

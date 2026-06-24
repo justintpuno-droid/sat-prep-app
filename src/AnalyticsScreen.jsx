@@ -307,7 +307,24 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     // Questions per minute efficiency
     const qPerMin = totalTime > 0 ? (totalQ / (totalTime / 60)).toFixed(1) : null
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy }
+    // SAT score estimator
+    let scoreEstimate = null
+    {
+      const eligible = sessions.filter(s => s.score.total >= 10).slice(-20)
+      if (eligible.length >= 3) {
+        const avgAcc = eligible.reduce((s, x) => s + x.score.percent, 0) / eligible.length / 100
+        const map = [
+          [0.95, 1450, 1550], [0.90, 1350, 1450], [0.85, 1250, 1350],
+          [0.80, 1150, 1250], [0.75, 1050, 1150], [0.70, 950, 1050],
+          [0.65, 850, 950],   [0.60, 750, 850],   [0.55, 650, 750],
+          [0, 400, 649],
+        ]
+        const band = map.find(([thresh]) => avgAcc >= thresh)
+        scoreEstimate = { lo: band[1], hi: band[2], acc: Math.round(avgAcc * 100), sessions: eligible.length }
+      }
+    }
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate }
   }, [sessions])
 
   return (
@@ -547,6 +564,29 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 </div>
               )}
             </div>
+
+            {/* SAT Score Estimate */}
+            {stats.scoreEstimate && (
+              <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-5 mb-4 text-white">
+                <p className="text-xs font-semibold uppercase tracking-widest opacity-70 mb-1">Estimated SAT Score</p>
+                <div className="flex items-end gap-3">
+                  <div>
+                    <p className="text-4xl font-black leading-none">{stats.scoreEstimate.lo}–{stats.scoreEstimate.hi}</p>
+                    <p className="text-sm opacity-70 mt-1">Based on {stats.scoreEstimate.sessions} sessions · {stats.scoreEstimate.acc}% avg accuracy</p>
+                  </div>
+                  <div className="ml-auto shrink-0 text-right">
+                    <p className="text-xs opacity-60">Out of 1600</p>
+                    <div className="w-20 h-2 bg-white/20 rounded-full overflow-hidden mt-1">
+                      <div className="h-full bg-white rounded-full" style={{ width: `${Math.round(((stats.scoreEstimate.lo - 400) / 1200) * 100)}%` }} />
+                    </div>
+                    <p className="text-xs opacity-60 mt-1">
+                      {stats.scoreEstimate.hi >= 1400 ? '🎯 Excellent range!' : stats.scoreEstimate.hi >= 1200 ? '📈 Keep pushing!' : '💪 Great progress!'}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs opacity-50 mt-3">* Rough estimate. Take a full practice test for accurate scoring.</p>
+              </div>
+            )}
 
             {/* Personal records */}
             {sessions.length >= 3 && stats.personalRecords && (
