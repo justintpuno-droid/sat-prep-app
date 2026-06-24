@@ -55,6 +55,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [eliminated, setEliminated] = useState({}) // questionId → eliminated option id
   const [wrongStreak, setWrongStreak] = useState(0)
   const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge) ? 3 : 0)
+  const [questionElapsed, setQuestionElapsed] = useState(0)
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
   const timer = useTimer()
@@ -79,6 +80,13 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     const t = setInterval(() => setCountdown(c => { if (c <= 1) { clearInterval(t); timer.start(); return 0 } return c - 1 }), 700)
     return () => clearInterval(t)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Per-question pacing ticker
+  useEffect(() => {
+    if (revealed || countdown > 0) return
+    const t = setInterval(() => setQuestionElapsed(s => s + 1), 1000)
+    return () => clearInterval(t)
+  }, [revealed, countdown, index])
 
   // Auto-pause when tab is hidden (prevents timer drift and XP inflation)
   useEffect(() => {
@@ -190,7 +198,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       setTimeout(() => {
         if (blitzFinishedRef.current) return
         if (isLastRef.current) { blitzFinishedRef.current = true; finishRef.current() }
-        else { setIndex(i => i + 1); setRevealed(false); questionStartRef.current = Date.now() }
+        else { setIndex(i => i + 1); setRevealed(false); setQuestionElapsed(0); questionStartRef.current = Date.now() }
       }, 650)
     }
 
@@ -201,7 +209,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
 
   function handleNext() {
     if (isLast) finish()
-    else { setIndex(i => i + 1); setRevealed(false); questionStartRef.current = Date.now() }
+    else { setIndex(i => i + 1); setRevealed(false); setQuestionElapsed(0); questionStartRef.current = Date.now() }
   }
 
   function finish() {
@@ -404,6 +412,24 @@ export default function LearningSession({ config, onComplete, onQuit }) {
 
       {/* Body */}
       <div className="max-w-2xl mx-auto px-4 py-8">
+        {/* Per-question pacing bar: target ~85s per SAT question */}
+        {!revealed && countdown <= 0 && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-400">Time on question</span>
+              <span className={`text-xs font-semibold ${questionElapsed > 120 ? 'text-rose-500' : questionElapsed > 85 ? 'text-amber-500' : 'text-gray-400'}`}>
+                {questionElapsed}s {questionElapsed > 120 ? '⚡ Speed up!' : questionElapsed > 85 ? '⏳ Getting slow' : ''}
+              </span>
+            </div>
+            <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-1000 ${questionElapsed > 120 ? 'bg-rose-400' : questionElapsed > 85 ? 'bg-amber-400' : 'bg-emerald-400'}`}
+                style={{ width: `${Math.min(100, (questionElapsed / 150) * 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-3 mb-5">
           <p className="text-xs text-gray-400">Question {index + 1} of {questions.length}</p>
           {(index + 1) % 7 === 0 && !revealed && (
