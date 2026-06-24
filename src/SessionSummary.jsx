@@ -464,6 +464,23 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
                 </div>
               )}
               {timeLimit && <div className="text-xs text-gray-400">Limit: {formatTime(timeLimit)}</div>}
+              {/* Difficulty distribution */}
+              {(() => {
+                const counts = { 1: 0, 2: 0, 3: 0 }
+                for (const q of questions) counts[q.difficulty ?? 2]++
+                if (counts[1] + counts[2] + counts[3] === 0) return null
+                const parts = []
+                if (counts[1]) parts.push(`E:${counts[1]}`)
+                if (counts[2]) parts.push(`M:${counts[2]}`)
+                if (counts[3]) parts.push(`H:${counts[3]}`)
+                return (
+                  <div className="flex gap-1.5">
+                    {counts[1] > 0 && <span className="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full">Easy ×{counts[1]}</span>}
+                    {counts[2] > 0 && <span className="text-xs px-2 py-0.5 bg-amber-50 text-amber-600 rounded-full">Med ×{counts[2]}</span>}
+                    {counts[3] > 0 && <span className="text-xs px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full">Hard ×{counts[3]}</span>}
+                  </div>
+                )
+              })()}
             </div>
           </div>
 

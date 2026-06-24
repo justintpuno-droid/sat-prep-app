@@ -198,6 +198,22 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     const biasTotal = Object.values(wrongChoices).reduce((a, b) => a + b, 0)
     const answerBias = biasTotal >= 20 ? wrongChoices : null
 
+    // Personal records
+    let bestSessionPct = 0, bestSessionDate = null, bestComboAll = 0, maxXPDay = 0
+    for (const s of sessions) {
+      if (s.score.percent > bestSessionPct) { bestSessionPct = s.score.percent; bestSessionDate = s.completedAt?.slice(0, 10) }
+      if ((s.maxCombo ?? 0) > bestComboAll) bestComboAll = s.maxCombo
+    }
+    // XP per day from xpLog on gam object is not available here; approximate from history
+    const xpByDay = {}
+    for (const s of sessions) {
+      const day = s.completedAt?.slice(0, 10)
+      if (!day) continue
+      xpByDay[day] = (xpByDay[day] ?? 0) + s.score.correct * 10 + (s.score.total - s.score.correct) * 5
+    }
+    maxXPDay = Math.max(0, ...Object.values(xpByDay))
+    const personalRecords = { bestSessionPct, bestSessionDate, bestComboAll, maxXPDay }
+
     // Wrong answer position analysis: do wrong answers cluster at start/middle/end?
     let positionAnalysis = null
     {
@@ -224,7 +240,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     // Questions per minute efficiency
     const qPerMin = totalTime > 0 ? (totalQ / (totalTime / 60)).toFixed(1) : null
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords }
   }, [sessions])
 
   return (
@@ -454,6 +470,27 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 </div>
               )}
             </div>
+
+            {/* Personal records */}
+            {sessions.length >= 3 && stats.personalRecords && (
+              <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl p-5 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-indigo-400 mb-3">🏆 Personal Records</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { label: 'Best session', value: `${stats.personalRecords.bestSessionPct}%`, sub: stats.personalRecords.bestSessionDate ? new Date(stats.personalRecords.bestSessionDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null },
+                    { label: 'Best streak', value: `${gam.maxStreak ?? 0}d`, sub: 'days in a row' },
+                    { label: 'Best combo', value: `${stats.personalRecords.bestComboAll}×`, sub: 'consecutive correct' },
+                    { label: 'Best XP day', value: stats.personalRecords.maxXPDay, sub: 'XP in one day' },
+                  ].map(r => (
+                    <div key={r.label} className="bg-white/70 rounded-xl p-3 text-center">
+                      <p className="text-lg font-black text-indigo-700">{r.value}</p>
+                      <p className="text-xs font-semibold text-gray-500 mt-0.5">{r.label}</p>
+                      {r.sub && <p className="text-xs text-gray-400 mt-0.5">{r.sub}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Recent trend */}
             {stats.trend.length > 1 && (
