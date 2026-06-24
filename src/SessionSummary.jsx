@@ -771,7 +771,29 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           )
         })()}
 
-        <div className="mt-8 space-y-3">
+        {/* Personalized tip */}
+        {(() => {
+          const avgTime = elapsedSeconds && questions.length ? elapsedSeconds / questions.length : null
+          const wrongDomains = [...new Set(wrongQuestions.map(q => q.domain))].slice(0, 2)
+          const hardWrong = wrongQuestions.filter(q => q.difficulty === 3).length
+          const tips = []
+          if (score.percent === 100) tips.push({ icon: '🌟', text: 'Perfect! Try Beast Mode to push harder.' })
+          else if (score.percent < 60) tips.push({ icon: '💡', text: 'Under 60%? Focus on one domain at a time this week.' })
+          if (hardWrong >= 3) tips.push({ icon: '🏋️', text: `${hardWrong} hard questions missed — revisit them in a dedicated Hard drill.` })
+          if (avgTime && avgTime > 90) tips.push({ icon: '⏱', text: `Avg ${Math.round(avgTime)}s/question — try Blitz Mode to build speed.` })
+          if (avgTime && avgTime < 20 && score.percent < 70) tips.push({ icon: '🐢', text: 'You\'re going fast but missing questions — slow down and read carefully.' })
+          if (wrongDomains.length > 0 && score.percent < 80) tips.push({ icon: '🎯', text: `Practice more ${wrongDomains.map(id => domainById[id]?.label ?? id).join(' & ')} to boost your score.` })
+          const tip = tips[0]
+          if (!tip) return null
+          return (
+            <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5">
+              <span className="text-base shrink-0 mt-0.5">{tip.icon}</span>
+              <p className="text-sm text-indigo-700">{tip.text}</p>
+            </div>
+          )
+        })()}
+
+        <div className="mt-4 space-y-3">
           {wrongQuestions.length > 0 && onRetry && (
             <button
               onClick={() => onRetry(wrongQuestions)}
