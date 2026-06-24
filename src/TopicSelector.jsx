@@ -614,7 +614,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -3339,6 +3339,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <div className="text-xl mb-1.5">📈</div>
                 <div className="font-bold text-sm text-white">Ramp Mode</div>
                 <div className="text-xs text-sky-200 mt-0.5">Easy → Med → Hard · 1.5× XP</div>
+              </button>
+            )}
+            {onPowerHour && (
+              <button
+                onClick={onPowerHour}
+                className="text-left rounded-2xl border-2 border-amber-600 bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">⏱</div>
+                <div className="font-bold text-sm text-white">Power Hour</div>
+                <div className="text-xs text-amber-200 mt-0.5">60 min marathon · 2× XP</div>
               </button>
             )}
             {onSuddenDeath && history.length >= 5 && (
