@@ -539,7 +539,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -3149,6 +3149,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <div className="text-xl mb-1.5">❤️</div>
                 <div className="font-bold text-sm text-rose-900">Hearts Mode</div>
                 <div className="text-xs text-rose-500 mt-0.5">5 lives · 2× XP</div>
+              </button>
+            )}
+            {onSurvivalMode && (
+              <button
+                onClick={onSurvivalMode}
+                className="text-left rounded-2xl border-2 border-violet-900 bg-gradient-to-br from-violet-950 to-indigo-900 hover:from-violet-900 hover:to-indigo-800 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">💀</div>
+                <div className="font-bold text-sm text-violet-100">Survival</div>
+                <div className="text-xs text-violet-400 mt-0.5">3 wrong = out · 3× XP</div>
               </button>
             )}
             {onSuddenDeath && history.length >= 5 && (

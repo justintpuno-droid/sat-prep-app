@@ -34,6 +34,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const isHeadToHead = config.formatLabel?.startsWith('Head-to-Head')
   const isSATTimed = config.formatLabel === 'SAT Timed Mode'
   const isHeartsMode = config.formatLabel === 'Hearts Mode'
+  const isSurvivalMode = config.formatLabel === 'Survival Mode'
   const rival = config.rival ?? null
   const timedSeconds = config.timedChallengeSeconds ?? null
   const hasMathQuestions = questions.some(q => q.subject === 'math')
@@ -64,7 +65,9 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [satTimedOut, setSatTimedOut] = useState(false)
   const [hearts, setHearts] = useState(isHeartsMode ? 5 : null)
   const [heartBroken, setHeartBroken] = useState(false)
-  const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge || isHeadToHead || isSATTimed || isHeartsMode) ? 3 : 0)
+  const [survivalWrongStreak, setSurvivalWrongStreak] = useState(0)
+  const [survivalBest, setSurvivalBest] = useState(0)
+  const [countdown, setCountdown] = useState((isBeastMode || isSuddenDeath || isTimedChallenge || isHeadToHead || isSATTimed || isHeartsMode || isSurvivalMode) ? 3 : 0)
   const [questionElapsed, setQuestionElapsed] = useState(0)
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
@@ -251,6 +254,19 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         return next
       })
     }
+
+    if (isSurvivalMode) {
+      if (isCorrect) {
+        setSurvivalWrongStreak(0)
+        setSurvivalBest(b => Math.max(b, correctCount + 1))
+      } else {
+        setSurvivalWrongStreak(ws => {
+          const next = ws + 1
+          if (next >= 3) setTimeout(() => finishRef.current(), 1400)
+          return next
+        })
+      }
+    }
   }
 
   function handleNext() {
@@ -338,16 +354,19 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         </div>
       )
     }
-    const modeLabel = isBeastMode ? 'BEAST MODE' : isSuddenDeath ? 'SUDDEN DEATH' : isSATTimed ? 'SAT TIMED MODE' : isHeartsMode ? 'HEARTS MODE' : 'TIMED CHALLENGE'
-    const modeColor = isBeastMode ? 'from-slate-900 via-rose-950 to-slate-900' : isSuddenDeath ? 'from-gray-900 via-red-950 to-gray-900' : isSATTimed ? 'from-emerald-700 to-teal-800' : isHeartsMode ? 'from-rose-500 to-pink-600' : 'from-cyan-600 to-indigo-700'
+    const modeLabel = isBeastMode ? 'BEAST MODE' : isSuddenDeath ? 'SUDDEN DEATH' : isSATTimed ? 'SAT TIMED MODE' : isHeartsMode ? 'HEARTS MODE' : isSurvivalMode ? 'SURVIVAL MODE' : 'TIMED CHALLENGE'
+    const modeColor = isBeastMode ? 'from-slate-900 via-rose-950 to-slate-900' : isSuddenDeath ? 'from-gray-900 via-red-950 to-gray-900' : isSATTimed ? 'from-emerald-700 to-teal-800' : isHeartsMode ? 'from-rose-500 to-pink-600' : isSurvivalMode ? 'from-violet-900 via-purple-900 to-indigo-900' : 'from-cyan-600 to-indigo-700'
     return (
       <div className={`min-h-screen bg-gradient-to-br ${modeColor} flex flex-col items-center justify-center`}>
         <p className="text-white/60 text-sm font-bold uppercase tracking-widest mb-4">{modeLabel}</p>
         {isHeartsMode && <p className="text-5xl mb-4">❤️❤️❤️❤️❤️</p>}
+        {isSurvivalMode && <p className="text-4xl mb-4">💀</p>}
         <p className="text-white font-black text-8xl tabular-nums" style={{ textShadow: '0 0 40px rgba(255,255,255,0.4)' }}>
           {countdown}
         </p>
-        <p className="text-white/40 text-sm mt-6">{questions.length} questions · 5 lives</p>
+        <p className="text-white/40 text-sm mt-6">
+          {isHeartsMode ? `${questions.length} questions · 5 lives` : isSurvivalMode ? '3 wrong = eliminated · 3× XP' : `${questions.length} questions`}
+        </p>
       </div>
     )
   }
@@ -384,6 +403,10 @@ export default function LearningSession({ config, onComplete, onQuit }) {
                   {Array.from({ length: 5 }).map((_, i) => (
                     <span key={i} className={i < (hearts ?? 5) ? 'text-rose-500' : 'text-gray-200'}>{i < (hearts ?? 5) ? '❤️' : '🖤'}</span>
                   ))}
+                </span>
+              : isSurvivalMode
+              ? <span className={`text-xs font-black px-2.5 py-1 rounded-full ${survivalWrongStreak >= 2 ? 'bg-rose-600 text-white animate-pulse' : survivalWrongStreak >= 1 ? 'bg-orange-500 text-white' : 'bg-violet-700 text-white'}`}>
+                  💀 {'❌'.repeat(survivalWrongStreak)}{'⬜'.repeat(3 - survivalWrongStreak)}
                 </span>
               : <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full">Learning</span>
             }
