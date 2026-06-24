@@ -71,6 +71,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [questionElapsed, setQuestionElapsed] = useState(0)
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
+  const questionTimingsRef = useRef({})
   const timer = useTimer()
 
   function useHint(q) {
@@ -194,6 +195,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     setRevealed(true)
     const isCorrect = optId === current.answer
     const elapsedSec = (Date.now() - questionStartRef.current) / 1000
+    questionTimingsRef.current[current.id] = elapsedSec
     const speedBonus = isCorrect && elapsedSec < 30 ? 5 : 0
     const isPowerQ = (index + 1) % 7 === 0
     const xpGain = Math.round(((isCorrect ? (10 + (current.difficulty === 3 ? 10 : 0)) : 5) + speedBonus) * (isPowerQ ? 2 : 1))
@@ -292,6 +294,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       rivalResult: rival ? { name: rival.name, correct: rivalCorrect, total: rivalTotal } : null,
       maxCombo: maxComboRef.current,
       xpMultiplier: config.xpMultiplier ?? 1.0,
+      questionTimings: questionTimingsRef.current,
     })
   }
 

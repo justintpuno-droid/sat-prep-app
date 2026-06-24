@@ -597,6 +597,48 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           </div>
         )}
 
+        {/* Error Analysis */}
+        {score.total > 0 && score.correct < score.total && (() => {
+          const wrongQs = session.questions.filter(q => (answers[q.id] ?? null) !== q.answer)
+          if (wrongQs.length === 0) return null
+          const timings = session.questionTimings ?? {}
+          const buckets = { rushed: [], easy: [], concept: [], reread: [] }
+          for (const q of wrongQs) {
+            const sec = timings[q.id] ?? 60
+            if (sec < 15) buckets.rushed.push(q)
+            else if (q.difficulty === 1) buckets.easy.push(q)
+            else if (q.difficulty === 3) buckets.concept.push(q)
+            else buckets.reread.push(q)
+          }
+          const entries = [
+            { key: 'rushed', icon: '⚡', label: 'Rushed', tip: 'Slow down — read the full question before clicking.', color: 'text-orange-600 bg-orange-50 border-orange-200' },
+            { key: 'easy', icon: '😵', label: 'Careless', tip: 'Easy questions missed — double-check your answers.', color: 'text-amber-600 bg-amber-50 border-amber-200' },
+            { key: 'concept', icon: '📚', label: 'Concept Gap', tip: 'Hard concepts need review — drill these domains.', color: 'text-violet-600 bg-violet-50 border-violet-200' },
+            { key: 'reread', icon: '🔍', label: 'Re-read', tip: 'Medium questions missed — re-read the question carefully.', color: 'text-rose-600 bg-rose-50 border-rose-200' },
+          ].filter(e => buckets[e.key].length > 0)
+          if (entries.length === 0) return null
+          const top = entries.sort((a, b) => buckets[b.key].length - buckets[a.key].length)[0]
+          return (
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Error Analysis</p>
+              <div className="space-y-2 mb-3">
+                {entries.map(e => (
+                  <div key={e.key} className={`flex items-center gap-3 rounded-xl border px-3 py-2 ${e.color}`}>
+                    <span className="text-lg">{e.icon}</span>
+                    <div className="flex-1">
+                      <p className="text-xs font-bold">{e.label} <span className="font-normal">({buckets[e.key].length} wrong)</span></p>
+                    </div>
+                    <div className="h-1.5 w-16 bg-white/60 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full bg-current opacity-60" style={{ width: `${(buckets[e.key].length / wrongQs.length) * 100}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 italic">💡 {top.tip}</p>
+            </div>
+          )
+        })()}
+
         {/* Score predictor (full adaptive tests only) */}
         {SCORE_PREDICTOR_FORMATS.has(format) && phaseData?.length > 0 && phaseData.every(p => p.gotHardMod2 !== null) && (
           <ScorePredictor phaseData={phaseData} answers={answers} />
