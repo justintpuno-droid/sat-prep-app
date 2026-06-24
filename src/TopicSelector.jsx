@@ -3230,6 +3230,48 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
+        {/* Today's Study Plan */}
+        {history.length >= 3 && (() => {
+          const today = new Date().toISOString().slice(0, 10)
+          const studiedToday = history.some(s => s.completedAt.startsWith(today))
+          if (studiedToday) return null
+          const PLAN_KEY = 'sat_prep_study_plan_' + today
+          let dismissed = false
+          try { dismissed = localStorage.getItem(PLAN_KEY) === 'dismissed' } catch {}
+          if (dismissed) return null
+          const plan = []
+          if (weakDomain) plan.push({ icon: '🎯', label: `Focus: ${weakDomain.label}`, desc: '10 questions', time: 10 })
+          else plan.push({ icon: '⚡', label: 'Quick Practice', desc: '15 random questions', time: 12 })
+          const wrongIds = new Set()
+          for (const s of history.slice(-5)) for (const q of s.questions) if ((s.answers?.[q.id] ?? null) !== q.answer) wrongIds.add(q.id)
+          if (wrongIds.size >= 5) plan.push({ icon: '📓', label: 'Wrong Answer Sprint', desc: `Review ${Math.min(wrongIds.size, 15)} missed questions`, time: 8 })
+          plan.push({ icon: '💎', label: '5 Hard Questions', desc: 'Beast Mode warmup', time: 5 })
+          const total = plan.reduce((s, p) => s + p.time, 0)
+          return (
+            <div className="bg-white border-2 border-emerald-200 rounded-2xl p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-emerald-600">Today's Study Plan</p>
+                  <p className="text-xs text-gray-400 mt-0.5">~{total} minutes · personalized for you</p>
+                </div>
+                <button onClick={() => { try { localStorage.setItem(PLAN_KEY, 'dismissed') } catch {} window.location.reload() }} className="text-gray-300 text-xs hover:text-gray-400">✕</button>
+              </div>
+              <div className="space-y-2">
+                {plan.map((p, i) => (
+                  <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 border border-gray-100">
+                    <span className="text-base shrink-0">{p.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-gray-800">{p.label}</p>
+                      <p className="text-[10px] text-gray-400">{p.desc}</p>
+                    </div>
+                    <span className="text-[10px] text-gray-400 shrink-0">{p.time}m</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Daily motivational quote */}
         <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 mb-4 flex items-start gap-3">
           <span className="text-xl shrink-0 mt-0.5">💬</span>
