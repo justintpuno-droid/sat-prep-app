@@ -63,7 +63,26 @@ export default function Onboarding({ onDone }) {
             min={new Date().toISOString().slice(0, 10)}
             className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:border-indigo-400 focus:outline-none text-base"
           />
-          <p className="text-xs text-gray-400 mt-2">You can always change this later in your profile.</p>
+          <div className="flex flex-wrap gap-1.5 mt-2 mb-2">
+            <p className="text-xs text-gray-400 w-full mb-0.5">Or pick an official SAT date:</p>
+            {[
+              { label: 'Aug 23, 2025', val: '2025-08-23' },
+              { label: 'Oct 4, 2025',  val: '2025-10-04' },
+              { label: 'Nov 1, 2025',  val: '2025-11-01' },
+              { label: 'Dec 6, 2025',  val: '2025-12-06' },
+              { label: 'Mar 14, 2026', val: '2026-03-14' },
+              { label: 'May 2, 2026',  val: '2026-05-02' },
+              { label: 'Jun 6, 2026',  val: '2026-06-06' },
+            ].filter(d => d.val > new Date().toISOString().slice(0, 10)).slice(0, 4).map(d => (
+              <button
+                key={d.val}
+                onClick={() => setExamDate(d.val)}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-xl border-2 transition-all ${examDate === d.val ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-200 bg-white text-gray-600 hover:border-indigo-300'}`}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
           {examDate && (() => {
             const days = Math.ceil((new Date(examDate + 'T12:00:00') - new Date()) / 86400000)
             return days > 0 ? (
