@@ -343,6 +343,18 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
       {(gamResult?.leveledUp || score.percent === 100) && <Confetti />}
       <div className="max-w-2xl mx-auto">
 
+        {/* Personal record banner */}
+        {gamResult?.sessionRank?.isSessionPB && score.total >= 10 && (
+          <div className="mb-5 bg-gradient-to-r from-amber-400 to-amber-500 rounded-2xl px-5 py-4 flex items-center gap-3 shadow-lg">
+            <span className="text-3xl">🏆</span>
+            <div>
+              <p className="font-black text-white text-base leading-tight">New Personal Record!</p>
+              <p className="text-amber-100 text-xs mt-0.5">{score.percent}% — your best session score ever</p>
+            </div>
+            <div className="ml-auto text-3xl animate-bounce">🎉</div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
