@@ -354,6 +354,29 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return { id, label: domainById[id]?.label ?? id, pct: Math.round((st.correct / st.total) * 100), daysSince }
   }, [history])
 
+  const hotDomainThisWeek = useMemo(() => {
+    const mon = new Date()
+    const day = mon.getDay()
+    mon.setDate(mon.getDate() - (day === 0 ? 6 : day - 1))
+    const monStr = mon.toISOString().slice(0, 10)
+    const weekSessions = history.filter(s => s.completedAt.slice(0, 10) >= monStr)
+    if (weekSessions.length < 2) return null
+    const byDomain = {}
+    for (const s of weekSessions) {
+      for (const q of s.questions) {
+        if (!byDomain[q.domain]) byDomain[q.domain] = { correct: 0, total: 0 }
+        byDomain[q.domain].total++
+        if ((s.answers[q.id] ?? null) === q.answer) byDomain[q.domain].correct++
+      }
+    }
+    const best = Object.entries(byDomain)
+      .filter(([, v]) => v.total >= 5 && (v.correct / v.total) >= 0.8)
+      .sort(([, a], [, b]) => (b.correct / b.total) - (a.correct / a.total))[0]
+    if (!best) return null
+    const [id, st] = best
+    return { id, label: domainById[id]?.label ?? id, pct: Math.round((st.correct / st.total) * 100), total: st.total }
+  }, [history])
+
   const bestOfWeek = useMemo(() => {
     const mon = new Date()
     const day = mon.getDay()
@@ -1224,6 +1247,21 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             )
           })()}
         </div>
+
+        {/* Hot domain this week */}
+        {hotDomainThisWeek && (
+          <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+            <span className="text-lg shrink-0">🔥</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-400 font-medium">Hot domain this week</p>
+              <p className="text-sm font-bold text-gray-800">{hotDomainThisWeek.label}</p>
+              <p className="text-xs text-gray-400">{hotDomainThisWeek.pct}% · {hotDomainThisWeek.total} questions</p>
+            </div>
+            <span className="shrink-0 text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full">
+              {hotDomainThisWeek.pct}% ✓
+            </span>
+          </div>
+        )}
 
         {/* Weekly session count */}
         {weeklySessionCount > 0 && (

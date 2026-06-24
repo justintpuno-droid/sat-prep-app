@@ -198,6 +198,18 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     const biasTotal = Object.values(wrongChoices).reduce((a, b) => a + b, 0)
     const answerBias = biasTotal >= 20 ? wrongChoices : null
 
+    // Weekly accuracy sparkline (last 6 weeks)
+    const weeklyAccuracy = []
+    for (let w = 5; w >= 0; w--) {
+      const start = new Date(); start.setDate(start.getDate() - start.getDay() - w * 7); start.setHours(0,0,0,0)
+      const end = new Date(start); end.setDate(end.getDate() + 7)
+      const ws = sessions.filter(s => { const d = new Date(s.completedAt); return d >= start && d < end })
+      if (ws.length === 0) { weeklyAccuracy.push({ sessions: 0, pct: null }); continue }
+      const c = ws.reduce((s, x) => s + x.score.correct, 0)
+      const t = ws.reduce((s, x) => s + x.score.total, 0)
+      weeklyAccuracy.push({ sessions: ws.length, pct: pct(c, t) })
+    }
+
     // Score distribution histogram
     const scoreDist = [
       { label: '<60%', min: 0, max: 60, color: 'bg-rose-400', count: 0 },
@@ -295,7 +307,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     // Questions per minute efficiency
     const qPerMin = totalTime > 0 ? (totalQ / (totalTime / 60)).toFixed(1) : null
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy }
   }, [sessions])
 
   return (
@@ -616,6 +628,27 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                       <span className="text-xs text-gray-300 w-10 text-right shrink-0">{f.count}×</span>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Weekly accuracy sparkline */}
+            {stats.weeklyAccuracy.some(w => w.pct !== null) && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">Accuracy by Week (last 6)</p>
+                <div className="flex items-end gap-2 h-16">
+                  {stats.weeklyAccuracy.map((w, i) => {
+                    const isThis = i === 5
+                    const h = w.pct !== null ? Math.max(4, Math.round((w.pct / 100) * 64)) : 4
+                    const color = w.pct === null ? 'bg-gray-100' : w.pct >= 80 ? 'bg-emerald-500' : w.pct >= 60 ? 'bg-amber-400' : 'bg-rose-400'
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                        {w.pct !== null && <span className="text-xs text-gray-400">{w.pct}%</span>}
+                        <div className={`w-full rounded-t-sm ${color} ${isThis ? 'ring-2 ring-indigo-400 ring-offset-1' : ''}`} style={{ height: `${h}px` }} title={w.pct !== null ? `${w.pct}% · ${w.sessions} sessions` : 'No sessions'} />
+                        <span className={`text-xs leading-none ${isThis ? 'text-indigo-500 font-bold' : 'text-gray-300'}`}>{isThis ? 'now' : `W${i - 5}`}</span>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
