@@ -90,6 +90,8 @@ export const ACHIEVEMENTS = [
   { id: 'wrong-sprint',    icon: '🔁', title: 'Second Chance',     desc: 'Score 80%+ on a Wrong Answer Sprint' },
   { id: 'adaptive-ace',    icon: '🧠', title: 'Adaptive Ace',      desc: 'Score 90%+ on an Adaptive Quiz' },
   { id: 'streak-30',       icon: '🌙', title: 'Lunar Legend',      desc: '30-day study streak' },
+  { id: 'sudden-death-5',  icon: '💀', title: 'Daredevil',         desc: 'Survive 10+ questions in a Sudden Death session' },
+  { id: 'sudden-death-ace',icon: '☠️',  title: 'Untouchable',       desc: 'Complete all 30 questions in a Sudden Death session' },
 ]
 
 const CHECKS = {
@@ -186,6 +188,8 @@ const CHECKS = {
   'wrong-sprint':    (h) => h.some(s => s.formatLabel === 'Wrong Answer Sprint' && s.score.percent >= 80),
   'adaptive-ace':    (h) => h.some(s => s.formatLabel === 'Adaptive Quiz' && s.score.percent >= 90),
   'streak-30':       (_h, g) => g.maxStreak >= 30,
+  'sudden-death-5':  (h) => h.some(s => s.formatLabel === 'Sudden Death' && s.score.correct >= 10),
+  'sudden-death-ace':(h) => h.some(s => s.formatLabel === 'Sudden Death' && s.score.total >= 30 && s.score.correct === s.score.total),
   'diversity': (h) => {
     const mon = new Date()
     mon.setDate(mon.getDate() - (mon.getDay() === 0 ? 6 : mon.getDay() - 1))

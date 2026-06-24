@@ -834,6 +834,50 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               </div>
             )}
 
+            {/* Domain radar chart */}
+            {stats.domainList.filter(d => d.total >= 5).length >= 4 && (() => {
+              const eligible = stats.domainList.filter(d => d.total >= 5).slice(0, 8)
+              const n = eligible.length
+              const cx = 110, cy = 110, r = 85
+              const rings = [0.25, 0.5, 0.75, 1.0]
+              const pts = eligible.map((d, i) => {
+                const angle = (i / n) * 2 * Math.PI - Math.PI / 2
+                const ratio = d.p / 100
+                return { x: cx + r * ratio * Math.cos(angle), y: cy + r * ratio * Math.sin(angle), lx: cx + (r + 18) * Math.cos(angle), ly: cy + (r + 18) * Math.sin(angle), d }
+              })
+              const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ') + ' Z'
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">Domain Coverage Radar</p>
+                  <svg viewBox="0 0 220 220" className="w-full max-w-xs mx-auto block">
+                    {rings.map(ring => {
+                      const rpts = eligible.map((_, i) => {
+                        const angle = (i / n) * 2 * Math.PI - Math.PI / 2
+                        return `${i === 0 ? 'M' : 'L'}${(cx + r * ring * Math.cos(angle)).toFixed(1)},${(cy + r * ring * Math.sin(angle)).toFixed(1)}`
+                      }).join(' ') + ' Z'
+                      return <path key={ring} d={rpts} fill="none" stroke="#f1f5f9" strokeWidth="1" />
+                    })}
+                    {eligible.map((_, i) => {
+                      const angle = (i / n) * 2 * Math.PI - Math.PI / 2
+                      return <line key={i} x1={cx} y1={cy} x2={cx + r * Math.cos(angle)} y2={cy + r * Math.sin(angle)} stroke="#f1f5f9" strokeWidth="1" />
+                    })}
+                    <path d={path} fill="rgba(99,102,241,0.15)" stroke="#6366f1" strokeWidth="1.5" />
+                    {pts.map(({ x, y, d }) => (
+                      <circle key={d.id} cx={x} cy={y} r="3" fill={d.p >= 80 ? '#10b981' : d.p >= 60 ? '#6366f1' : '#f43f5e'} />
+                    ))}
+                    {pts.map(({ lx, ly, d }) => (
+                      <text key={d.id} x={lx} y={ly} fontSize="7" textAnchor="middle" dominantBaseline="middle" fill="#9ca3af">{d.label.slice(0, 10)}</text>
+                    ))}
+                  </svg>
+                  <div className="flex items-center gap-4 justify-center mt-2">
+                    {[['#10b981','≥80%'],['#6366f1','60–80%'],['#f43f5e','<60%']].map(([c, l]) => (
+                      <div key={l} className="flex items-center gap-1"><div className="w-2 h-2 rounded-full" style={{ background: c }} /><span className="text-xs text-gray-400">{l}</span></div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* Top practiced domains */}
             {stats.domainList.length >= 3 && (() => {
               const top = [...stats.domainList].sort((a, b) => b.total - a.total).slice(0, 5)
