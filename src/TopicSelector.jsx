@@ -232,6 +232,16 @@ function QuestionOfDay({ allQuestions }) {
           )
         })}
       </div>
+      {revealed && q.explanation && (
+        <div className={`mt-3 rounded-xl p-3 text-xs leading-relaxed ${isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-gray-50 text-gray-600'}`}>
+          <span className="font-semibold">Explanation: </span>{q.explanation}
+        </div>
+      )}
+      {revealed && (
+        <p className={`mt-2 text-xs font-semibold text-center ${isCorrect ? 'text-emerald-500' : 'text-gray-400'}`}>
+          {isCorrect ? '⚡ +15 XP — come back tomorrow for a new question!' : 'Review this — come back tomorrow for a new question!'}
+        </p>
+      )}
     </div>
   )
 }
