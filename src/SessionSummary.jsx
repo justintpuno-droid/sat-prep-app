@@ -335,6 +335,18 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
     return history.find(s => s.id !== session.id) ?? null
   }, [session.id])
 
+  const hotStreak = useMemo(() => {
+    const history = loadHistory().filter(s => s.score.total >= 10)
+    const recent = history.filter(s => s.id !== session.id)
+    if (score.percent < 80 || score.total < 10) return 0
+    let streak = 1
+    for (let i = recent.length - 1; i >= 0; i--) {
+      if (recent[i].score.percent >= 80) streak++
+      else break
+    }
+    return streak
+  }, [session.id, score])
+
   const vsLast = useMemo(() => {
     if (!lastSession || lastSession.score.total < 5 || score.total < 5) return null
     const diff = score.percent - lastSession.score.percent
@@ -597,6 +609,22 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
                 <div>
                   <p className="text-sm font-bold leading-tight">Daily Challenge Complete!</p>
                   <p className="text-xs text-indigo-200">+{gamResult.challengeBonus} bonus XP</p>
+                </div>
+              </div>
+            )}
+
+            {hotStreak >= 3 && (
+              <div className="flex items-center gap-2.5 bg-white/20 rounded-xl px-3 py-2.5 mt-1">
+                <span className="text-xl">{hotStreak >= 7 ? '🔥' : hotStreak >= 5 ? '⚡' : '✨'}</span>
+                <div>
+                  <p className="text-sm font-bold leading-tight">
+                    {hotStreak >= 7 ? `${hotStreak}-Session Fire Streak!` : hotStreak >= 5 ? `${hotStreak} in a Row!` : `Hot Streak: ${hotStreak} sessions!`}
+                  </p>
+                  <p className="text-xs text-indigo-200">
+                    {hotStreak >= 7 ? 'Incredible — you\'re absolutely unstoppable right now!'
+                     : hotStreak >= 5 ? 'Five straight sessions above 80%. You\'re on fire!'
+                     : 'Three consecutive sessions above 80% — great consistency!'}
+                  </p>
                 </div>
               </div>
             )}
