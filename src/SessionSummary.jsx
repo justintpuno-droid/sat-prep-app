@@ -814,6 +814,36 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           )
         })()}
 
+        {/* What to do next */}
+        {(() => {
+          const avgTime = elapsedSeconds && questions.length ? elapsedSeconds / questions.length : null
+          const topWrongDomain = wrongQuestions.length > 0
+            ? Object.entries(wrongQuestions.reduce((acc, q) => { acc[q.domain] = (acc[q.domain] ?? 0) + 1; return acc }, {}))
+                .sort((a, b) => b[1] - a[1])[0]?.[0]
+            : null
+          const recs = []
+          if (score.percent >= 90 && formatLabel !== 'Beast Mode') recs.push({ icon: '🔥', label: 'Try Beast Mode', sub: 'You\'re crushing it — go harder', action: null })
+          else if (score.percent < 60 && topWrongDomain) recs.push({ icon: '🎯', label: `Focus: ${domainById[topWrongDomain]?.label ?? topWrongDomain}`, sub: 'Your weakest area this session', action: null })
+          else if (avgTime && avgTime > 100) recs.push({ icon: '⚡', label: 'Try Blitz Mode', sub: 'Build speed with 40 rapid-fire questions', action: null })
+          else if (wrongQuestions.length >= 5) recs.push({ icon: '🔁', label: 'Review wrong answers', sub: `${wrongQuestions.length} questions to revisit`, action: onRetry ? () => onRetry(wrongQuestions) : null })
+          else recs.push({ icon: '📚', label: 'Keep the streak alive', sub: 'Come back tomorrow for bonus XP', action: null })
+          const rec = recs[0]
+          return (
+            <div className="bg-white border-2 border-gray-100 rounded-2xl px-4 py-3.5 mb-3 flex items-center gap-3">
+              <span className="text-2xl shrink-0">{rec.icon}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-gray-800">Up next: {rec.label}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{rec.sub}</p>
+              </div>
+              {rec.action && (
+                <button onClick={rec.action} className="shrink-0 text-xs font-bold text-indigo-600 border border-indigo-200 rounded-lg px-2.5 py-1.5 hover:bg-indigo-50 transition-colors">
+                  Go →
+                </button>
+              )}
+            </div>
+          )
+        })()}
+
         <div className="mt-4 space-y-3">
           {wrongQuestions.length > 0 && onRetry && (
             <button
