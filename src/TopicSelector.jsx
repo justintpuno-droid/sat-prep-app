@@ -3244,15 +3244,39 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-400">Exam date:</span>
                     {editingExam ? (
-                      <input
-                        autoFocus
-                        type="date"
-                        defaultValue={examDate ?? ''}
-                        min={new Date().toISOString().slice(0, 10)}
-                        onBlur={e => { if (e.target.value) { setExamDate(e.target.value); saveExamDate(e.target.value) } setEditingExam(false) }}
-                        onKeyDown={e => { if (e.key === 'Escape') setEditingExam(false) }}
-                        className="text-xs border border-indigo-300 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-indigo-300"
-                      />
+                      <div className="flex flex-col gap-1.5">
+                        <input
+                          autoFocus
+                          type="date"
+                          defaultValue={examDate ?? ''}
+                          min={new Date().toISOString().slice(0, 10)}
+                          onBlur={e => { if (e.target.value) { setExamDate(e.target.value); saveExamDate(e.target.value) } setEditingExam(false) }}
+                          onKeyDown={e => { if (e.key === 'Escape') setEditingExam(false) }}
+                          className="text-xs border border-indigo-300 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-indigo-300"
+                        />
+                        <div className="flex flex-wrap gap-1">
+                          {[
+                            { label: 'Aug 23, 2025', val: '2025-08-23' },
+                            { label: 'Oct 4, 2025',  val: '2025-10-04' },
+                            { label: 'Nov 1, 2025',  val: '2025-11-01' },
+                            { label: 'Dec 6, 2025',  val: '2025-12-06' },
+                            { label: 'Mar 14, 2026', val: '2026-03-14' },
+                            { label: 'May 2, 2026',  val: '2026-05-02' },
+                            { label: 'Jun 6, 2026',  val: '2026-06-06' },
+                          ].filter(d => d.val > new Date().toISOString().slice(0, 10))
+                            .slice(0, 4)
+                            .map(d => (
+                              <button
+                                key={d.val}
+                                onMouseDown={e => { e.preventDefault(); setExamDate(d.val); saveExamDate(d.val); setEditingExam(false) }}
+                                className="text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors"
+                              >
+                                {d.label}
+                              </button>
+                            ))
+                          }
+                        </div>
+                      </div>
                     ) : (
                       <button onClick={() => setEditingExam(true)} className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors">
                         {examDate ? new Date(examDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '+ Add date'}
