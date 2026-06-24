@@ -335,7 +335,23 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       scoreEstimateTrend.push({ i, mid, date: eligible[i].completedAt.slice(0, 10) })
     }
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend }
+    // Avg seconds per question by domain
+    const speedByDomain = {}
+    for (const s of sessions) {
+      if (!s.questionTimes) continue
+      for (const q of s.questions) {
+        const t = s.questionTimes[q.id]
+        if (!t || t <= 0 || t > 300) continue
+        if (!speedByDomain[q.domain]) speedByDomain[q.domain] = { sum: 0, n: 0 }
+        speedByDomain[q.domain].sum += t; speedByDomain[q.domain].n++
+      }
+    }
+    const speedByDomainList = Object.entries(speedByDomain)
+      .filter(([, v]) => v.n >= 5)
+      .map(([id, v]) => ({ id, label: (domainList.find(d => d.id === id) || {}).label ?? id, avg: Math.round(v.sum / v.n) }))
+      .sort((a, b) => b.avg - a.avg)
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend, speedByDomainList }
   }, [sessions])
 
   return (
@@ -1062,6 +1078,31 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 )
               })()}
             </div>
+
+            {/* Speed by domain */}
+            {stats.speedByDomainList.length >= 3 && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 mt-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">⏱ Avg Time per Question by Domain</p>
+                <div className="space-y-2.5">
+                  {stats.speedByDomainList.slice(0, 6).map(d => {
+                    const maxAvg = stats.speedByDomainList[0].avg
+                    const color = d.avg > 90 ? 'bg-rose-400' : d.avg > 60 ? 'bg-amber-400' : 'bg-emerald-400'
+                    return (
+                      <div key={d.id}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-700 truncate max-w-[60%]">{d.label}</span>
+                          <span className={`text-xs font-bold ${d.avg > 90 ? 'text-rose-500' : d.avg > 60 ? 'text-amber-600' : 'text-emerald-600'}`}>{d.avg}s</span>
+                        </div>
+                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div className={`h-full ${color} rounded-full`} style={{ width: `${Math.round((d.avg / maxAvg) * 100)}%` }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                <p className="text-xs text-gray-300 mt-3">Red = slow (&gt;90s), amber = moderate, green = fast</p>
+              </div>
+            )}
           </>
         )}
 

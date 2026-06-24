@@ -7,8 +7,8 @@ const CATEGORIES = [
   { id: 'accuracy', label: 'Accuracy',  ids: ['perfect','sharp','consistent','hat-trick','comeback','improver'] },
   { id: 'volume',   label: 'Volume',    ids: ['century','five-hundred','thousand','combo-5','combo-10','marathon','diversity'] },
   { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','streak-30','early-bird','night-owl','early-riser','night-grinder','grinder','perfect-week'] },
-  { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid','wrong-sprint','adaptive-ace','sudden-death-5','sudden-death-ace','all-formats'] },
-  { id: 'milestones', label: 'Progress',ids: ['first-step','xp-1000','xp-5000','hard-worker','hard-elite','grinder','domain-master-5'] },
+  { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid','wrong-sprint','adaptive-ace','sudden-death-5','sudden-death-ace','all-formats','timed-ace'] },
+  { id: 'milestones', label: 'Progress',ids: ['first-step','xp-1000','xp-5000','xp-10000','hard-worker','hard-elite','grinder','domain-master-5'] },
 ]
 
 function AchievementCard({ ach, unlockedAt, hint, hintPct }) {
@@ -82,6 +82,8 @@ function getHint(achId, stats, gam) {
     case 'early-riser':      return h('Sessions before 7am', stats.earlyMorningSessions, 5)
     case 'hard-elite':       return h('Hard questions correct', stats.hardCorrect, 50)
     case 'all-formats':      return { hint: 'Try Quick 5, Beast, Blitz, Adaptive, and Sudden Death modes', pct: Math.min(100, Math.round((stats.formatsUsed / 5) * 100)) }
+    case 'timed-ace':        return { hint: 'Score 90%+ on a Timed Challenge', pct: 0 }
+    case 'xp-10000':         return h('Total XP', gam.totalXP, 10000)
     default:                 return null
   }
 }
