@@ -3,6 +3,7 @@ import QuestionCard from './components/QuestionCard'
 import { useTimer } from './hooks/useTimer'
 import { formatTime, scoreQuestions } from './utils/index'
 import { loadGamification } from './utils/gamification'
+import { domainById, skillById } from './data/taxonomy'
 
 function BlitzCircle({ seconds }) {
   const max = 60, r = 18, circ = 2 * Math.PI * r
@@ -626,6 +627,17 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             {current.explanation && (
               <p className="text-sm text-gray-600 leading-relaxed">{current.explanation}</p>
             )}
+            {selected !== current.answer && (() => {
+              const domain = domainById[current.domain]
+              const skill = current.skill ? skillById[current.skill] : null
+              if (!domain && !skill) return null
+              return (
+                <div className="flex flex-wrap gap-1.5 mt-2.5">
+                  {domain && <span className="text-[10px] font-bold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full border border-rose-200">{domain.label}</span>}
+                  {skill && <span className="text-[10px] font-medium bg-rose-50 text-rose-500 px-2 py-0.5 rounded-full border border-rose-100">{skill.label}</span>}
+                </div>
+              )
+            })()}
           </div>
         )}
         {revealed && isBlitzMode && (
@@ -636,19 +648,33 @@ export default function LearningSession({ config, onComplete, onQuit }) {
           </div>
         )}
 
-        {!revealed && !isBlitzMode && (current?.options?.length > 1) && (
-          <div className="mt-2 flex justify-end">
-            <button
-              onClick={() => useHint(current)}
-              disabled={!!eliminated[current.id]}
-              className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
-                eliminated[current.id]
-                  ? 'text-gray-300 border-gray-100 cursor-not-allowed'
-                  : 'text-indigo-400 border-indigo-200 hover:bg-indigo-50'
-              }`}
-            >
-              💡 {eliminated[current.id] ? 'Hint used (−10 XP)' : 'Hint (−10 XP)'}
-            </button>
+        {!revealed && !isBlitzMode && (
+          <div className="mt-2 flex items-center justify-between">
+            {!isSuddenDeath && !isSurvivalMode && (
+              <button
+                onClick={() => {
+                  setSessionXP(prev => Math.max(0, prev - 5))
+                  handleNext()
+                }}
+                className="text-xs text-gray-400 border border-gray-200 hover:bg-gray-50 px-2.5 py-1 rounded-lg transition-all"
+                title="Skip this question (−5 XP)"
+              >
+                ⏭ Skip (−5 XP)
+              </button>
+            )}
+            {(current?.options?.length > 1) ? (
+              <button
+                onClick={() => useHint(current)}
+                disabled={!!eliminated[current.id]}
+                className={`text-xs px-2.5 py-1 rounded-lg border transition-all ml-auto ${
+                  eliminated[current.id]
+                    ? 'text-gray-300 border-gray-100 cursor-not-allowed'
+                    : 'text-indigo-400 border-indigo-200 hover:bg-indigo-50'
+                }`}
+              >
+                💡 {eliminated[current.id] ? 'Hint used (−10 XP)' : 'Hint (−10 XP)'}
+              </button>
+            ) : <div />}
           </div>
         )}
 
