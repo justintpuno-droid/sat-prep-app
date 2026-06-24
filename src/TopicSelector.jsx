@@ -3493,6 +3493,29 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         </div>
 
+        {/* Daily study time nudge */}
+        {(() => {
+          try {
+            const h = parseInt(localStorage.getItem('sat_prep_study_hour') ?? '-1', 10)
+            if (h < 0) return null
+            const now = new Date()
+            const curH = now.getHours()
+            if (curH !== h) return null
+            const today = now.toISOString().slice(0, 10)
+            if (history.some(s => s.completedAt?.startsWith(today))) return null
+            const label = h < 12 ? `${h}:00 AM` : h === 12 ? '12:00 PM' : `${h - 12}:00 PM`
+            return (
+              <div className="bg-indigo-600 rounded-2xl px-4 py-3 mb-4 text-white flex items-center gap-3">
+                <span className="text-xl shrink-0">⏰</span>
+                <div>
+                  <p className="text-sm font-black">It's {label} — your study time!</p>
+                  <p className="text-xs text-indigo-200 mt-0.5">Start a session to keep your streak alive 🔥</p>
+                </div>
+              </div>
+            )
+          } catch { return null }
+        })()}
+
         {/* Late-night study reminder */}
         {history.length >= 3 && new Date().getHours() >= 22 && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mb-4 flex items-center gap-2">

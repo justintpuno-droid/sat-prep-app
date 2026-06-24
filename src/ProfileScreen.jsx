@@ -2,6 +2,10 @@ import { useMemo, useState, useCallback } from 'react'
 import { loadGamification, getLevelInfo, getLevelColor, ACHIEVEMENTS, getPrestigeInfo, saveGamification } from './utils/gamification'
 import { loadHistory } from './utils/history'
 
+const STUDY_TIME_KEY = 'sat_prep_study_hour'
+function loadStudyHour() { try { return parseInt(localStorage.getItem(STUDY_TIME_KEY) ?? '-1', 10) } catch { return -1 } }
+function saveStudyHour(h) { try { localStorage.setItem(STUDY_TIME_KEY, String(h)) } catch {} }
+
 const AVATAR_OPTIONS = [
   '🎓','⭐','🔥','⚡','🦁','🧠','🚀','💎','🏆','🌟',
   '🦊','🐉','🦅','🐺','🦋','🎯','🌈','🏄','🧊','👾',
@@ -23,6 +27,7 @@ export default function ProfileScreen({ onBack }) {
   const [avatar, setAvatar] = useState(loadAvatar)
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
   const [shopMsg, setShopMsg] = useState(null)
+  const [studyHour, setStudyHour] = useState(loadStudyHour)
 
   const buyItem = useCallback((cost, update, label) => {
     if ((gam.totalXP ?? 0) < cost) { setShopMsg(`Need ${cost} XP!`); setTimeout(() => setShopMsg(null), 1500); return }
@@ -188,6 +193,25 @@ export default function ProfileScreen({ onBack }) {
             </div>
           </div>
         )}
+
+        {/* Study schedule */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Daily Study Time</p>
+          <p className="text-xs text-gray-500 mb-3">Pick a time and we'll remind you on the home screen.</p>
+          <div className="grid grid-cols-4 gap-2">
+            {[7,8,9,10,14,15,16,17,18,19,20,21].map(h => {
+              const label = h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h - 12}pm`
+              const active = studyHour === h
+              return (
+                <button key={h} onClick={() => { const next = active ? -1 : h; setStudyHour(next); saveStudyHour(next) }}
+                  className={`py-2 rounded-xl text-xs font-bold transition-all ${active ? 'bg-indigo-600 text-white' : 'bg-gray-50 border border-gray-200 text-gray-500 hover:border-indigo-300'}`}>
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+          {studyHour >= 0 && <p className="text-xs text-indigo-500 font-semibold mt-2 text-center">✓ Reminding you at {studyHour < 12 ? `${studyHour}am` : studyHour === 12 ? '12pm' : `${studyHour - 12}pm`}</p>}
+        </div>
 
         {/* Inventory */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
