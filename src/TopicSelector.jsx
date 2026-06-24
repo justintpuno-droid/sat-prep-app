@@ -3,6 +3,7 @@ import { TAXONOMY, MATH_DOMAIN_IDS, ENG_DOMAIN_IDS } from './data/taxonomy'
 import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory, getSRCount } from './utils/history'
+import { SAT_VOCAB } from './data/vocab'
 import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze } from './utils/gamification'
 
 const DIFFICULTIES = [
@@ -186,6 +187,32 @@ function daysUntil(dateStr) {
   if (!dateStr) return null
   const diff = new Date(dateStr + 'T12:00:00') - new Date()
   return Math.ceil(diff / 86400000)
+}
+
+function VocabWordOfDay() {
+  const w = useMemo(() => {
+    const dayIdx = Math.floor(Date.now() / 86400000)
+    return SAT_VOCAB[dayIdx % SAT_VOCAB.length]
+  }, [])
+  const [showExample, setShowExample] = useState(false)
+  if (!w) return null
+  return (
+    <div className="bg-gradient-to-r from-violet-50 to-indigo-50 border border-violet-100 rounded-2xl p-4 mb-4">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-sm">📖</span>
+        <p className="text-xs font-bold text-violet-600 uppercase tracking-widest">SAT Word of the Day</p>
+      </div>
+      <p className="text-xl font-black text-gray-900 mb-1">{w.word}</p>
+      <p className="text-sm text-gray-600 leading-snug">{w.def}</p>
+      {showExample ? (
+        <p className="mt-2 text-xs text-gray-500 italic leading-snug">"{w.example}"</p>
+      ) : (
+        <button onClick={() => setShowExample(true)} className="mt-2 text-xs text-violet-500 hover:text-violet-700 font-medium transition-colors">
+          See example sentence →
+        </button>
+      )}
+    </div>
+  )
 }
 
 function DailySpin() {
@@ -2314,6 +2341,9 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
           </div>
         )}
+
+        {/* SAT Vocab Word of the Day */}
+        <VocabWordOfDay />
 
         {/* Daily Spin */}
         <DailySpin />
