@@ -614,7 +614,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, onStrategyGuide, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -1736,6 +1736,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               {onVocab && (
                 <button onClick={onVocab} className="text-xs font-semibold text-violet-600 hover:text-violet-800 border border-violet-200 bg-violet-50 rounded-lg px-3 py-1.5 transition-colors" title="SAT Vocabulary Flashcards">
                   📖 Vocab
+                </button>
+              )}
+              {onStrategyGuide && (
+                <button onClick={onStrategyGuide} className="text-xs font-semibold text-emerald-600 hover:text-emerald-800 border border-emerald-200 bg-emerald-50 rounded-lg px-3 py-1.5 transition-colors" title="SAT Strategy Guide">
+                  💡 Strategies
                 </button>
               )}
               {onQuestionBank && (
