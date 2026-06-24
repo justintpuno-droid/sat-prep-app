@@ -539,7 +539,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -1597,6 +1597,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               {onWrongAnswerSprint && recentWrongCount > 0 && (
                 <button onClick={onWrongAnswerSprint} className="text-xs font-semibold text-rose-600 hover:text-rose-800 border border-rose-200 bg-rose-50 rounded-lg px-3 py-1.5 transition-colors" title={`Drill ${Math.min(recentWrongCount, 15)} recent wrong answers`}>
                   🔁 Wrong ({recentWrongCount})
+                </button>
+              )}
+              {onWrongJournal && (
+                <button onClick={onWrongJournal} className="text-xs font-semibold text-rose-600 hover:text-rose-800 border border-rose-200 bg-rose-50 rounded-lg px-3 py-1.5 transition-colors" title="Review your mistake journal">
+                  📓 Journal
                 </button>
               )}
               {onAdaptiveQuiz && history.length >= 3 && (
