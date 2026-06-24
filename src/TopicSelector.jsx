@@ -328,6 +328,32 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return seen.size
   }, [history])
 
+  const tomorrowFocus = useMemo(() => {
+    if (history.length < 5) return null
+    const threeDaysAgo = new Date(); threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+    const cutoff = threeDaysAgo.toISOString().slice(0, 10)
+    const recentDomains = new Set(
+      history.filter(s => s.completedAt.slice(0, 10) >= cutoff).flatMap(s => s.questions.map(q => q.domain))
+    )
+    const byDomain = {}
+    for (const s of history) {
+      const day = s.completedAt.slice(0, 10)
+      for (const q of s.questions) {
+        if (!byDomain[q.domain]) byDomain[q.domain] = { correct: 0, total: 0, lastSeen: day }
+        byDomain[q.domain].total++
+        byDomain[q.domain].lastSeen = day > byDomain[q.domain].lastSeen ? day : byDomain[q.domain].lastSeen
+        if ((s.answers[q.id] ?? null) === q.answer) byDomain[q.domain].correct++
+      }
+    }
+    const candidate = Object.entries(byDomain)
+      .filter(([id, s]) => s.total >= 5 && !recentDomains.has(id) && (s.correct / s.total) < 0.75)
+      .sort(([, a], [, b]) => (a.correct / a.total) - (b.correct / b.total))[0]
+    if (!candidate) return null
+    const [id, st] = candidate
+    const daysSince = Math.round((Date.now() - new Date(st.lastSeen + 'T12:00:00').getTime()) / 86400000)
+    return { id, label: domainById[id]?.label ?? id, pct: Math.round((st.correct / st.total) * 100), daysSince }
+  }, [history])
+
   const bestOfWeek = useMemo(() => {
     const mon = new Date()
     const day = mon.getDay()
@@ -658,7 +684,15 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <span className="text-2xl">📚</span>
-              <span className="text-sm font-semibold tracking-widest text-indigo-500 uppercase">SAT Prep</span>
+              <span className="text-sm font-semibold tracking-widest text-indigo-500 uppercase">
+                {(() => {
+                  const h = new Date().getHours()
+                  if (h >= 5 && h < 12) return 'Good morning'
+                  if (h >= 12 && h < 17) return 'Keep it up'
+                  if (h >= 17 && h < 21) return 'Evening grind'
+                  return 'Night study'
+                })()}
+              </span>
               {streak > 0 && (
                 <span className="flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full" title={gam.maxStreak > streak ? `Best streak: ${gam.maxStreak} days` : 'Personal best streak!'}>
                   🔥 {streak}d {gam.maxStreak > streak ? <span className="opacity-60 font-normal">(best {gam.maxStreak}d)</span> : '🏆'}
@@ -1000,6 +1034,24 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               className="shrink-0 bg-white text-indigo-600 font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-indigo-50 transition-colors"
             >
               Start →
+            </button>
+          </div>
+        )}
+
+        {/* Tomorrow's focus suggestion */}
+        {tomorrowFocus && (
+          <div className="bg-violet-50 border border-violet-200 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+            <span className="text-lg shrink-0">📅</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-violet-400 font-semibold mb-0.5">Suggested next focus</p>
+              <p className="text-sm font-bold text-violet-800">{tomorrowFocus.label}</p>
+              <p className="text-xs text-violet-400">{tomorrowFocus.pct}% accuracy · not practiced in {tomorrowFocus.daysSince}d</p>
+            </div>
+            <button
+              onClick={() => setSelectedDomains(new Set([tomorrowFocus.id]))}
+              className="shrink-0 text-xs font-semibold text-violet-600 bg-white border border-violet-200 px-3 py-1.5 rounded-xl hover:bg-violet-50 transition-colors"
+            >
+              Drill it
             </button>
           </div>
         )}
