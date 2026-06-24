@@ -291,6 +291,16 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
       .slice(0, 1)[0] ?? null
   }, [wrongQuestions])
 
+  const sessionQuality = useMemo(() => {
+    if (score.total === 0) return null
+    const hardCount = questions.filter(q => q.difficulty === 3).length
+    const difficultyBonus = hardCount / score.total
+    const raw = score.percent / 100 * (1 + 0.3 * difficultyBonus)
+    const stars = Math.min(5, Math.max(1, Math.round(raw * 5)))
+    const labels = ['', 'Keep trying', 'Getting there', 'Good work', 'Great session!', 'Perfect! 🌟']
+    return { stars, label: labels[stars] }
+  }, [score, questions])
+
   const filteredQuestions = useMemo(() => {
     if (reviewFilter === 'correct') return questions.filter(q => (answers[q.id] ?? null) === q.answer)
     if (reviewFilter === 'incorrect') return wrongQuestions
@@ -437,6 +447,13 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
                 <p className="text-gray-400 text-xs mt-1 text-center">
                   {score.percent === 100 ? '🌟 Perfect!' : getGrade(score.percent).label}
                 </p>
+                {sessionQuality && (
+                  <div className="flex items-center justify-center gap-0.5 mt-1">
+                    {[1,2,3,4,5].map(n => (
+                      <span key={n} className={`text-base leading-none ${n <= sessionQuality.stars ? 'text-amber-400' : 'text-gray-200'}`}>★</span>
+                    ))}
+                  </div>
+                )}
                 {gamResult?.sessionRank && gamResult.sessionRank.isSessionPB && (
                   <p className="text-amber-500 text-xs font-bold mt-0.5 text-center">🏆 Best session!</p>
                 )}

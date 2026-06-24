@@ -992,6 +992,25 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
+        {/* Weak domain quick-drill shortcuts */}
+        {weakDomain && history.length >= 5 && recommendation?.type !== 'focus' && (() => {
+          const weakLabel = domainById[weakDomain.id]?.label ?? weakDomain.id
+          return (
+            <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
+              <span className="text-xs text-gray-400 shrink-0">Quick drill:</span>
+              <button
+                onClick={() => {
+                  setSelectedDomains(new Set([weakDomain.id]))
+                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+                }}
+                className="shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-rose-50 border border-rose-200 text-rose-600 rounded-full hover:bg-rose-100 transition-colors"
+              >
+                🎯 {weakLabel} ({weakDomain.pct}%)
+              </button>
+            </div>
+          )
+        })()}
+
         {/* Motivational nudge */}
         {nudge && (
           <div className={`rounded-2xl border-2 p-4 mb-4 flex items-start gap-3 ${nudge.color}`}>
