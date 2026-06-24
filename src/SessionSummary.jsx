@@ -789,6 +789,12 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
                   Skip to wrong ({wrongQuestions.length}) →
                 </button>
               )}
+              {onRetry && wrongQuestions.length > 0 && (
+                <button onClick={() => onRetry(wrongQuestions)}
+                  className="text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-lg px-2.5 py-1 transition-colors">
+                  🔁 Retry wrong
+                </button>
+              )}
             </div>
             <div className="flex flex-wrap gap-1.5">
               {[
