@@ -1361,6 +1361,68 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           )}
         </div>
 
+        {/* Weekly Leaderboard */}
+        {gam.totalXP > 0 && (() => {
+          const PEERS = [
+            { name: 'Aiden K.', seed: 17 }, { name: 'Sofia M.', seed: 31 }, { name: 'Jayden L.', seed: 7 },
+            { name: 'Emma R.', seed: 53 }, { name: 'Noah P.', seed: 43 }, { name: 'Olivia T.', seed: 23 },
+            { name: 'Liam W.', seed: 61 }, { name: 'Ava S.', seed: 11 }, { name: 'Ethan C.', seed: 37 },
+          ]
+          const weekMs = 7 * 24 * 3600 * 1000
+          const weekStart = new Date(); weekStart.setHours(0,0,0,0); weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+          const weekXP = history
+            .filter(s => new Date(s.completedAt) >= weekStart)
+            .reduce((sum, s) => sum + (s.score.total * 10), 0)
+          const seed = weekStart.getTime()
+          const rng = (n, s) => { let x = (n * 9301 + s * 49297 + seed / 1000000) % 233280; return x / 233280 }
+          const peers = PEERS.map((p, i) => ({
+            name: p.name,
+            xp: Math.round(rng(p.seed, i) * 900 + 50),
+            isMe: false,
+          }))
+          const me = { name: 'You', xp: weekXP, isMe: true }
+          const board = [...peers, me].sort((a, b) => b.xp - a.xp)
+          const myRank = board.findIndex(r => r.isMe) + 1
+          const medals = ['🥇','🥈','🥉']
+          return (
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">This Week's Leaderboard</p>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${myRank <= 3 ? 'bg-amber-100 text-amber-700' : myRank <= 5 ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'}`}>
+                  #{myRank} of {board.length}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {board.slice(0, 5).map((entry, i) => (
+                  <div key={i} className={`flex items-center gap-2 px-2 py-1.5 rounded-xl ${entry.isMe ? 'bg-indigo-50 border border-indigo-200' : ''}`}>
+                    <span className="w-5 text-center text-sm">{medals[i] ?? `${i+1}`}</span>
+                    <span className={`flex-1 text-sm font-semibold ${entry.isMe ? 'text-indigo-700' : 'text-gray-700'}`}>{entry.name}</span>
+                    <span className={`text-xs font-bold ${entry.isMe ? 'text-indigo-600' : 'text-gray-400'}`}>{entry.xp.toLocaleString()} XP</span>
+                  </div>
+                ))}
+                {myRank > 5 && (
+                  <>
+                    <div className="text-center text-gray-300 text-xs py-0.5">· · ·</div>
+                    <div className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200">
+                      <span className="w-5 text-center text-xs font-bold text-gray-500">#{myRank}</span>
+                      <span className="flex-1 text-sm font-semibold text-indigo-700">You</span>
+                      <span className="text-xs font-bold text-indigo-600">{weekXP.toLocaleString()} XP</span>
+                    </div>
+                  </>
+                )}
+              </div>
+              {myRank > 1 && (
+                <p className="text-xs text-gray-400 mt-2 text-center">
+                  {board[myRank - 2].xp - weekXP} XP behind #{myRank - 1} · Study more to climb! 🚀
+                </p>
+              )}
+              {myRank === 1 && (
+                <p className="text-xs text-emerald-600 font-semibold mt-2 text-center">🏆 You're #1 this week — keep it up!</p>
+              )}
+            </div>
+          )
+        })()}
+
         {/* Domain mastery map */}
         {history.length >= 3 && (() => {
           const byDomain = {}
