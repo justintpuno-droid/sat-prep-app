@@ -614,7 +614,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -3249,6 +3249,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <div className="text-xl mb-1.5">⚡</div>
                 <div className="font-bold text-sm text-indigo-900">Quick Practice</div>
                 <div className="text-xs text-indigo-500 mt-0.5">15 random questions</div>
+              </button>
+            )}
+            {onQuickAssessment && (
+              <button
+                onClick={onQuickAssessment}
+                className="text-left rounded-2xl border-2 border-teal-100 bg-teal-50 hover:bg-teal-100 hover:border-teal-300 p-4 transition-all duration-150 active:scale-[0.98]"
+              >
+                <div className="text-xl mb-1.5">📊</div>
+                <div className="font-bold text-sm text-teal-900">Quick Assessment</div>
+                <div className="text-xs text-teal-500 mt-0.5">2 Qs per domain · balanced</div>
               </button>
             )}
             {onFullPractice && (

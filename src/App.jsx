@@ -275,6 +275,22 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleQuickAssessment() {
+    const allDomains = [...new Set(allQuestions.map(q => q.domain))]
+    const balanced = allDomains.flatMap(domain => {
+      const pool = allQuestions.filter(q => q.domain === domain)
+      return shuffle(pool).slice(0, 2)
+    })
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Quick Assessment',
+      sessionName: null,
+      questions: shuffle(balanced).slice(0, 16),
+      xpMultiplier: 1.0,
+    })
+    setScreen('learning')
+  }
+
   function handleRampMode() {
     const easy = shuffle(allQuestions.filter(q => q.difficulty === 1)).slice(0, 5)
     const medium = shuffle(allQuestions.filter(q => q.difficulty === 2)).slice(0, 5)
@@ -352,7 +368,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} onSATTimed={handleSATTimed} onHeartsMode={handleHeartsMode} onSurvivalMode={handleSurvivalMode} onRampMode={handleRampMode} onWrongJournal={() => setScreen('wrong-journal')} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} onSATTimed={handleSATTimed} onHeartsMode={handleHeartsMode} onSurvivalMode={handleSurvivalMode} onRampMode={handleRampMode} onWrongJournal={() => setScreen('wrong-journal')} onQuickAssessment={handleQuickAssessment} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
