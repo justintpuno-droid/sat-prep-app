@@ -74,7 +74,11 @@ function HistoryCard({ session, deleteMode, selected, onToggleSelect, onRename, 
                     { fire: '🔥', good: '😊', okay: '😐', tired: '😤', rough: '😵' }[session.mood] ?? ''
                   }</span>
                 )}
+                {session.note && <span className="text-xs text-amber-500" title={session.note}>📝</span>}
               </div>
+              {session.note && (
+                <p className="text-xs text-gray-400 italic truncate mb-1">"{session.note}"</p>
+              )}
 
               {/* Name area */}
               {!deleteMode && (

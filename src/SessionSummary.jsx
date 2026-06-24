@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import QuestionCard from './components/QuestionCard'
 import { formatTime, pct } from './utils/index'
 import { domainById, skillById } from './data/taxonomy'
-import { updateSessionMood, loadHistory } from './utils/history'
+import { updateSessionMood, updateSessionNote, loadHistory } from './utils/history'
 
 function AnimatedXPBar({ gamResult }) {
   const { newLevel, xp, oldXP } = gamResult
@@ -242,6 +242,8 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
   const [breakdownTab, setBreakdownTab] = useState('subject')
   const [reviewFilter, setReviewFilter] = useState('all')
   const [copied, setCopied] = useState(false)
+  const [note, setNote] = useState(session.note ?? '')
+  const [noteSaved, setNoteSaved] = useState(false)
   const xpTarget = gamResult ? gamResult.newXP - gamResult.oldXP : 0
   const [displayedXP, setDisplayedXP] = useState(0)
   useEffect(() => {
@@ -878,6 +880,25 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           <button onClick={handleCopyResults}
             className="w-full py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-colors">
             {copied ? '✅ Copied! Paste it anywhere 🎉' : '📤 Share your score'}
+          </button>
+        </div>
+
+        {/* Study log note */}
+        <div className="mt-6 bg-amber-50 border border-amber-100 rounded-2xl p-4">
+          <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-2">📝 Session Note</p>
+          <textarea
+            value={note}
+            onChange={e => { setNote(e.target.value); setNoteSaved(false) }}
+            placeholder="What did you learn? What to review next time?"
+            rows={2}
+            className="w-full text-sm bg-white border border-amber-100 rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-amber-300 placeholder-amber-200 text-gray-700"
+          />
+          <button
+            onClick={() => { updateSessionNote(session.id, note); setNoteSaved(true) }}
+            disabled={noteSaved}
+            className={`mt-2 w-full py-1.5 rounded-xl text-xs font-semibold transition-colors ${noteSaved ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-400 text-white hover:bg-amber-500'}`}
+          >
+            {noteSaved ? '✓ Saved' : 'Save Note'}
           </button>
         </div>
 
