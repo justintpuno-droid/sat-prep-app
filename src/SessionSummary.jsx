@@ -259,14 +259,22 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
 
   function handleCopyResults() {
     const date = new Date(session.completedAt ?? Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    const grade = getGrade(score.percent)
-    const xpLine = gamResult?.earnedXP ? ` · +${gamResult.earnedXP} XP` : ''
-    const streakLine = gamResult?.gamification?.streak > 1 ? ` · 🔥 ${gamResult.gamification.streak}-day streak` : ''
+    const pct = score.percent
+    const bar = ['🟥','🟥','🟥','🟥','🟥','🟥','🟥','🟥','🟥','🟥'].map((_, i) => i < Math.round(pct / 10) ? '🟩' : '⬜').join('')
+    const grade = getGrade(pct)
+    const streak = gamResult?.gamification?.streak ?? 0
+    const xp = gamResult?.earnedXP ?? 0
+    const lvl = gamResult?.newLevel?.level ?? gamResult?.gamification?.level ?? '?'
     const lines = [
-      `📚 SAT Prep – ${date}`,
-      `${grade} Grade · ${score.percent}% (${score.correct}/${score.total} correct)`,
-      `Mode: ${formatLabel}${xpLine}${streakLine}`,
-      `Level ${gamResult?.gamification ? Math.floor(gamResult.gamification.totalXP / 1000) + 1 : '?'} · Keep grinding! 💪`,
+      `📚 SAT Prep App — ${date}`,
+      ``,
+      `${grade}  ${pct}%  (${score.correct}/${score.total} correct)`,
+      `${bar}`,
+      ``,
+      `⭐ +${xp} XP · Level ${lvl}${streak > 1 ? ` · 🔥 ${streak}-day streak` : ''}`,
+      `📋 ${formatLabel}`,
+      ``,
+      `Practicing for the SAT 💪 Try to beat me!`,
     ]
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
       setCopied(true)
