@@ -459,6 +459,31 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return { lo: band[1], hi: band[2] }
   }, [history])
 
+  const lastSessionSummary = useMemo(() => {
+    if (history.length === 0) return null
+    const s = history[history.length - 1]
+    const ago = (() => {
+      const diff = (Date.now() - new Date(s.completedAt)) / 60000
+      if (diff < 60) return `${Math.round(diff)}m ago`
+      if (diff < 1440) return `${Math.round(diff / 60)}h ago`
+      return `${Math.round(diff / 1440)}d ago`
+    })()
+    const domains = [...new Set(s.questions.map(q => q.domain))]
+      .slice(0, 2).map(id => domainById[id]?.label ?? id).join(', ')
+    return { pct: s.score.percent, correct: s.score.correct, total: s.score.total, ago, formatLabel: s.formatLabel, domains }
+  }, [history])
+
+  const timeToNextLevel = useMemo(() => {
+    if (history.length < 3) return null
+    const recent5 = history.slice(-5)
+    const xpPerSession = recent5.reduce((sum, s) => sum + s.score.correct * 10 + (s.score.total - s.score.correct) * 5, 0) / recent5.length
+    if (xpPerSession < 10) return null
+    const gap = levelInfo.xpForNext ? (levelInfo.xpForNext - levelInfo.xpIntoLevel) : null
+    if (!gap) return null
+    const sessions = Math.ceil(gap / xpPerSession)
+    return sessions <= 50 ? sessions : null
+  }, [history, levelInfo])
+
   const bestStudyTime = useMemo(() => {
     if (history.length < 8) return null
     const tod = { morning: { c: 0, t: 0 }, afternoon: { c: 0, t: 0 }, evening: { c: 0, t: 0 } }
@@ -936,6 +961,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 {levelInfo.xpForNext
                   ? `${gam.totalXP.toLocaleString()} XP · ${levelInfo.xpIntoLevel}/${levelInfo.xpForNext} to Lv ${levelInfo.level + 1}`
                   : `${gam.totalXP.toLocaleString()} XP · Max Level`}
+                {timeToNextLevel && <span className="text-indigo-400"> · ~{timeToNextLevel} session{timeToNextLevel !== 1 ? 's' : ''}</span>}
               </p>
             </div>
           </div>
@@ -1987,6 +2013,20 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           if (!msg) return null
           return <p className="text-xs text-indigo-500 mt-2">💡 {msg}</p>
         })()}
+
+        {/* Last session recap */}
+        {lastSessionSummary && (
+          <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 ${lastSessionSummary.pct >= 80 ? 'bg-emerald-100 text-emerald-700' : lastSessionSummary.pct >= 60 ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'}`}>
+              {lastSessionSummary.pct}%
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-400">{lastSessionSummary.ago} · {lastSessionSummary.formatLabel}</p>
+              <p className="text-sm font-semibold text-gray-700">{lastSessionSummary.correct}/{lastSessionSummary.total} correct</p>
+              {lastSessionSummary.domains && <p className="text-xs text-gray-400 truncate">{lastSessionSummary.domains}</p>}
+            </div>
+          </div>
+        )}
 
         {/* XP Boost power-up */}
         {(gam.boosts ?? 0) > 0 && (
