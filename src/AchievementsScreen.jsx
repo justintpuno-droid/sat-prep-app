@@ -4,10 +4,10 @@ import { loadHistory } from './utils/history'
 
 const CATEGORIES = [
   { id: 'all',      label: 'All' },
-  { id: 'accuracy', label: 'Accuracy',  ids: ['perfect','sharp','consistent','hat-trick','comeback'] },
-  { id: 'volume',   label: 'Volume',    ids: ['century','five-hundred','thousand','combo-5','combo-10'] },
-  { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','early-bird','night-owl','grinder'] },
-  { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','comeback-kid'] },
+  { id: 'accuracy', label: 'Accuracy',  ids: ['perfect','sharp','consistent','hat-trick','comeback','improver'] },
+  { id: 'volume',   label: 'Volume',    ids: ['century','five-hundred','thousand','combo-5','combo-10','marathon','diversity'] },
+  { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','early-bird','night-owl','grinder','perfect-week'] },
+  { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid'] },
   { id: 'milestones', label: 'Progress',ids: ['first-step','xp-1000','hard-worker','grinder'] },
 ]
 
@@ -68,6 +68,11 @@ function getHint(achId, stats, gam) {
     case 'hat-trick':    return h('Consecutive 80%+ sessions', stats.currentHatTrickRun, 3)
     case 'consistent':   return h('Consecutive 70%+ sessions', stats.currentConsistentRun, 10)
     case 'grinder':      return h('Day streak', stats.streak, 5)
+    case 'perfect-week': return { hint: 'Study 7 consecutive days with 80%+', pct: Math.min(100, Math.round((stats.streak / 7) * 100)) }
+    case 'marathon':     return { hint: 'Study 60+ min in one day', pct: 0 }
+    case 'improver':     return { hint: 'Beat your last session score by 20+ points', pct: 0 }
+    case 'speed-run':    return { hint: 'Avg under 30s/question in a session', pct: 0 }
+    case 'diversity':    return { hint: 'Practice 8+ domains in one week', pct: 0 }
     default:             return null
   }
 }

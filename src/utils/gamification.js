@@ -78,6 +78,12 @@ export const ACHIEVEMENTS = [
   { id: 'beast-ace',    icon: '🦁', title: 'Beast King',       desc: 'Score 80%+ in a Beast Mode session' },
   { id: 'domain-day',   icon: '✨', title: 'Domain Master',    desc: 'Complete a Domain of the Day session' },
   { id: 'comeback-kid', icon: '🔄', title: 'Comeback Kid',     desc: 'Earn the comeback bonus (study after missing a day)' },
+  // New achievements
+  { id: 'perfect-week', icon: '🗓️',  title: 'Perfect Week',     desc: 'Score 80%+ every day for 7 consecutive days' },
+  { id: 'marathon',     icon: '🏃',  title: 'Marathon Runner',  desc: 'Study for 60+ minutes in a single day' },
+  { id: 'improver',     icon: '📊',  title: 'Rapid Improver',   desc: 'Beat your previous session score by 20+ points' },
+  { id: 'speed-run',    icon: '💨',  title: 'Speed Runner',     desc: 'Avg under 30s/question in a session of 10+ Qs' },
+  { id: 'diversity',    icon: '🌈',  title: 'Well Rounded',     desc: 'Practice 8+ different domains in a week' },
 ]
 
 const CHECKS = {
@@ -132,6 +138,44 @@ const CHECKS = {
   'beast-ace':    (h) => h.some(s => s.formatLabel === 'Beast Mode' && s.score.percent >= 80),
   'domain-day':   (h) => h.some(s => s.formatLabel === 'Domain of the Day'),
   'comeback-kid': (_h, _g, ctx) => ctx?.comebackBonus > 0,
+  'perfect-week': (h) => {
+    const byDay = {}
+    for (const s of h) {
+      const d = s.completedAt.slice(0, 10)
+      if (!byDay[d] || s.score.percent > byDay[d]) byDay[d] = s.score.percent
+    }
+    const days = Object.entries(byDay).sort(([a], [b]) => a < b ? 1 : -1)
+    let streak = 0
+    for (const [, pct] of days) {
+      if (pct >= 80) streak++; else break
+    }
+    return streak >= 7
+  },
+  'marathon': (h) => {
+    const byDay = {}
+    for (const s of h) {
+      const d = s.completedAt.slice(0, 10)
+      byDay[d] = (byDay[d] ?? 0) + (s.elapsedSeconds ?? 0)
+    }
+    return Object.values(byDay).some(t => t >= 3600)
+  },
+  'improver': (h) => {
+    for (let i = 1; i < h.length; i++) {
+      if (h[i].score.total >= 5 && h[i-1].score.total >= 5 && h[i].score.percent >= h[i-1].score.percent + 20)
+        return true
+    }
+    return false
+  },
+  'speed-run': (h) => h.some(s => s.score.total >= 10 && s.elapsedSeconds > 0 && (s.elapsedSeconds / s.score.total) < 30),
+  'diversity': (h) => {
+    const mon = new Date()
+    mon.setDate(mon.getDate() - (mon.getDay() === 0 ? 6 : mon.getDay() - 1))
+    const monStr = mon.toISOString().slice(0, 10)
+    const weekDomains = new Set(
+      h.filter(s => s.completedAt.slice(0, 10) >= monStr).flatMap(s => s.questions.map(q => q.domain))
+    )
+    return weekDomains.size >= 8
+  },
 }
 
 // ─── Storage ───────────────────────────────────────────────────────────────
