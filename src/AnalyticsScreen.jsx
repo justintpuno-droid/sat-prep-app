@@ -198,6 +198,20 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     const biasTotal = Object.values(wrongChoices).reduce((a, b) => a + b, 0)
     const answerBias = biasTotal >= 20 ? wrongChoices : null
 
+    // 30-day activity heatmap data
+    const heatmap = []
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i)
+      const key = d.toISOString().slice(0, 10)
+      const daySessions = sessions.filter(s => s.completedAt?.slice(0, 10) === key)
+      const count = daySessions.length
+      const avgPct = count ? Math.round(daySessions.reduce((s, x) => s + x.score.percent, 0) / count) : 0
+      heatmap.push({ key, count, avgPct, label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) })
+    }
+
+    // Average session length
+    const avgSessionMin = sessions.length > 0 ? Math.round(totalTime / sessions.length / 60) : null
+
     // Performance by session format
     const byFormat = {}
     for (const s of sessions) {
@@ -254,7 +268,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
     // Questions per minute efficiency
     const qPerMin = totalTime > 0 ? (totalQ / (totalTime / 60)).toFixed(1) : null
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats }
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin }
   }, [sessions])
 
   return (
@@ -469,6 +483,7 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 sub={`${stats.totalC}/${stats.totalQ} correct`}
               />
               <StatCard label="Time Studied" value={formatTime(stats.totalTime)} />
+              {stats.avgSessionMin && <StatCard label="Avg Session" value={`${stats.avgSessionMin}m`} sub="per session" />}
               {stats.consistency && (
                 <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
                   <p className={`text-2xl font-black ${stats.consistency.color}`}>{stats.consistency.label}</p>
@@ -502,6 +517,30 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                       {r.sub && <p className="text-xs text-gray-400 mt-0.5">{r.sub}</p>}
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* 30-day activity heatmap */}
+            {stats.heatmap.some(d => d.count > 0) && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">30-Day Activity</p>
+                <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(15, minmax(0, 1fr))' }}>
+                  {stats.heatmap.map(d => {
+                    const bg = d.count === 0 ? 'bg-gray-100' : d.avgPct >= 85 ? 'bg-emerald-500' : d.avgPct >= 70 ? 'bg-emerald-300' : 'bg-emerald-100'
+                    return (
+                      <div
+                        key={d.key}
+                        className={`aspect-square rounded-sm ${bg} cursor-default`}
+                        title={`${d.label}: ${d.count ? `${d.count} session${d.count !== 1 ? 's' : ''} · ${d.avgPct}% avg` : 'No study'}`}
+                      />
+                    )
+                  })}
+                </div>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <span className="text-xs text-gray-400">Less</span>
+                  {['bg-gray-100','bg-emerald-100','bg-emerald-300','bg-emerald-500'].map((c, i) => <div key={i} className={`w-3 h-3 rounded-sm ${c}`} />)}
+                  <span className="text-xs text-gray-400">More</span>
                 </div>
               </div>
             )}
