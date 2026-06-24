@@ -319,6 +319,12 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
     return history.find(s => s.id !== session.id) ?? null
   }, [session.id])
 
+  const vsLast = useMemo(() => {
+    if (!lastSession || lastSession.score.total < 5 || score.total < 5) return null
+    const diff = score.percent - lastSession.score.percent
+    return { diff, label: Math.abs(diff) < 2 ? 'About the same' : diff > 0 ? `+${diff}% vs last` : `${diff}% vs last`, up: diff > 1, down: diff < -1 }
+  }, [lastSession, score])
+
   const correctCount = questions.filter(q => (answers[q.id] ?? null) === q.answer).length
   const incorrectCount = questions.length - correctCount
   const wrongQuestions = useMemo(
@@ -596,6 +602,11 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               {maxCombo >= 3 && (
                 <div className="text-xs font-semibold text-orange-500">
                   🔥 Best combo: {maxCombo}×
+                </div>
+              )}
+              {vsLast && (
+                <div className={`text-xs font-semibold px-2 py-0.5 rounded-full inline-block ${vsLast.up ? 'bg-emerald-100 text-emerald-700' : vsLast.down ? 'bg-rose-100 text-rose-600' : 'bg-gray-100 text-gray-500'}`}>
+                  {vsLast.up ? '↑' : vsLast.down ? '↓' : '→'} {vsLast.label}
                 </div>
               )}
               {timeLimit && <div className="text-xs text-gray-400">Limit: {formatTime(timeLimit)}</div>}
