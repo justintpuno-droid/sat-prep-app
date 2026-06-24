@@ -3,6 +3,7 @@ import QuestionCard from './components/QuestionCard'
 import { formatTime, pct } from './utils/index'
 import { domainById, skillById } from './data/taxonomy'
 import { updateSessionMood, updateSessionNote, loadHistory } from './utils/history'
+import { getDailyProgress, loadDailyGoal } from './utils/gamification'
 
 function AnimatedXPBar({ gamResult }) {
   const { newLevel, xp, oldXP } = gamResult
@@ -430,6 +431,24 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               <p className="text-white/70 text-xs mt-2">You destroyed the weekly boss · <span className="font-bold text-yellow-300">+{b.xp} XP</span></p>
             </div>
           )
+        })()}
+
+        {/* Daily goal completion banner */}
+        {(() => {
+          const history = loadHistory()
+          const dailyGoal = loadDailyGoal()
+          const progressAfter = getDailyProgress(history)
+          const progressBefore = progressAfter - session.score.total
+          if (progressBefore < dailyGoal && progressAfter >= dailyGoal) {
+            return (
+              <div className="rounded-2xl p-5 mb-5 text-center bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg">
+                <p className="text-4xl mb-2">🎯</p>
+                <p className="text-xl font-black mb-1">Daily Goal Smashed!</p>
+                <p className="text-white/80 text-sm">{dailyGoal} questions done today — you're on track for test day 💪</p>
+              </div>
+            )
+          }
+          return null
         })()}
 
         {/* Head-to-Head result */}
