@@ -127,10 +127,21 @@ export const ACHIEVEMENTS = [
   { id: 'centurion',        icon: '⚔️',  title: 'Centurion',         desc: '???', hidden: true },
   { id: 'five-in-a-day',   icon: '🔥', title: 'On Fire',           desc: '???', hidden: true },
   { id: 'speed-god',        icon: '🚀', title: 'Speed God',         desc: '???', hidden: true },
+  // Session milestone achievements
+  { id: 'session-5',       icon: '🎯', title: 'Getting Started',    desc: 'Complete 5 practice sessions' },
+  { id: 'session-10',      icon: '🏅', title: 'Consistent Studier', desc: 'Complete 10 practice sessions' },
+  { id: 'session-25',      icon: '🥈', title: 'Quarter Century',    desc: 'Complete 25 practice sessions' },
+  { id: 'session-50',      icon: '🥇', title: 'Dedicated Scholar',  desc: 'Complete 50 practice sessions' },
+  { id: 'session-100',     icon: '🏆', title: 'The Legend',         desc: 'Complete 100 practice sessions — legendary!' },
 ]
 
 const CHECKS = {
   'first-step':   (h) => h.length >= 1,
+  'session-5':    (h) => h.length >= 5,
+  'session-10':   (h) => h.length >= 10,
+  'session-25':   (h) => h.length >= 25,
+  'session-50':   (h) => h.length >= 50,
+  'session-100':  (h) => h.length >= 100,
   'perfect':      (h) => h.some(s => s.score.percent === 100 && s.score.total >= 10),
   'sharp':        (h) => h.some(s => s.score.percent >= 90 && s.score.total >= 15),
   'consistent':   (h) => {
