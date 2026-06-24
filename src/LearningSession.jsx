@@ -60,6 +60,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [eliminated, setEliminated] = useState({}) // questionId → eliminated option id
   const [wrongStreak, setWrongStreak] = useState(0)
+  const [partnerMsg, setPartnerMsg] = useState(null)
   const [rivalCorrect, setRivalCorrect] = useState(0)
   const [rivalTotal, setRivalTotal] = useState(0)
   const [satTimeLeft, setSatTimeLeft] = useState(0)
@@ -236,6 +237,25 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     }
     setXpFlash({ amount: xpGain, correct: isCorrect, speed: speedBonus > 0, id: Date.now() })
     setTimeout(() => setXpFlash(null), 900)
+
+    // Practice partner messages
+    const PARTNER_MSGS = {
+      combo3: ['Nice! 3 in a row! 🔥', 'You\'re getting it! Keep going!', 'Yes!! Three straight! 🎯'],
+      combo5: ['5 in a row — you\'re unstoppable! ⚡', 'Incredible streak! I knew you could do it!', 'FIVE consecutive!! Beast mode!'],
+      wrongAfterStreak: ['You\'ll bounce back, I know it!', 'One slip — means nothing. Reset and get the next one.', 'Everyone misses one. Shake it off! 💪'],
+      wrong2: ['Stay focused — you\'ve got this! 🧠', 'Two in a row, but I believe in you.', 'Don\'t let it rattle you. Breathe and focus.'],
+      halfway: ['Halfway there! You\'re doing great!', 'Midpoint! Momentum is on your side.', 'Half done — strong performance so far! ⭐'],
+      nearEnd: ['Almost there! Don\'t let up now!', 'Final stretch — give it everything!', 'So close! Finish strong! 🏁'],
+    }
+    const getRand = (arr) => arr[Math.floor(Math.random() * arr.length)]
+    let pMsg = null
+    if (isCorrect && newCombo === 3) pMsg = getRand(PARTNER_MSGS.combo3)
+    else if (isCorrect && newCombo === 5) pMsg = getRand(PARTNER_MSGS.combo5)
+    else if (!isCorrect && combo >= 3) pMsg = getRand(PARTNER_MSGS.wrongAfterStreak)
+    else if (!isCorrect && !isCorrect && wrongStreak === 1) pMsg = getRand(PARTNER_MSGS.wrong2)
+    else if (isCorrect && index === Math.floor(questions.length / 2)) pMsg = getRand(PARTNER_MSGS.halfway)
+    else if (isCorrect && index === questions.length - 3) pMsg = getRand(PARTNER_MSGS.nearEnd)
+    if (pMsg) { setPartnerMsg(pMsg); setTimeout(() => setPartnerMsg(null), 3000) }
 
     if (rival) {
       const rivalGetsIt = Math.random() < rival.accuracy
@@ -765,6 +785,16 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             <div className="text-3xl mb-1">{milestone.icon}</div>
             <p className="font-black text-lg leading-tight">{milestone.text}</p>
             <p className="text-xs text-gray-300 mt-0.5">{milestone.sub}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Practice partner message */}
+      {partnerMsg && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 pointer-events-none max-w-xs w-full px-4">
+          <div className="bg-white border-2 border-indigo-200 rounded-2xl px-4 py-3 shadow-lg flex items-center gap-3 animate-bounce">
+            <span className="text-xl shrink-0">🤖</span>
+            <p className="text-sm font-semibold text-indigo-700 leading-snug">{partnerMsg}</p>
           </div>
         </div>
       )}
