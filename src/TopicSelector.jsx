@@ -527,6 +527,16 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return { lo: band[1], hi: band[2], mathScore, engScore, trend }
   }, [history])
 
+  const momentum = useMemo(() => {
+    const recent = history.filter(s => s.score.total >= 5).slice(-7)
+    if (recent.length < 4) return null
+    const pts = recent.map(s => s.score.percent)
+    const last3avg = pts.slice(-3).reduce((a, b) => a + b, 0) / 3
+    const prev3avg = pts.slice(-6, -3).reduce((a, b) => a + b, 0) / Math.max(1, pts.slice(-6, -3).length)
+    const trend = last3avg - prev3avg
+    return { pts, trend, label: trend > 5 ? '🔥 Hot zone!' : trend < -5 ? '📉 Bounce back!' : '💪 Steady' }
+  }, [history])
+
   const miniCalendar = useMemo(() => {
     const days = Array.from({ length: 14 }, (_, i) => {
       const d = new Date(); d.setDate(d.getDate() - (13 - i))
@@ -1327,6 +1337,38 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                   </div>
                 )
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Study Momentum sparkline */}
+        {momentum && (
+          <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-4">
+            <div className="flex-1">
+              <p className="text-xs text-gray-400 font-medium mb-1">Recent momentum</p>
+              <svg viewBox={`0 0 ${(momentum.pts.length - 1) * 20} 28`} className="w-full h-7" preserveAspectRatio="none">
+                <polyline
+                  points={momentum.pts.map((v, i) => `${i * 20},${28 - (v / 100) * 28}`).join(' ')}
+                  fill="none"
+                  stroke={momentum.trend > 5 ? '#10b981' : momentum.trend < -5 ? '#f87171' : '#818cf8'}
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                {momentum.pts.map((v, i) => (
+                  <circle key={i} cx={i * 20} cy={28 - (v / 100) * 28} r="2.5"
+                    fill={i === momentum.pts.length - 1 ? (momentum.trend > 5 ? '#10b981' : momentum.trend < -5 ? '#f87171' : '#6366f1') : 'white'}
+                    stroke={momentum.trend > 5 ? '#10b981' : momentum.trend < -5 ? '#f87171' : '#818cf8'}
+                    strokeWidth="1.5"
+                  />
+                ))}
+              </svg>
+            </div>
+            <div className="text-right shrink-0">
+              <p className={`text-xs font-bold ${momentum.trend > 5 ? 'text-emerald-500' : momentum.trend < -5 ? 'text-rose-500' : 'text-indigo-500'}`}>
+                {momentum.label}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">last {momentum.pts.length} sessions</p>
             </div>
           </div>
         )}
