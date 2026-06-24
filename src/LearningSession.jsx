@@ -526,6 +526,17 @@ export default function LearningSession({ config, onComplete, onQuit }) {
               />
             </div>
           )}
+          {combo >= 1 && (() => {
+            const next = combo < 3 ? 3 : combo < 5 ? 5 : combo < 10 ? 10 : combo < 15 ? 15 : Math.ceil(combo / 10) * 10
+            const prev = combo < 3 ? 0 : combo < 5 ? 3 : combo < 10 ? 5 : combo < 15 ? 10 : (Math.floor(combo / 10)) * 10
+            const pct = ((combo - prev) / (next - prev)) * 100
+            const color = combo >= 10 ? 'bg-rose-500' : combo >= 5 ? 'bg-orange-500' : 'bg-amber-400'
+            return (
+              <div className={`h-0.5 rounded-full overflow-hidden ${combo >= 5 ? 'bg-orange-100' : 'bg-amber-50'}`}>
+                <div className={`h-full ${color} rounded-full transition-all duration-300`} style={{ width: `${pct}%` }} />
+              </div>
+            )
+          })()}
         </div>
       </div>
 
