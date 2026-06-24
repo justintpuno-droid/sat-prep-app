@@ -60,6 +60,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [eliminated, setEliminated] = useState({}) // questionId → eliminated option id
   const [wrongStreak, setWrongStreak] = useState(0)
+  const [showHint, setShowHint] = useState(false)
   const [partnerMsg, setPartnerMsg] = useState(null)
   const [rivalCorrect, setRivalCorrect] = useState(0)
   const [rivalTotal, setRivalTotal] = useState(0)
@@ -273,7 +274,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       setTimeout(() => {
         if (blitzFinishedRef.current) return
         if (isLastRef.current) { blitzFinishedRef.current = true; finishRef.current() }
-        else { setIndex(i => i + 1); setRevealed(false); setQuestionElapsed(0); questionStartRef.current = Date.now() }
+        else { setIndex(i => i + 1); setRevealed(false); setQuestionElapsed(0); questionStartRef.current = Date.now(); setShowHint(false) }
       }, 650)
     }
 
@@ -307,7 +308,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
 
   function handleNext() {
     if (isLast) finish()
-    else { setIndex(i => i + 1); setRevealed(false); setQuestionElapsed(0); questionStartRef.current = Date.now() }
+    else { setIndex(i => i + 1); setRevealed(false); setQuestionElapsed(0); questionStartRef.current = Date.now(); setShowHint(false) }
   }
 
   function finish() {
@@ -359,7 +360,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         }
       } else if (revealedRef.current && e.key === 'Enter') {
         if (isLastRef.current) finishRef.current()
-        else { setIndex(i => i + 1); setRevealed(false) }
+        else { setIndex(i => i + 1); setRevealed(false); setShowHint(false) }
       }
     }
     window.addEventListener('keydown', handleKey)
@@ -663,6 +664,36 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         {!revealed && (
           <p className="text-xs text-gray-300 mb-3 hidden sm:block">⌨ Press A–D to answer · Enter to continue</p>
         )}
+
+        {!revealed && !isBlitzMode && !isSuddenDeath && (() => {
+          const HINTS = {
+            'algebra': 'Try isolating the variable. Cross out prepositional phrases to find the real subject of the equation.',
+            'advanced-math': 'Try plugging in simple values (0, 1, −1) to test. Consider if factoring or the quadratic formula applies.',
+            'problem-solving-data': 'Read any graph or table carefully BEFORE re-reading the question. Identify what the y-axis represents.',
+            'geometry-trig': 'Label every given measurement on the figure. Identify which formula (area, Pythagorean, special triangle) you need.',
+            'information-ideas': 'Find the sentence in the passage that directly answers the question. Look for textual evidence.',
+            'craft-structure': 'Ask: what is the PURPOSE of this word/sentence? How does it relate to the author\'s argument?',
+            'expression-ideas': 'Identify the logical relationship: contrast, addition, cause, or example. Then pick the matching transition.',
+            'standard-english': 'Find the subject (ignore prepositional phrases). Check subject-verb agreement. Look for the specific grammar rule being tested.',
+          }
+          const hint = HINTS[current?.domain ?? ''] ?? 'Read carefully. Eliminate obviously wrong answers first.'
+          return (
+            <div className="mb-3">
+              {!showHint ? (
+                <button
+                  onClick={() => setShowHint(true)}
+                  className="text-[10px] font-bold text-indigo-400 hover:text-indigo-600 border border-indigo-100 hover:border-indigo-300 rounded-lg px-2.5 py-1 transition-colors bg-white"
+                >
+                  💡 Hint
+                </button>
+              ) : (
+                <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-3 py-2 text-xs text-indigo-700 leading-snug">
+                  <span className="font-bold">💡 </span>{hint}
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         <QuestionCard
           question={current}
