@@ -189,9 +189,9 @@ function StatRow({ label, correct, total }) {
   )
 }
 
-function QuestionRow({ question, userAnswer, index, isFlagged, timeSpent }) {
-  const [expanded, setExpanded] = useState(false)
+function QuestionRow({ question, userAnswer, index, isFlagged, timeSpent, highlight }) {
   const isCorrect = userAnswer === question.answer
+  const [expanded, setExpanded] = useState(!isCorrect && highlight)
   const skipped = userAnswer === null || userAnswer === undefined
 
   return (
