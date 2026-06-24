@@ -1602,15 +1602,17 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           const Cell = ({ domain }) => {
             const d = byDomain[domain.id]
             const pct = d ? Math.round((d.c / d.t) * 100) : null
+            const isExpert = pct !== null && pct >= 85 && d.t >= 20
             const bg = pct === null ? 'bg-gray-100 text-gray-300' :
                        pct >= 80 ? 'bg-emerald-500 text-white' :
                        pct >= 65 ? 'bg-amber-400 text-white' : 'bg-rose-400 text-white'
             return (
               <button
                 onClick={() => onFocusPractice?.(domain.id)}
-                className={`flex-1 rounded-xl py-2 px-1 text-center transition-all hover:scale-105 ${bg}`}
-                title={`${domain.label}${pct !== null ? `: ${pct}% (${d.t} Qs)` : ': not yet practiced'}`}
+                className={`flex-1 rounded-xl py-2 px-1 text-center transition-all hover:scale-105 relative ${bg}`}
+                title={`${domain.label}${pct !== null ? `: ${pct}% (${d.t} Qs)` : ': not yet practiced'}${isExpert ? ' — Expert!' : ''}`}
               >
+                {isExpert && <span className="absolute -top-1.5 -right-1 text-xs">👑</span>}
                 <p className="text-xs font-bold leading-tight">{pct !== null ? `${pct}%` : '—'}</p>
                 <p className="text-[9px] leading-tight mt-0.5 opacity-80 truncate">{domain.label.split(' ')[0]}</p>
               </button>
