@@ -1460,6 +1460,62 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
+        {/* Study Season Pass */}
+        {gam.totalXP > 0 && (() => {
+          const now = new Date()
+          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+          const monthName = now.toLocaleString('en-US', { month: 'long' })
+          const monthXP = (gam.xpLog ?? []).filter(e => new Date(e.date) >= monthStart).reduce((s, e) => s + e.xp, 0)
+          const TIERS = [
+            { xp: 100,  icon: '⭐', reward: 'Bronze Badge' },
+            { xp: 250,  icon: '🎯', reward: 'Sharp Shooter' },
+            { xp: 500,  icon: '🔥', reward: 'Hot Streak' },
+            { xp: 800,  icon: '💎', reward: 'Diamond Focus' },
+            { xp: 1200, icon: '🚀', reward: 'Rocket Scholar' },
+            { xp: 1800, icon: '🏆', reward: 'Gold Trophy' },
+            { xp: 2500, icon: '🌟', reward: 'All-Star' },
+            { xp: 3500, icon: '👑', reward: 'King/Queen' },
+            { xp: 5000, icon: '🐉', reward: 'SAT Dragon' },
+            { xp: 7000, icon: '🎓', reward: 'Scholar Elite' },
+          ]
+          const currentTierIdx = TIERS.findLastIndex(t => monthXP >= t.xp)
+          const nextTier = TIERS[currentTierIdx + 1]
+          const currentXPFloor = currentTierIdx >= 0 ? TIERS[currentTierIdx].xp : 0
+          const xpToNext = nextTier ? nextTier.xp - monthXP : 0
+          const pct = nextTier ? Math.min(100, ((monthXP - currentXPFloor) / (nextTier.xp - currentXPFloor)) * 100) : 100
+          return (
+            <div className="bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 rounded-2xl p-4 mb-4 text-white">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black uppercase tracking-widest opacity-80">Season Pass</span>
+                  <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-bold">{monthName}</span>
+                </div>
+                {currentTierIdx >= 0 && (
+                  <span className="text-sm font-black">{TIERS[currentTierIdx].icon} Tier {currentTierIdx + 1}</span>
+                )}
+              </div>
+              <div className="flex gap-1.5 mb-2">
+                {TIERS.map((t, i) => (
+                  <div key={i} className={`flex-1 h-6 rounded-lg flex items-center justify-center text-xs transition-all ${i <= currentTierIdx ? 'bg-white/90 text-indigo-700 font-black' : i === currentTierIdx + 1 ? 'bg-white/30 text-white/80 border border-white/50' : 'bg-white/10 text-white/30'}`}
+                    title={`${t.reward}: ${t.xp} XP`}>
+                    {i <= currentTierIdx ? t.icon : i <= currentTierIdx + 1 ? t.icon : '·'}
+                  </div>
+                ))}
+              </div>
+              {nextTier ? (
+                <>
+                  <div className="h-1.5 bg-white/20 rounded-full overflow-hidden mb-1.5">
+                    <div className="h-full bg-white rounded-full transition-all" style={{ width: `${pct}%` }} />
+                  </div>
+                  <p className="text-[10px] font-semibold opacity-70">{xpToNext} XP to {nextTier.icon} {nextTier.reward} · {monthXP.toLocaleString()} earned this month</p>
+                </>
+              ) : (
+                <p className="text-xs font-bold text-yellow-300">🎉 All tiers complete this month!</p>
+              )}
+            </div>
+          )
+        })()}
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
