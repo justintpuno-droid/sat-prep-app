@@ -154,6 +154,22 @@ const QOD_KEY = 'sat_prep_qod'
 function loadQOD() { try { return JSON.parse(localStorage.getItem(QOD_KEY)) ?? {} } catch { return {} } }
 function saveQOD(data) { try { localStorage.setItem(QOD_KEY, JSON.stringify(data)) } catch {} }
 
+const SPIN_KEY = 'sat_prep_spin'
+function loadSpin() { try { return JSON.parse(localStorage.getItem(SPIN_KEY)) ?? {} } catch { return {} } }
+function saveSpin(data) { try { localStorage.setItem(SPIN_KEY, JSON.stringify(data)) } catch {} }
+const SPIN_PRIZES = [
+  { label: '+50 XP', icon: '⭐', color: 'text-amber-600 bg-amber-50', xp: 50, prob: 0.40 },
+  { label: '+100 XP', icon: '💎', color: 'text-indigo-600 bg-indigo-50', xp: 100, prob: 0.25 },
+  { label: '2× next session', icon: '🚀', color: 'text-violet-600 bg-violet-50', xp: 0, boost: true, prob: 0.20 },
+  { label: '+200 XP', icon: '🔥', color: 'text-rose-600 bg-rose-50', xp: 200, prob: 0.10 },
+  { label: 'Streak Freeze', icon: '🧊', color: 'text-blue-600 bg-blue-50', xp: 0, freeze: true, prob: 0.05 },
+]
+function spinPrize(seed) {
+  let r = seed - Math.floor(seed), cumulative = 0
+  for (const p of SPIN_PRIZES) { cumulative += p.prob; if (r < cumulative) return p }
+  return SPIN_PRIZES[0]
+}
+
 const WEEKLY_XP_KEY = 'sat_prep_weekly_xp_goal'
 function loadWeeklyXPGoal() { try { return parseInt(localStorage.getItem(WEEKLY_XP_KEY) ?? '500', 10) } catch { return 500 } }
 function saveWeeklyXPGoal(v) { try { localStorage.setItem(WEEKLY_XP_KEY, String(v)) } catch {} }
@@ -170,6 +186,64 @@ function daysUntil(dateStr) {
   if (!dateStr) return null
   const diff = new Date(dateStr + 'T12:00:00') - new Date()
   return Math.ceil(diff / 86400000)
+}
+
+function DailySpin() {
+  const today = new Date().toISOString().slice(0, 10)
+  const initData = useMemo(() => loadSpin(), [])
+  const alreadySpun = initData.date === today
+  const [spinning, setSpinning] = useState(false)
+  const [prize, setPrize] = useState(alreadySpun ? initData.prize : null)
+
+  if (alreadySpun && prize === null) return null
+
+  function doSpin() {
+    if (spinning || prize) return
+    setSpinning(true)
+    setTimeout(() => {
+      const won = spinPrize(Math.random())
+      setPrize(won)
+      saveSpin({ date: today, prize: won })
+      if (won.boost) saveBoost(true)
+      if (won.freeze) { const g = loadGamification(); g.streakFreezes = (g.streakFreezes ?? 0) + 1; saveGamification(g) }
+      if (won.xp > 0) { const g = loadGamification(); g.totalXP = (g.totalXP ?? 0) + won.xp; g.xpLog = [...(g.xpLog ?? []), { date: today, xp: won.xp }].slice(-90); saveGamification(g) }
+      setSpinning(false)
+    }, 1200)
+  }
+
+  return (
+    <div className={`rounded-2xl border-2 p-4 mb-4 ${prize ? 'border-amber-200 bg-amber-50' : 'border-indigo-100 bg-white'}`}>
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-base">🎰</span>
+        <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Daily Spin</p>
+        {prize && <span className="ml-auto text-xs text-amber-500 font-semibold">Today's reward</span>}
+      </div>
+      {prize ? (
+        <div className="flex items-center gap-3">
+          <span className={`text-3xl px-4 py-2 rounded-xl ${prize.color}`}>{prize.icon}</span>
+          <div>
+            <p className="font-black text-gray-900 text-lg">{prize.label}</p>
+            <p className="text-xs text-gray-400">Claimed today · Come back tomorrow!</p>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1.5">
+            {SPIN_PRIZES.map((p, i) => (
+              <div key={i} className={`text-lg ${spinning ? 'animate-bounce' : ''}`} style={{ animationDelay: `${i * 100}ms` }}>{p.icon}</div>
+            ))}
+          </div>
+          <button
+            onClick={doSpin}
+            disabled={spinning}
+            className={`ml-auto text-sm font-black px-5 py-2 rounded-xl transition-all ${spinning ? 'bg-gray-200 text-gray-400' : 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 shadow-lg active:scale-95'}`}
+          >
+            {spinning ? 'Spinning...' : '🎰 Spin!'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
 }
 
 function QuestionOfDay({ allQuestions }) {
@@ -2240,6 +2314,9 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
           </div>
         )}
+
+        {/* Daily Spin */}
+        <DailySpin />
 
         {/* Question of the Day */}
         <QuestionOfDay allQuestions={questions} />
