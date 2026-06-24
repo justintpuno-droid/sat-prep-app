@@ -96,6 +96,8 @@ export const ACHIEVEMENTS = [
   { id: 'early-riser',     icon: '🌅', title: 'Early Riser',       desc: 'Study before 7am for 5 sessions' },
   { id: 'hard-elite',      icon: '💎', title: 'Hard Elite',        desc: 'Get 50 Hard questions correct' },
   { id: 'all-formats',     icon: '🎨', title: 'Format Explorer',   desc: 'Try every practice mode (Quick, Beast, Blitz, Adaptive, Sudden Death)' },
+  { id: 'timed-ace',       icon: '⏱', title: 'Under Pressure',    desc: 'Score 90%+ on a Timed Challenge' },
+  { id: 'xp-10000',        icon: '🌌', title: 'Galaxy Brain',      desc: 'Accumulate 10,000 total XP' },
 ]
 
 const CHECKS = {
@@ -202,6 +204,8 @@ const CHECKS = {
       if (q.difficulty === 3 && (s.answers?.[q.id] ?? null) === q.answer) n++
     return n >= 50
   },
+  'timed-ace':       (h) => h.some(s => s.formatLabel === 'Timed Challenge' && s.score.percent >= 90),
+  'xp-10000':        (_h, g) => g.totalXP >= 10000,
   'all-formats':     (h) => {
     const formats = new Set(h.map(s => s.formatLabel))
     return ['Quick 5','Beast Mode','Blitz Mode','Adaptive Quiz','Sudden Death'].every(f => formats.has(f))

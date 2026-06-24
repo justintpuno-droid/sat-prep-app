@@ -324,7 +324,18 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
       }
     }
 
-    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate }
+    // SAT score estimate trend (rolling 5-session window)
+    const scoreEstimateTrend = []
+    const eligible = sessions.filter(s => s.score.total >= 10)
+    for (let i = 4; i < eligible.length; i++) {
+      const window = eligible.slice(Math.max(0, i - 4), i + 1)
+      const avgAcc = window.reduce((s, x) => s + x.score.percent, 0) / window.length / 100
+      const map = [[0.95,1500],[0.90,1400],[0.85,1300],[0.80,1200],[0.75,1100],[0.70,1000],[0.65,900],[0.60,800],[0.55,700],[0,550]]
+      const mid = map.find(([t]) => avgAcc >= t)?.[1] ?? 550
+      scoreEstimateTrend.push({ i, mid, date: eligible[i].completedAt.slice(0, 10) })
+    }
+
+    return { totalQ, totalC, overallPct: pct(totalC, totalQ), totalTime, domainList, trend, streak, weakQuestions, diffList, mostImproved, timeOfDay, domainTrends, consistency, answerBias, plateau, qPerMin, positionAnalysis, personalRecords, formatStats, heatmap, avgSessionMin, wrongTrend, scoreDist, weeklyAccuracy, scoreEstimate, scoreEstimateTrend }
   }, [sessions])
 
   return (
@@ -619,6 +630,37 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                 <p className="text-xs opacity-50 mt-3">* Rough estimate. Take a full practice test for accurate scoring.</p>
               </div>
             )}
+
+            {/* SAT score trend chart */}
+            {stats.scoreEstimateTrend.length >= 3 && (() => {
+              const vals = stats.scoreEstimateTrend.map(e => e.mid)
+              const minV = Math.min(...vals) - 50, maxV = Math.max(...vals) + 50
+              const range = Math.max(maxV - minV, 100)
+              const w = 260, h = 50
+              const pts = vals.map((v, i) => `${Math.round((i / (vals.length - 1)) * w)},${Math.round(h - ((v - minV) / range) * h)}`)
+              const first = vals[0], last = vals[vals.length - 1]
+              const up = last > first
+              return (
+                <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">SAT Score Trajectory</p>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${up ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-500'}`}>
+                      {up ? '↑' : '↓'} {Math.abs(last - first)} pts
+                    </span>
+                  </div>
+                  <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-12">
+                    <polyline points={pts.join(' ')} fill="none" stroke="#6366f1" strokeWidth="2" strokeLinejoin="round" />
+                    {vals.map((v, i) => (
+                      <circle key={i} cx={Math.round((i / (vals.length - 1)) * w)} cy={Math.round(h - ((v - minV) / range) * h)} r={i === vals.length - 1 ? 3 : 2} fill={i === vals.length - 1 ? '#6366f1' : '#c7d2fe'} />
+                    ))}
+                  </svg>
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-gray-300">Earlier</span>
+                    <span className="text-xs font-bold text-indigo-600">Now: ~{last}</span>
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* Personal records */}
             {sessions.length >= 3 && stats.personalRecords && (
