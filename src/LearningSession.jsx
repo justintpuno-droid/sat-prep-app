@@ -448,9 +448,19 @@ export default function LearningSession({ config, onComplete, onQuit }) {
         {/* Feedback */}
         {revealed && !isBlitzMode && (
           <div className={`mt-5 rounded-xl p-4 ${selected === current.answer ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
-            <p className={`font-semibold text-sm mb-1 ${selected === current.answer ? 'text-emerald-700' : 'text-rose-600'}`}>
-              {selected === current.answer ? '✓ Correct!' : `✗ Incorrect — correct answer: ${current.answer}`}
-            </p>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <p className={`font-semibold text-sm ${selected === current.answer ? 'text-emerald-700' : 'text-rose-600'}`}>
+                {selected === current.answer ? '✓ Correct!' : `✗ Incorrect — correct answer: ${current.answer}`}
+              </p>
+              {selected !== current.answer && (() => {
+                const sec = (Date.now() - questionStartRef.current) / 1000
+                const label = sec < 12 ? { icon: '⚡', text: 'Rushed', cls: 'bg-orange-100 text-orange-600' }
+                  : current.difficulty === 1 ? { icon: '😵', text: 'Easy miss', cls: 'bg-amber-100 text-amber-700' }
+                  : current.difficulty === 3 ? { icon: '📚', text: 'Concept gap', cls: 'bg-violet-100 text-violet-700' }
+                  : { icon: '🔍', text: 'Re-read needed', cls: 'bg-rose-100 text-rose-600' }
+                return <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${label.cls}`}>{label.icon} {label.text}</span>
+              })()}
+            </div>
             {current.explanation && (
               <p className="text-sm text-gray-600 leading-relaxed">{current.explanation}</p>
             )}
