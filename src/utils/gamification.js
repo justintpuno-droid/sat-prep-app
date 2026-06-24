@@ -98,6 +98,12 @@ export const ACHIEVEMENTS = [
   { id: 'all-formats',     icon: '🎨', title: 'Format Explorer',   desc: 'Try every practice mode (Quick, Beast, Blitz, Adaptive, Sudden Death)' },
   { id: 'timed-ace',       icon: '⏱', title: 'Under Pressure',    desc: 'Score 90%+ on a Timed Challenge' },
   { id: 'xp-10000',        icon: '🌌', title: 'Galaxy Brain',      desc: 'Accumulate 10,000 total XP' },
+  // Secret achievements (hidden until unlocked)
+  { id: 'midnight-scholar', icon: '🌑', title: 'Midnight Scholar',  desc: '???', hidden: true },
+  { id: 'perfect-beast',    icon: '🦁', title: 'Perfect Beast',     desc: '???', hidden: true },
+  { id: 'centurion',        icon: '⚔️',  title: 'Centurion',         desc: '???', hidden: true },
+  { id: 'five-in-a-day',   icon: '🔥', title: 'On Fire',           desc: '???', hidden: true },
+  { id: 'speed-god',        icon: '🚀', title: 'Speed God',         desc: '???', hidden: true },
 ]
 
 const CHECKS = {
@@ -219,6 +225,16 @@ const CHECKS = {
     )
     return weekDomains.size >= 8
   },
+  // Secret achievements
+  'midnight-scholar': (h) => h.some(s => { const hr = new Date(s.completedAt).getHours(); return hr === 0 }),
+  'perfect-beast':    (h) => h.some(s => s.formatLabel === 'Beast Mode' && s.score.percent === 100),
+  'centurion':        (h) => h.some(s => s.score.total >= 50),
+  'five-in-a-day':   (h) => {
+    const byday = {}
+    for (const s of h) { const d = s.completedAt.slice(0, 10); byday[d] = (byday[d] ?? 0) + 1 }
+    return Object.values(byday).some(n => n >= 5)
+  },
+  'speed-god':        (h) => h.some(s => s.score.total >= 10 && s.elapsedSeconds && (s.elapsedSeconds / s.score.total) < 15),
 }
 
 // ─── Storage ───────────────────────────────────────────────────────────────

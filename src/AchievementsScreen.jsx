@@ -9,9 +9,21 @@ const CATEGORIES = [
   { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','streak-30','early-bird','night-owl','early-riser','night-grinder','grinder','perfect-week'] },
   { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid','wrong-sprint','adaptive-ace','sudden-death-5','sudden-death-ace','all-formats','timed-ace'] },
   { id: 'milestones', label: 'Progress',ids: ['first-step','xp-1000','xp-5000','xp-10000','hard-worker','hard-elite','grinder','domain-master-5'] },
+  { id: 'secret',   label: '🔒 Secret', ids: ['midnight-scholar','perfect-beast','centurion','five-in-a-day','speed-god'] },
 ]
 
 function AchievementCard({ ach, unlockedAt, hint, hintPct }) {
+  if (ach.hidden && !unlockedAt) {
+    return (
+      <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 p-4 flex items-center gap-3">
+        <div className="text-2xl shrink-0 grayscale opacity-20">🔒</div>
+        <div>
+          <p className="font-bold text-sm text-gray-300">???</p>
+          <p className="text-xs text-gray-300 mt-0.5">Hidden achievement — keep playing to discover it</p>
+        </div>
+      </div>
+    )
+  }
   const dateStr = unlockedAt
     ? new Date(unlockedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : null
