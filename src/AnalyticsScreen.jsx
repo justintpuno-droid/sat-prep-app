@@ -1213,6 +1213,36 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               )
             })()}
 
+            {/* SAT Report Card */}
+            {stats.domainList.filter(d => d.total >= 5).length >= 2 && (() => {
+              const grade = p => p >= 95 ? 'A+' : p >= 90 ? 'A' : p >= 87 ? 'A−' : p >= 83 ? 'B+' : p >= 80 ? 'B' : p >= 77 ? 'B−' : p >= 73 ? 'C+' : p >= 70 ? 'C' : p >= 67 ? 'C−' : p >= 63 ? 'D+' : p >= 60 ? 'D' : 'F'
+              const gradeColor = p => p >= 90 ? 'text-emerald-600 bg-emerald-50 border-emerald-200' : p >= 80 ? 'text-indigo-600 bg-indigo-50 border-indigo-200' : p >= 70 ? 'text-amber-600 bg-amber-50 border-amber-200' : p >= 60 ? 'text-orange-600 bg-orange-50 border-orange-200' : 'text-rose-600 bg-rose-50 border-rose-200'
+              const eligible = stats.domainList.filter(d => d.total >= 5)
+              const gpa = eligible.reduce((s, d) => s + d.p, 0) / eligible.length
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">SAT Report Card</p>
+                    <div className={`text-xs font-black px-2.5 py-1 rounded-full border ${gradeColor(gpa)}`}>
+                      GPA: {grade(gpa)}
+                    </div>
+                  </div>
+                  <div className="space-y-2.5">
+                    {eligible.map(d => (
+                      <div key={d.id} className="flex items-center gap-3">
+                        <span className="text-xs text-gray-600 flex-1 truncate">{d.label}</span>
+                        <div className={`text-xs font-black w-9 h-7 rounded-lg border flex items-center justify-center shrink-0 ${gradeColor(d.p)}`}>
+                          {grade(d.p)}
+                        </div>
+                        <span className="text-xs text-gray-400 w-8 text-right shrink-0">{d.p}%</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-3 text-center">Grades based on accuracy (min 5 questions per domain)</p>
+                </div>
+              )
+            })()}
+
             {/* Top practiced domains */}
             {stats.domainList.length >= 3 && (() => {
               const top = [...stats.domainList].sort((a, b) => b.total - a.total).slice(0, 5)
