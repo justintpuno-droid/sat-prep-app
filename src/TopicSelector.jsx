@@ -1310,6 +1310,37 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           )
         })()}
 
+        {/* Domain Rankings */}
+        {(() => {
+          const ranked = Object.entries(domainStats)
+            .filter(([, s]) => s.total >= 5)
+            .map(([id, s]) => ({ id, pct: s.pct, label: TAXONOMY.flatMap(x => x.domains).find(d => d.id === id)?.label ?? id }))
+            .sort((a, b) => b.pct - a.pct)
+          if (ranked.length < 3) return null
+          const medal = (i) => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null
+          const tier = (p) => p >= 85 ? { label: 'Master', cls: 'text-amber-500 bg-amber-50' } : p >= 70 ? { label: 'Strong', cls: 'text-emerald-600 bg-emerald-50' } : p >= 55 ? { label: 'Building', cls: 'text-indigo-500 bg-indigo-50' } : { label: 'Needs work', cls: 'text-rose-500 bg-rose-50' }
+          return (
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Domain Rankings</p>
+              <div className="space-y-2">
+                {ranked.map((d, i) => {
+                  const t = tier(d.pct)
+                  return (
+                    <button key={d.id} onClick={() => onFocusPractice?.(d.id)} className="w-full flex items-center gap-3 group">
+                      <span className="w-5 text-base shrink-0">{medal(i) ?? <span className="text-xs text-gray-400 font-bold">#{i + 1}</span>}</span>
+                      <span className="text-sm text-gray-700 flex-1 text-left truncate group-hover:text-indigo-600 transition-colors">{d.label}</span>
+                      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden max-w-20">
+                        <div className={`h-full rounded-full ${d.pct >= 80 ? 'bg-emerald-500' : d.pct >= 65 ? 'bg-amber-400' : 'bg-rose-400'}`} style={{ width: `${d.pct}%` }} />
+                      </div>
+                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded-lg shrink-0 ${t.cls}`}>{d.pct}%</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Question coverage tracker */}
         {domainCoverage.some(d => d.seen > 0) && (
           <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4">
