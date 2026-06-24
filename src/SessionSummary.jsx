@@ -395,7 +395,8 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               {gamResult.xp.bonus > 0 && <span>Bonus: +{gamResult.xp.bonus}</span>}
               {gamResult.xp.streakMult > 1.05 && <span>Streak {Math.round(gamResult.xp.streakMult * 10) / 10}×</span>}
               {gamResult.xp.modeMult > 1.05 && <span className="text-rose-300 font-bold">2× Beast Mode!</span>}
-              {gamResult.challengeBonus > 0 && <span>+{gamResult.challengeBonus} challenge</span>}
+              {gamResult.challengeBonus > 0 && <span>+{gamResult.challengeBonus} daily challenge</span>}
+              {gamResult.weeklyBonus > 0 && <span className="text-violet-300 font-bold">+{gamResult.weeklyBonus} weekly challenge!</span>}
               {gamResult.comebackBonus > 0 && <span className="text-amber-300 font-bold">+{gamResult.comebackBonus} comeback!</span>}
               {gamResult.improvementBonus > 0 && <span className="text-emerald-300 font-bold">+{gamResult.improvementBonus} improved!</span>}
               {gamResult.milestoneBonus > 0 && <span className="text-emerald-300 font-bold">+{gamResult.milestoneBonus} milestone!</span>}

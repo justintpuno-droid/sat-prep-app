@@ -302,6 +302,7 @@ export function processSession(session, history, prevGam) {
 
   // Check daily challenge completion
   const today = new Date().toISOString().slice(0, 10)
+  const thisWeek = isoWeekKey()
   let challengeBonus = 0
   let challengeCompleted = null
   if (prevGam.dailyChallengeDate !== today) {
@@ -311,6 +312,24 @@ export function processSession(session, history, prevGam) {
     if (progress >= challenge.goal) {
       challengeBonus = challenge.bonus
       challengeCompleted = challenge
+    }
+  }
+
+  // Weekly challenge completion
+  let weeklyBonus = 0
+  let weeklyCompleted = null
+  if (prevGam.weeklyChallengeWeek !== thisWeek) {
+    const weekStart = (() => {
+      const d = new Date(); const day = d.getDay()
+      d.setDate(d.getDate() - (day === 0 ? 6 : day - 1)); d.setHours(0,0,0,0)
+      return d.toISOString().slice(0, 10)
+    })()
+    const weekSessions = history.filter(s => s.completedAt.slice(0, 10) >= weekStart)
+    const wChallenge = getThisWeekChallenge()
+    const wProgress = getWeeklyProgress(weekSessions, wChallenge)
+    if (wProgress >= wChallenge.goal) {
+      weeklyBonus = wChallenge.bonus
+      weeklyCompleted = wChallenge
     }
   }
 
@@ -338,11 +357,11 @@ export function processSession(session, history, prevGam) {
   const boostedXP = Math.round(xp.total * boostMult)
   if (boostActive) consumeBoost()
 
-  const newXP = oldXP + boostedXP + challengeBonus + comebackBonus + milestoneBonus + improvementBonus
+  const newXP = oldXP + boostedXP + challengeBonus + weeklyBonus + comebackBonus + milestoneBonus + improvementBonus
   const oldLevel = getLevelInfo(oldXP)
   const newLevel = getLevelInfo(newXP)
 
-  const totalXPEarned = boostedXP + challengeBonus + comebackBonus + milestoneBonus + improvementBonus
+  const totalXPEarned = boostedXP + challengeBonus + weeklyBonus + comebackBonus + milestoneBonus + improvementBonus
   const xpLog = [...(prevGam.xpLog ?? []), { date: today, xp: totalXPEarned }].slice(-90)
 
   // Award a boost at every 5-day streak milestone (5, 10, 15…)
@@ -369,6 +388,7 @@ export function processSession(session, history, prevGam) {
     ...(earnedBoost ? { lastBoostStreak: streak } : {}),
     ...(earnedFreeze ? { lastFreezeStreak: streak } : {}),
     ...(challengeBonus > 0 ? { dailyChallengeDate: today } : {}),
+    ...(weeklyBonus > 0 ? { weeklyChallengeWeek: thisWeek } : {}),
   }
 
   const newAchievements = []
@@ -420,7 +440,7 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, boostedXP, boostActive, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned }
+  return { xp, boostedXP, boostActive, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, weeklyBonus, weeklyCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────
@@ -468,6 +488,43 @@ export function getChallengeProgress(todaySessions, challenge) {
   }
   if (challenge.id.startsWith('ace-')) {
     return todaySessions.some(s => s.score.percent >= 80 && s.score.total >= 15) ? 1 : 0
+  }
+  return 0
+}
+
+// ─── Weekly challenge ───────────────────────────────────────────────────────
+
+export const WEEKLY_CHALLENGES = [
+  { id: 'w-sessions-7',  goal: 7,   unit: 'sessions',      desc: 'Complete 7 sessions this week',                bonus: 300 },
+  { id: 'w-questions-200', goal: 200, unit: 'questions',   desc: 'Answer 200 questions this week',               bonus: 250 },
+  { id: 'w-hard-30',    goal: 30,  unit: 'Hard correct',   desc: 'Get 30 Hard questions correct this week',      bonus: 350 },
+  { id: 'w-ace-5',      goal: 5,   unit: '80%+ sessions',  desc: 'Score 80%+ on 5 sessions this week',           bonus: 400 },
+  { id: 'w-streak',     goal: 5,   unit: 'day streak',     desc: 'Study 5 days this week',                       bonus: 300 },
+]
+
+function isoWeekKey(date = new Date()) {
+  const d = new Date(date)
+  d.setHours(0,0,0,0)
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7))
+  const year = d.getFullYear()
+  const week = Math.ceil(((d - new Date(year, 0, 1)) / 86400000 + 1) / 7)
+  return `${year}-W${String(week).padStart(2, '0')}`
+}
+
+export function getThisWeekChallenge() {
+  const key = isoWeekKey()
+  const num = key.split('-W')[1]
+  return WEEKLY_CHALLENGES[parseInt(num, 10) % WEEKLY_CHALLENGES.length]
+}
+
+export function getWeeklyProgress(weekSessions, challenge) {
+  if (challenge.id === 'w-sessions-7') return weekSessions.length
+  if (challenge.id === 'w-questions-200') return weekSessions.reduce((n, s) => n + s.score.total, 0)
+  if (challenge.id === 'w-hard-30') return weekSessions.reduce((n, s) =>
+    n + s.questions.filter(q => q.difficulty === 3 && (s.answers[q.id] ?? null) === q.answer).length, 0)
+  if (challenge.id === 'w-ace-5') return weekSessions.filter(s => s.score.percent >= 80 && s.score.total >= 10).length
+  if (challenge.id === 'w-streak') {
+    const days = new Set(weekSessions.map(s => s.completedAt.slice(0, 10))); return days.size
   }
   return 0
 }

@@ -3,7 +3,7 @@ import { TAXONOMY, MATH_DOMAIN_IDS, ENG_DOMAIN_IDS } from './data/taxonomy'
 import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory } from './utils/history'
-import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze } from './utils/gamification'
+import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze } from './utils/gamification'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -657,6 +657,22 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       xp += s.score.correct * 10 + (s.score.total - s.score.correct) * 5
     }
     return xp
+  }, [history])
+
+  const weeklyChallenge = useMemo(() => {
+    const challenge = getThisWeekChallenge()
+    const now = new Date(); const day = now.getDay()
+    const monday = new Date(now); monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1)); monday.setHours(0,0,0,0)
+    const weekSessions = history.filter(s => new Date(s.completedAt) >= monday)
+    const progress = getWeeklyProgress(weekSessions, challenge)
+    const gam = loadGamification()
+    const weekKey = (() => {
+      const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + 4 - (d.getDay() || 7))
+      const y = d.getFullYear(); const w = Math.ceil(((d - new Date(y,0,1))/86400000+1)/7)
+      return `${y}-W${String(w).padStart(2,'0')}`
+    })()
+    const done = gam.weeklyChallengeWeek === weekKey
+    return { challenge, progress, done, weekSessions: weekSessions.length }
   }, [history])
 
   const weeklySessionCount = useMemo(() => {
@@ -1651,6 +1667,28 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
             <span className={`text-xs font-bold shrink-0 ${challengeDone ? 'text-emerald-600' : 'text-gray-600'}`}>
               {Math.min(challengeProgress, todayChallenge.goal)}/{todayChallenge.goal}
+            </span>
+          </div>
+        </div>
+
+        {/* Weekly Challenge */}
+        <div className={`rounded-2xl border-2 p-4 mb-4 ${weeklyChallenge.done ? 'border-violet-200 bg-violet-50' : 'border-violet-100 bg-white'}`}>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-violet-400">Weekly Challenge</p>
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${weeklyChallenge.done ? 'bg-violet-500 text-white' : 'bg-violet-100 text-violet-600'}`}>
+              {weeklyChallenge.done ? '✓ Complete!' : `+${weeklyChallenge.challenge.bonus} XP`}
+            </span>
+          </div>
+          <p className="text-sm font-semibold mb-3 text-gray-900">{weeklyChallenge.challenge.desc}</p>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-2 bg-violet-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${weeklyChallenge.done ? 'bg-violet-500' : 'bg-violet-400'}`}
+                style={{ width: `${Math.min(100, Math.round((weeklyChallenge.progress / weeklyChallenge.challenge.goal) * 100))}%` }}
+              />
+            </div>
+            <span className="text-xs font-bold text-violet-600 shrink-0">
+              {Math.min(weeklyChallenge.progress, weeklyChallenge.challenge.goal)}/{weeklyChallenge.challenge.goal}
             </span>
           </div>
         </div>
