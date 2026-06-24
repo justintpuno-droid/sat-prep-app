@@ -531,7 +531,27 @@ export function processSession(session, history, prevGam) {
     }
   }
 
-  return { xp, boostedXP, boostActive, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, weeklyBonus, weeklyCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned, bossResult, timeBonus, timeBonusLabel }
+  // Score milestone detection (1200, 1300, 1400, 1500)
+  const SCORE_MILESTONES = [1200, 1300, 1400, 1500]
+  const SCORE_MILESTONE_KEY = 'sat_prep_score_milestones'
+  let scoreMilestone = null
+  try {
+    const reachedBefore = JSON.parse(localStorage.getItem(SCORE_MILESTONE_KEY) ?? '[]')
+    const allScorePcts = history.map(s => s.score.percent)
+    if (allScorePcts.length >= 5) {
+      const recentAvgPct = allScorePcts.slice(-10).reduce((a, b) => a + b, 0) / Math.min(allScorePcts.length, 10)
+      const estScore = Math.round((400 + (recentAvgPct / 100) * 1200) / 10) * 10
+      for (const m of SCORE_MILESTONES) {
+        if (estScore >= m && !reachedBefore.includes(m)) {
+          scoreMilestone = m
+          localStorage.setItem(SCORE_MILESTONE_KEY, JSON.stringify([...reachedBefore, m]))
+          break
+        }
+      }
+    }
+  } catch {}
+
+  return { xp, boostedXP, boostActive, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, weeklyBonus, weeklyCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned, bossResult, timeBonus, timeBonusLabel, scoreMilestone }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────

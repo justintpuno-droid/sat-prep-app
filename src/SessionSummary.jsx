@@ -440,6 +440,17 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           )
         })()}
 
+        {/* Score milestone celebration */}
+        {gamResult?.scoreMilestone && (
+          <div className="rounded-2xl p-6 mb-5 text-center bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-white shadow-xl">
+            <p className="text-5xl mb-2">🏆</p>
+            <p className="text-2xl font-black mb-1">Score Milestone!</p>
+            <p className="text-4xl font-black my-2">{gamResult.scoreMilestone}</p>
+            <p className="text-white/80 text-sm">Your estimated SAT score just crossed {gamResult.scoreMilestone} 🎯</p>
+            <p className="text-white/60 text-xs mt-1">Keep pushing — the next milestone is {gamResult.scoreMilestone + 100}!</p>
+          </div>
+        )}
+
         {/* Daily goal completion banner */}
         {(() => {
           const history = loadHistory()
