@@ -3088,6 +3088,29 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
         {/* Question of the Day */}
         <QuestionOfDay allQuestions={questions} />
 
+        {/* Vocabulary Word of the Day */}
+        {(() => {
+          const dayIdx = Math.floor(Date.now() / 86400000)
+          const word = SAT_VOCAB[dayIdx % SAT_VOCAB.length]
+          if (!word) return null
+          const vocabKey = 'sat_prep_vocab'
+          let mastered = false
+          try { const v = JSON.parse(localStorage.getItem(vocabKey) ?? '{}'); mastered = v[word.word]?.mastered === true } catch {}
+          return (
+            <div className="bg-gradient-to-r from-violet-50 to-indigo-50 border border-violet-100 rounded-2xl p-4 mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-violet-500">📖 Word of the Day</p>
+                {mastered && <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">✓ Mastered</span>}
+              </div>
+              <p className="text-xl font-black text-violet-900 mb-1">{word.word}</p>
+              <p className="text-sm text-violet-700 mb-2">{word.def}</p>
+              {word.example && (
+                <p className="text-xs text-violet-500 italic border-t border-violet-100 pt-2">"{word.example}"</p>
+              )}
+            </div>
+          )
+        })()}
+
         {/* Quick-start shortcuts */}
         {(onQuickPractice || onFullPractice || onBeastMode || onBlitzMode) && (
           <div className="grid grid-cols-2 gap-3 mb-6">
