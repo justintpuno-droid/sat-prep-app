@@ -317,6 +317,35 @@ export default function SessionHistory({ onBack, onNewSession, onAnalytics, onAc
         </div>
 
         {/* Filter chips */}
+        {/* High score table */}
+        {!deleteMode && allSessions.length >= 5 && (() => {
+          const top = [...allSessions]
+            .filter(s => s.score.total >= 10)
+            .sort((a, b) => b.score.percent - a.score.percent)
+            .slice(0, 5)
+          if (top.length < 3) return null
+          return (
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-2xl p-4 mb-5">
+              <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-3">🏆 All-time Best Sessions</p>
+              <div className="space-y-1.5">
+                {top.map((s, i) => {
+                  const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`
+                  return (
+                    <button key={s.id} onClick={() => onReview?.(s)}
+                      className="w-full flex items-center gap-3 text-left hover:bg-white/60 rounded-lg px-2 py-1 transition-colors group"
+                    >
+                      <span className="shrink-0 w-6 text-base text-center">{medal}</span>
+                      <span className={`text-sm font-black shrink-0 ${s.score.percent >= 90 ? 'text-emerald-600' : s.score.percent >= 75 ? 'text-amber-600' : 'text-gray-700'}`}>{s.score.percent}%</span>
+                      <span className="text-xs text-gray-400 flex-1 truncate">{s.formatLabel}</span>
+                      <span className="text-xs text-gray-300 shrink-0">{new Date(s.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
+
         {!deleteMode && allSessions.length > 0 && (
           <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
             {FILTERS.map(f => {
