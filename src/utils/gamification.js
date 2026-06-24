@@ -84,6 +84,12 @@ export const ACHIEVEMENTS = [
   { id: 'improver',     icon: '📊',  title: 'Rapid Improver',   desc: 'Beat your previous session score by 20+ points' },
   { id: 'speed-run',    icon: '💨',  title: 'Speed Runner',     desc: 'Avg under 30s/question in a session of 10+ Qs' },
   { id: 'diversity',    icon: '🌈',  title: 'Well Rounded',     desc: 'Practice 8+ different domains in a week' },
+  // Extended achievements
+  { id: 'domain-master-5', icon: '🗺️', title: 'Domain Commander', desc: 'Master 5 domains (≥80% accuracy, ≥20 Qs each)' },
+  { id: 'xp-5000',         icon: '💎', title: 'Diamond Scholar',   desc: 'Accumulate 5,000 total XP' },
+  { id: 'wrong-sprint',    icon: '🔁', title: 'Second Chance',     desc: 'Score 80%+ on a Wrong Answer Sprint' },
+  { id: 'adaptive-ace',    icon: '🧠', title: 'Adaptive Ace',      desc: 'Score 90%+ on an Adaptive Quiz' },
+  { id: 'streak-30',       icon: '🌙', title: 'Lunar Legend',      desc: '30-day study streak' },
 ]
 
 const CHECKS = {
@@ -167,6 +173,19 @@ const CHECKS = {
     return false
   },
   'speed-run': (h) => h.some(s => s.score.total >= 10 && s.elapsedSeconds > 0 && (s.elapsedSeconds / s.score.total) < 30),
+  'domain-master-5': (h) => {
+    const byDomain = {}
+    for (const s of h) for (const q of s.questions) {
+      if (!byDomain[q.domain]) byDomain[q.domain] = { c: 0, t: 0 }
+      byDomain[q.domain].t++
+      if ((s.answers?.[q.id] ?? null) === q.answer) byDomain[q.domain].c++
+    }
+    return Object.values(byDomain).filter(v => v.t >= 20 && v.c / v.t >= 0.8).length >= 5
+  },
+  'xp-5000':         (_h, g) => g.totalXP >= 5000,
+  'wrong-sprint':    (h) => h.some(s => s.formatLabel === 'Wrong Answer Sprint' && s.score.percent >= 80),
+  'adaptive-ace':    (h) => h.some(s => s.formatLabel === 'Adaptive Quiz' && s.score.percent >= 90),
+  'streak-30':       (_h, g) => g.maxStreak >= 30,
   'diversity': (h) => {
     const mon = new Date()
     mon.setDate(mon.getDate() - (mon.getDay() === 0 ? 6 : mon.getDay() - 1))

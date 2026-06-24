@@ -428,6 +428,12 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
                     <p className="text-xs text-indigo-200">XP this week</p>
                   </div>
                 )}
+                {stats.totalTime > 0 && (
+                  <div className="text-center shrink-0">
+                    <p className="text-2xl font-black">{Math.floor(stats.totalTime / 3600) > 0 ? `${Math.floor(stats.totalTime / 3600)}h` : `${Math.floor(stats.totalTime / 60)}m`}</p>
+                    <p className="text-xs text-indigo-200">Total studied</p>
+                  </div>
+                )}
                 {weekComparison && weekComparison.thisQs > 0 && (
                   <div className="text-center shrink-0">
                     <p className="text-2xl font-black">{weekComparison.thisQs}</p>

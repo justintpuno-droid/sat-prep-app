@@ -6,9 +6,9 @@ const CATEGORIES = [
   { id: 'all',      label: 'All' },
   { id: 'accuracy', label: 'Accuracy',  ids: ['perfect','sharp','consistent','hat-trick','comeback','improver'] },
   { id: 'volume',   label: 'Volume',    ids: ['century','five-hundred','thousand','combo-5','combo-10','marathon','diversity'] },
-  { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','early-bird','night-owl','grinder','perfect-week'] },
-  { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid'] },
-  { id: 'milestones', label: 'Progress',ids: ['first-step','xp-1000','hard-worker','grinder'] },
+  { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','streak-30','early-bird','night-owl','grinder','perfect-week'] },
+  { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid','wrong-sprint','adaptive-ace'] },
+  { id: 'milestones', label: 'Progress',ids: ['first-step','xp-1000','xp-5000','hard-worker','grinder','domain-master-5'] },
 ]
 
 function AchievementCard({ ach, unlockedAt, hint, hintPct }) {
@@ -72,8 +72,13 @@ function getHint(achId, stats, gam) {
     case 'marathon':     return { hint: 'Study 60+ min in one day', pct: 0 }
     case 'improver':     return { hint: 'Beat your last session score by 20+ points', pct: 0 }
     case 'speed-run':    return { hint: 'Avg under 30s/question in a session', pct: 0 }
-    case 'diversity':    return { hint: 'Practice 8+ domains in one week', pct: 0 }
-    default:             return null
+    case 'diversity':        return { hint: 'Practice 8+ domains in one week', pct: 0 }
+    case 'domain-master-5': return h('Domains mastered (≥80%, ≥20 Qs)', stats.masteredDomains, 5)
+    case 'xp-5000':          return h('Total XP', gam.totalXP, 5000)
+    case 'wrong-sprint':     return { hint: 'Score 80%+ on a Wrong Answer Sprint', pct: 0 }
+    case 'adaptive-ace':     return { hint: 'Score 90%+ on an Adaptive Quiz', pct: 0 }
+    case 'streak-30':        return h('Current streak', stats.streak, 30)
+    default:                 return null
   }
 }
 
@@ -108,7 +113,14 @@ export default function AchievementsScreen({ onBack }) {
     for (let i = history.length - 1; i >= 0; i--) {
       if (history[i].score.percent >= 70) currentConsistentRun++; else break
     }
-    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun }
+    const byDomain = {}
+    for (const s of history) for (const q of s.questions) {
+      if (!byDomain[q.domain]) byDomain[q.domain] = { c: 0, t: 0 }
+      byDomain[q.domain].t++
+      if ((s.answers?.[q.id] ?? null) === q.answer) byDomain[q.domain].c++
+    }
+    const masteredDomains = Object.values(byDomain).filter(v => v.t >= 20 && v.c / v.t >= 0.8).length
+    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains }
   }, [history])
 
   const visibleAchievements = useMemo(() => {
