@@ -44,6 +44,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   const [milestone, setMilestone] = useState(null)
   const [showFormulas, setShowFormulas] = useState(false)
   const [formulaTab, setFormulaTab] = useState('math')
+  const [showShortcuts, setShowShortcuts] = useState(false)
   const [eliminated, setEliminated] = useState({}) // questionId → eliminated option id
   const questionStartRef = useRef(Date.now())
   const maxComboRef = useRef(0)
@@ -82,6 +83,8 @@ export default function LearningSession({ config, onComplete, onQuit }) {
       if (showFormulas || showQuitConfirm) return
       const tag = e.target?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
+      if (e.key === '?') { e.preventDefault(); setShowShortcuts(s => !s); return }
+      if (showShortcuts) { setShowShortcuts(false); return }
       const key = e.key.toUpperCase()
       const optionMap = { '1': 'A', '2': 'B', '3': 'C', '4': 'D', 'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D' }
       if (!revealed && optionMap[key]) {
@@ -95,7 +98,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [revealed, current, showFormulas, showQuitConfirm, isBlitzMode]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [revealed, current, showFormulas, showQuitConfirm, showShortcuts, isBlitzMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!isBlitzMode) return
@@ -300,6 +303,13 @@ export default function LearningSession({ config, onComplete, onQuit }) {
               📋
             </button>
             <button
+              onClick={() => setShowShortcuts(s => !s)}
+              className="text-xs text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg px-2 py-1.5 transition-colors font-mono"
+              title="Keyboard shortcuts (?)"
+            >
+              ?
+            </button>
+            <button
               onClick={finish}
               disabled={answeredCount === 0}
               className="text-xs text-gray-400 hover:text-gray-700 border border-gray-200 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
@@ -411,6 +421,33 @@ export default function LearningSession({ config, onComplete, onQuit }) {
             <div className="text-3xl mb-1">{milestone.icon}</div>
             <p className="font-black text-lg leading-tight">{milestone.text}</p>
             <p className="text-xs text-gray-300 mt-0.5">{milestone.sub}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Keyboard shortcuts modal */}
+      {showShortcuts && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4" onClick={() => setShowShortcuts(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xs" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-gray-900">Keyboard Shortcuts</h3>
+              <button onClick={() => setShowShortcuts(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            <div className="space-y-2.5">
+              {[
+                { keys: '1 2 3 4', desc: 'Select answer A B C D' },
+                { keys: 'A B C D', desc: 'Select answer A B C D' },
+                { keys: 'Space / Enter', desc: 'Next question (after reveal)' },
+                { keys: 'F', desc: 'Flag question for review' },
+                { keys: 'H', desc: 'Use hint (−10 XP)' },
+                { keys: '?', desc: 'Toggle this shortcuts panel' },
+              ].map(s => (
+                <div key={s.keys} className="flex items-center justify-between gap-4">
+                  <code className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-mono shrink-0">{s.keys}</code>
+                  <span className="text-xs text-gray-500">{s.desc}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

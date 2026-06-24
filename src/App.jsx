@@ -81,6 +81,16 @@ export default function App() {
     setScreen('learning')
   }
 
+  function handleQuick5() {
+    setSessionConfig({
+      mode: 'learning',
+      formatLabel: 'Quick 5',
+      sessionName: null,
+      questions: shuffle(allQuestions).slice(0, 5),
+    })
+    setScreen('learning')
+  }
+
   function handleFullPractice() {
     const engPool = allQuestions.filter(q => ENG_DOMAIN_IDS.includes(q.domain))
     const mathPool = allQuestions.filter(q => MATH_DOMAIN_IDS.includes(q.domain))
@@ -131,7 +141,7 @@ export default function App() {
   }
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} />
+    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} />
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')
