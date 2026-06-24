@@ -674,6 +674,19 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return days
   }, [history])
 
+  const xpWeekRace = useMemo(() => {
+    const now = new Date()
+    const dayOfWeek = now.getDay()
+    const thisMonday = new Date(now); thisMonday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)); thisMonday.setHours(0,0,0,0)
+    const lastMonday = new Date(thisMonday); lastMonday.setDate(thisMonday.getDate() - 7)
+    const calcXP = (from, to) => history
+      .filter(s => { const d = new Date(s.completedAt); return d >= from && d < to })
+      .reduce((n, s) => n + s.score.correct * 10 + (s.score.total - s.score.correct) * 5, 0)
+    const thisWeek = calcXP(thisMonday, new Date(thisMonday.getTime() + 7 * 86400000))
+    const lastWeek = calcXP(lastMonday, thisMonday)
+    return { thisWeek, lastWeek, diff: thisWeek - lastWeek, dayOfWeek }
+  }, [history])
+
   const recentAchievements = useMemo(() => {
     const cutoff = Date.now() - 24 * 60 * 60 * 1000
     return Object.entries(gam.achievements)
@@ -1555,6 +1568,33 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             )
           })()}
         </div>
+
+        {/* XP Week-over-Week Race */}
+        {xpWeekRace.lastWeek > 0 && (
+          <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2.5">⚔️ This Week vs. Last Week</p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 text-center">
+                <p className="text-2xl font-black text-indigo-600">{xpWeekRace.thisWeek.toLocaleString()}</p>
+                <p className="text-xs text-gray-400 mt-0.5">This week</p>
+              </div>
+              <div className="text-center">
+                <span className={`text-lg font-black ${xpWeekRace.diff >= 0 ? 'text-emerald-500' : 'text-rose-400'}`}>
+                  {xpWeekRace.diff >= 0 ? '↑' : '↓'}{Math.abs(xpWeekRace.diff)}
+                </span>
+              </div>
+              <div className="flex-1 text-center">
+                <p className="text-2xl font-black text-gray-300">{xpWeekRace.lastWeek.toLocaleString()}</p>
+                <p className="text-xs text-gray-400 mt-0.5">Last week</p>
+              </div>
+            </div>
+            <p className="text-xs text-center mt-2 text-gray-400">
+              {xpWeekRace.diff > 0 ? `🔥 Ahead by ${xpWeekRace.diff} XP — keep it up!` :
+               xpWeekRace.diff < 0 ? `💪 ${Math.abs(xpWeekRace.diff)} XP behind — you got this!` :
+               '👀 Exactly tied with last week!'}
+            </p>
+          </div>
+        )}
 
         {/* This week's focus plan */}
         {weeklyFocusPlan && (

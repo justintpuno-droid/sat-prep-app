@@ -244,12 +244,19 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
   const [copied, setCopied] = useState(false)
 
   function handleCopyResults() {
-    const domains = [...new Set(questions.map(q => q.domain))].slice(0, 2).join(' & ')
     const date = new Date(session.completedAt ?? Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    const text = `SAT Prep · ${score.percent}% (${score.correct}/${score.total}) · ${formatLabel} · ${domains || 'Mixed'} · ${date}`
-    navigator.clipboard.writeText(text).then(() => {
+    const grade = getGrade(score.percent)
+    const xpLine = gamResult?.earnedXP ? ` · +${gamResult.earnedXP} XP` : ''
+    const streakLine = gamResult?.gamification?.streak > 1 ? ` · 🔥 ${gamResult.gamification.streak}-day streak` : ''
+    const lines = [
+      `📚 SAT Prep – ${date}`,
+      `${grade} Grade · ${score.percent}% (${score.correct}/${score.total} correct)`,
+      `Mode: ${formatLabel}${xpLine}${streakLine}`,
+      `Level ${gamResult?.gamification ? Math.floor(gamResult.gamification.totalXP / 1000) + 1 : '?'} · Keep grinding! 💪`,
+    ]
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setTimeout(() => setCopied(false), 2500)
     }).catch(() => {})
   }
 
@@ -814,7 +821,7 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
           </div>
           <button onClick={handleCopyResults}
             className="w-full py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-colors">
-            {copied ? '✅ Copied to clipboard!' : '📋 Copy results'}
+            {copied ? '✅ Copied! Paste it anywhere 🎉' : '📤 Share your score'}
           </button>
         </div>
 
