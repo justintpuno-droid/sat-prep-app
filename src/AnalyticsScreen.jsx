@@ -571,6 +571,32 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               )}
             </div>
 
+            {/* National percentile estimate */}
+            {stats.scoreEstimate && (() => {
+              const mid = Math.round((stats.scoreEstimate.lo + stats.scoreEstimate.hi) / 2)
+              // SAT percentile lookup (approximate 2024 data)
+              const percentile = mid >= 1550 ? 99 : mid >= 1500 ? 98 : mid >= 1450 ? 96 : mid >= 1400 ? 94 : mid >= 1350 ? 91 : mid >= 1300 ? 87 : mid >= 1250 ? 82 : mid >= 1200 ? 74 : mid >= 1150 ? 66 : mid >= 1100 ? 58 : mid >= 1050 ? 49 : mid >= 1000 ? 40 : mid >= 950 ? 32 : mid >= 900 ? 25 : mid >= 850 ? 18 : mid >= 800 ? 12 : mid >= 750 ? 8 : 4
+              return (
+                <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+                  <div className="relative w-12 h-12 shrink-0">
+                    <svg className="w-12 h-12 -rotate-90" viewBox="0 0 44 44">
+                      <circle cx="22" cy="22" r="18" fill="none" stroke="#f1f5f9" strokeWidth="5" />
+                      <circle cx="22" cy="22" r="18" fill="none" stroke={percentile >= 75 ? '#10b981' : percentile >= 50 ? '#6366f1' : '#f59e0b'} strokeWidth="5"
+                        strokeDasharray={`${(percentile / 100) * 2 * Math.PI * 18} ${2 * Math.PI * 18}`} strokeLinecap="round" />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-xs font-black text-gray-700">{percentile}%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 font-medium">Est. National Percentile</p>
+                    <p className="text-sm font-bold text-gray-800">Top {100 - percentile}% of test-takers</p>
+                    <p className="text-xs text-gray-400">Based on {stats.scoreEstimate.lo}–{stats.scoreEstimate.hi} score range</p>
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* SAT Score Estimate */}
             {stats.scoreEstimate && (
               <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-5 mb-4 text-white">

@@ -92,6 +92,10 @@ export const ACHIEVEMENTS = [
   { id: 'streak-30',       icon: '🌙', title: 'Lunar Legend',      desc: '30-day study streak' },
   { id: 'sudden-death-5',  icon: '💀', title: 'Daredevil',         desc: 'Survive 10+ questions in a Sudden Death session' },
   { id: 'sudden-death-ace',icon: '☠️',  title: 'Untouchable',       desc: 'Complete all 30 questions in a Sudden Death session' },
+  { id: 'night-grinder',   icon: '🦉', title: 'Night Grinder',     desc: 'Study after 11pm for 5 sessions' },
+  { id: 'early-riser',     icon: '🌅', title: 'Early Riser',       desc: 'Study before 7am for 5 sessions' },
+  { id: 'hard-elite',      icon: '💎', title: 'Hard Elite',        desc: 'Get 50 Hard questions correct' },
+  { id: 'all-formats',     icon: '🎨', title: 'Format Explorer',   desc: 'Try every practice mode (Quick, Beast, Blitz, Adaptive, Sudden Death)' },
 ]
 
 const CHECKS = {
@@ -190,6 +194,18 @@ const CHECKS = {
   'streak-30':       (_h, g) => g.maxStreak >= 30,
   'sudden-death-5':  (h) => h.some(s => s.formatLabel === 'Sudden Death' && s.score.correct >= 10),
   'sudden-death-ace':(h) => h.some(s => s.formatLabel === 'Sudden Death' && s.score.total >= 30 && s.score.correct === s.score.total),
+  'night-grinder':   (h) => h.filter(s => new Date(s.completedAt).getHours() >= 23).length >= 5,
+  'early-riser':     (h) => h.filter(s => new Date(s.completedAt).getHours() < 7).length >= 5,
+  'hard-elite':      (h) => {
+    let n = 0
+    for (const s of h) for (const q of s.questions)
+      if (q.difficulty === 3 && (s.answers?.[q.id] ?? null) === q.answer) n++
+    return n >= 50
+  },
+  'all-formats':     (h) => {
+    const formats = new Set(h.map(s => s.formatLabel))
+    return ['Quick 5','Beast Mode','Blitz Mode','Adaptive Quiz','Sudden Death'].every(f => formats.has(f))
+  },
   'diversity': (h) => {
     const mon = new Date()
     mon.setDate(mon.getDate() - (mon.getDay() === 0 ? 6 : mon.getDay() - 1))

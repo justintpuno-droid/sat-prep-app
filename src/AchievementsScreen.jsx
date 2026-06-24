@@ -6,9 +6,9 @@ const CATEGORIES = [
   { id: 'all',      label: 'All' },
   { id: 'accuracy', label: 'Accuracy',  ids: ['perfect','sharp','consistent','hat-trick','comeback','improver'] },
   { id: 'volume',   label: 'Volume',    ids: ['century','five-hundred','thousand','combo-5','combo-10','marathon','diversity'] },
-  { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','streak-30','early-bird','night-owl','grinder','perfect-week'] },
-  { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid','wrong-sprint','adaptive-ace','sudden-death-5','sudden-death-ace'] },
-  { id: 'milestones', label: 'Progress',ids: ['first-step','xp-1000','xp-5000','hard-worker','grinder','domain-master-5'] },
+  { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','streak-30','early-bird','night-owl','early-riser','night-grinder','grinder','perfect-week'] },
+  { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid','wrong-sprint','adaptive-ace','sudden-death-5','sudden-death-ace','all-formats'] },
+  { id: 'milestones', label: 'Progress',ids: ['first-step','xp-1000','xp-5000','hard-worker','hard-elite','grinder','domain-master-5'] },
 ]
 
 function AchievementCard({ ach, unlockedAt, hint, hintPct }) {
@@ -78,6 +78,10 @@ function getHint(achId, stats, gam) {
     case 'wrong-sprint':     return { hint: 'Score 80%+ on a Wrong Answer Sprint', pct: 0 }
     case 'adaptive-ace':     return { hint: 'Score 90%+ on an Adaptive Quiz', pct: 0 }
     case 'streak-30':        return h('Current streak', stats.streak, 30)
+    case 'night-grinder':    return h('Sessions after 11pm', stats.nightSessions, 5)
+    case 'early-riser':      return h('Sessions before 7am', stats.earlyMorningSessions, 5)
+    case 'hard-elite':       return h('Hard questions correct', stats.hardCorrect, 50)
+    case 'all-formats':      return { hint: 'Try Quick 5, Beast, Blitz, Adaptive, and Sudden Death modes', pct: Math.min(100, Math.round((stats.formatsUsed / 5) * 100)) }
     default:                 return null
   }
 }
@@ -120,7 +124,11 @@ export default function AchievementsScreen({ onBack }) {
       if ((s.answers?.[q.id] ?? null) === q.answer) byDomain[q.domain].c++
     }
     const masteredDomains = Object.values(byDomain).filter(v => v.t >= 20 && v.c / v.t >= 0.8).length
-    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains }
+    const nightSessions = history.filter(s => new Date(s.completedAt).getHours() >= 23).length
+    const earlyMorningSessions = history.filter(s => new Date(s.completedAt).getHours() < 7).length
+    const formatSet = new Set(history.map(s => s.formatLabel))
+    const formatsUsed = ['Quick 5','Beast Mode','Blitz Mode','Adaptive Quiz','Sudden Death'].filter(f => formatSet.has(f)).length
+    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed }
   }, [history])
 
   const visibleAchievements = useMemo(() => {
