@@ -1712,15 +1712,21 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             )}
           </div>
 
-          {totalStudyTime > 0 && (
-            <>
-              <div className="h-12 w-px bg-gray-100 shrink-0" />
-              <div className="shrink-0 text-center">
-                <p className="text-base font-black text-gray-700">{Math.round(totalStudyTime / 60)}m</p>
-                <p className="text-xs text-gray-400 mt-0.5">studied</p>
-              </div>
-            </>
-          )}
+          {(() => {
+            const today = new Date().toISOString().slice(0, 10)
+            const todaySec = history.filter(s => s.completedAt?.startsWith(today)).reduce((n, s) => n + (s.elapsedSeconds ?? 0), 0)
+            if (todaySec < 60) return null
+            const todayMin = Math.round(todaySec / 60)
+            return (
+              <>
+                <div className="h-12 w-px bg-gray-100 shrink-0" />
+                <div className="shrink-0 text-center">
+                  <p className={`text-base font-black ${todayMin >= 30 ? 'text-emerald-600' : 'text-gray-700'}`}>{todayMin}m</p>
+                  <p className="text-xs text-gray-400 mt-0.5">today</p>
+                </div>
+              </>
+            )
+          })()}
 
           {bestScore && (
             <>
