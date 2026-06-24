@@ -830,6 +830,45 @@ export default function AnalyticsScreen({ onBack, onDrillWeak, onAchievements })
               </div>
             )}
 
+            {/* College Readiness */}
+            {stats.scoreEstimate && (() => {
+              const mid = Math.round((stats.scoreEstimate.lo + stats.scoreEstimate.hi) / 2)
+              const TIERS = [
+                { label: 'Community Colleges', range: '400–900', min: 400, max: 900, color: 'bg-gray-400', desc: 'Open admission' },
+                { label: 'Regional Universities', range: '900–1100', min: 900, max: 1100, color: 'bg-blue-400', desc: 'Most accept 40–60%' },
+                { label: 'State Flagship Schools', range: '1100–1250', min: 1100, max: 1250, color: 'bg-teal-500', desc: 'Ex: UNC, Penn State' },
+                { label: 'Selective Universities', range: '1250–1400', min: 1250, max: 1400, color: 'bg-indigo-500', desc: 'Ex: Michigan, UCLA' },
+                { label: 'Highly Selective', range: '1400–1500', min: 1400, max: 1500, color: 'bg-violet-600', desc: 'Ex: Georgetown, Tufts' },
+                { label: 'Elite Universities', range: '1500+', min: 1500, max: 1600, color: 'bg-amber-500', desc: 'Ex: MIT, Ivies, Stanford' },
+              ]
+              const qualified = TIERS.filter(t => mid >= t.min)
+              const next = TIERS.find(t => mid < t.min)
+              return (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">College Readiness</p>
+                  <p className="text-xs text-gray-400 mb-3">Estimated reach based on your current score (~{mid}). Informational only.</p>
+                  <div className="space-y-2">
+                    {TIERS.map(t => {
+                      const reached = mid >= t.min
+                      const current = mid >= t.min && (next?.min === t.max || !next)
+                      return (
+                        <div key={t.label} className={`flex items-center gap-3 rounded-xl p-2.5 border ${reached ? (current ? 'border-indigo-200 bg-indigo-50' : 'border-gray-100 bg-gray-50') : 'border-gray-100'}`}>
+                          <div className={`w-2 h-8 rounded-full shrink-0 ${reached ? t.color : 'bg-gray-200'}`} />
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-xs font-bold leading-tight ${reached ? 'text-gray-800' : 'text-gray-300'}`}>{t.label}</p>
+                            <p className={`text-[10px] ${reached ? 'text-gray-500' : 'text-gray-300'}`}>{t.desc} · SAT {t.range}</p>
+                          </div>
+                          {reached && <span className="text-emerald-500 text-sm shrink-0">✓</span>}
+                          {current && <span className="text-xs font-bold text-indigo-600 shrink-0">← you</span>}
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {next && <p className="text-xs text-gray-400 mt-3 text-center">+{next.min - mid} pts to unlock <span className="font-semibold text-indigo-600">{next.label}</span></p>}
+                </div>
+              )
+            })()}
+
             {/* SAT score trend chart */}
             {stats.scoreEstimateTrend.length >= 3 && (() => {
               const vals = stats.scoreEstimateTrend.map(e => e.mid)
