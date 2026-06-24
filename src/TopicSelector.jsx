@@ -1268,6 +1268,64 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return null
   }, [levelInfo, streak, dailyProgress, dailyDone, daysLeft, diffReady])
 
+  const personalInsight = useMemo(() => {
+    if (history.length < 5) return null
+    const insights = []
+    // Time-of-day insight
+    const tod = { morning: { c: 0, t: 0 }, afternoon: { c: 0, t: 0 }, evening: { c: 0, t: 0 } }
+    for (const s of history) {
+      const h = new Date(s.completedAt).getHours()
+      const b = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'
+      tod[b].c += s.score.correct; tod[b].t += s.score.total
+    }
+    const todList = Object.entries(tod).filter(([, b]) => b.t >= 15).map(([name, b]) => ({ name, pct: Math.round((b.c / b.t) * 100) })).sort((a, b) => b.pct - a.pct)
+    if (todList.length >= 2 && todList[0].pct - todList[todList.length - 1].pct >= 8) {
+      insights.push({ icon: todList[0].name === 'morning' ? '🌅' : todList[0].name === 'afternoon' ? '☀️' : '🌙', text: `You score ${todList[0].pct - todList[todList.length - 1].pct}% better in the ${todList[0].name}s — that's your power time!` })
+    }
+    // Most improved domain this week
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7)
+    const recent = history.filter(s => new Date(s.completedAt) >= weekAgo)
+    const older = history.filter(s => new Date(s.completedAt) < weekAgo).slice(-20)
+    const domainDelta = {}
+    for (const [sess, tag] of [[recent, 'r'], [older, 'o']]) {
+      for (const s of sess) for (const q of s.questions) {
+        if (!domainDelta[q.domain]) domainDelta[q.domain] = { r: { c: 0, t: 0 }, o: { c: 0, t: 0 } }
+        domainDelta[q.domain][tag].t++
+        if ((s.answers[q.id] ?? null) === q.answer) domainDelta[q.domain][tag].c++
+      }
+    }
+    let bestImprove = null
+    for (const [id, d] of Object.entries(domainDelta)) {
+      if (d.r.t < 5 || d.o.t < 5) continue
+      const delta = Math.round((d.r.c / d.r.t) * 100) - Math.round((d.o.c / d.o.t) * 100)
+      if (delta >= 10 && (!bestImprove || delta > bestImprove.delta)) bestImprove = { id, delta, newPct: Math.round((d.r.c / d.r.t) * 100) }
+    }
+    if (bestImprove) insights.push({ icon: '📈', text: `Your ${domainById[bestImprove.id]?.label ?? bestImprove.id} has improved ${bestImprove.delta}% this week — up to ${bestImprove.newPct}%!` })
+    // Speed insight: are they getting faster?
+    const withTime = history.filter(s => s.elapsedSeconds && s.score.total >= 5)
+    if (withTime.length >= 8) {
+      const avgSpeed = (arr) => arr.reduce((n, s) => n + s.elapsedSeconds / s.score.total, 0) / arr.length
+      const oldSpeed = avgSpeed(withTime.slice(0, -4))
+      const newSpeed = avgSpeed(withTime.slice(-4))
+      if (oldSpeed - newSpeed >= 8) insights.push({ icon: '⚡', text: `You're answering ${Math.round(oldSpeed - newSpeed)}s faster per question than before — speed is up!` })
+      else if (newSpeed - oldSpeed >= 10) insights.push({ icon: '🐢', text: `You've been taking ${Math.round(newSpeed - oldSpeed)}s longer per question lately — try Blitz Mode to sharpen speed.` })
+    }
+    // Accuracy trend
+    if (history.length >= 10) {
+      const o5 = history.slice(-10, -5).reduce((n, s) => n + s.score.percent, 0) / 5
+      const r5 = history.slice(-5).reduce((n, s) => n + s.score.percent, 0) / 5
+      const d = Math.round(r5 - o5)
+      if (d >= 8) insights.push({ icon: '🚀', text: `You've improved ${d}% across your last 5 sessions compared to the 5 before. Keep it going!` })
+      else if (d <= -8) insights.push({ icon: '📉', text: `Your accuracy dipped ${Math.abs(d)}% over your last 5 sessions. Try focusing on one domain.` })
+    }
+    // Combo record
+    const bestCombo = Math.max(...history.map(s => s.maxCombo ?? 0))
+    if (bestCombo >= 10) insights.push({ icon: '🔥', text: `Your best answer streak is ${bestCombo} in a row — try to break that record today!` })
+    if (insights.length === 0) return null
+    const dayIdx = Math.floor(Date.now() / 86400000)
+    return insights[dayIdx % insights.length]
+  }, [history])
+
   // Start with everything selected
   const allDomainIds = useMemo(
     () => TAXONOMY.flatMap(s => s.domains.map(d => d.id)),
@@ -2791,6 +2849,17 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
 
         {/* SAT Vocab Word of the Day */}
         <VocabWordOfDay />
+
+        {/* Personal Insight */}
+        {personalInsight && (
+          <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl px-4 py-3.5 mb-4 flex items-start gap-3">
+            <span className="text-xl shrink-0 mt-0.5">{personalInsight.icon}</span>
+            <div>
+              <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-0.5">Today's Insight</p>
+              <p className="text-sm text-indigo-900 font-medium leading-snug">{personalInsight.text}</p>
+            </div>
+          </div>
+        )}
 
         {/* XP Shop */}
         <XPShop gam={gam} onPurchase={handleShopPurchase} />
