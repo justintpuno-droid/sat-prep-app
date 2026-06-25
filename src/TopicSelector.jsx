@@ -7,6 +7,7 @@ import { SAT_VOCAB } from './data/vocab'
 import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, loadMegaBoost, saveMegaBoost, consumeMegaBoost, loadShield, saveShield, consumeShield, useStreakFreeze, getPrestigeInfo, doPrestige, saveGamification, getTodayTripleChallenges, getTripleChallengeProgress, isChallengeComplete, getWeeklyBoss } from './utils/gamification'
 import { loadDisplayName } from './ProfileScreen'
 import { MATH_FORMULAS } from './data/mathFormulas'
+import { loadDailyChallengeState } from './DailyChallenge'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -685,7 +686,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onSkillFocus, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, onStrategyGuide, onStudyNotes, onGrammarRef, onMathRef, onDigitalSAT, onBreathing, onScoreCalculator, onConfidenceBooster, onSATStory, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onSkillFocus, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, onStrategyGuide, onStudyNotes, onGrammarRef, onMathRef, onDigitalSAT, onBreathing, onScoreCalculator, onConfidenceBooster, onSATStory, onDailyChallenge, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -1833,6 +1834,34 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 <p className="text-xs font-semibold text-amber-700 text-center">You slayed the boss this week! New boss arrives Monday 🗡️</p>
               )}
             </div>
+          )
+        })()}
+
+        {/* Daily Challenge Banner */}
+        {onDailyChallenge && (() => {
+          const today = new Date().toISOString().slice(0, 10)
+          const dcState = loadDailyChallengeState()
+          const done = dcState?.date === today && dcState?.submitted
+          return (
+            <button
+              onClick={onDailyChallenge}
+              className={`w-full rounded-2xl p-4 mb-4 text-left transition-all active:scale-[0.99] shadow-sm ${done ? 'bg-emerald-50 border-2 border-emerald-200' : 'bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white shadow-orange-200'}`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{done ? '✅' : '⚡'}</span>
+                  <div>
+                    <p className={`text-xs font-black uppercase tracking-widest ${done ? 'text-emerald-600' : 'text-white/70'}`}>Daily Challenge</p>
+                    <p className={`text-sm font-black leading-tight ${done ? 'text-emerald-900' : 'text-white'}`}>
+                      {done ? `${dcState.correct ? 'Nailed it!' : 'Completed!'}` : "Today's Hard Question"}
+                    </p>
+                  </div>
+                </div>
+                <div className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${done ? 'bg-emerald-100 text-emerald-700' : 'bg-white/20 text-white'}`}>
+                  {done ? '✓ Done' : '+50 XP'}
+                </div>
+              </div>
+            </button>
           )
         })()}
 
