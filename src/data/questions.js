@@ -3964,6 +3964,62 @@ const questions = [
     explanation: 'B captures both the core discovery (electrochemical oxygen production from polymetallic nodules) and its two main implications: (1) challenging established deep-ocean models and (2) broadening the search for life on worlds like Europa. A describes the OLD model that the passage explicitly says was "upended." C is too narrow — nodules as "primary source of oxygen in the Pacific Ocean" isn\'t stated and overstates the finding. D goes beyond what the passage supports: it says the finding "raises questions" about life on Europa, not that it confirms life is more likely.',
   },
 
+  // ─── Information & Ideas Hard (INF-041..043) ─────────────────────────────
+  {
+    id: 'INF-041',
+    subject: 'english',
+    domain: 'information-ideas',
+    skill: 'command-of-evidence',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'Researchers studying urban biodiversity have found that cities can actually support surprising numbers of plant and animal species. However, a 2022 study challenged this optimism: while species richness (total number of species) was higher in cities than in adjacent rural areas in many cases, species that thrived in urban environments were disproportionately invasive, generalist species — those able to adapt to many conditions. Native specialist species — those requiring specific habitats — were significantly reduced.',
+    question: 'A student claims that "cities are beneficial for biodiversity." Which of the following, if true, would most directly undermine this claim?',
+    options: [
+      { id: 'A', text: 'Urban gardens can host hundreds of insect species in a single season.' },
+      { id: 'B', text: 'The loss of specialist native species represents an irreversible ecological function loss that total species counts cannot capture.' },
+      { id: 'C', text: 'Some cities have implemented green corridor programs that have increased native bird populations.' },
+      { id: 'D', text: 'Rural areas adjacent to cities have experienced habitat fragmentation.' },
+    ],
+    answer: 'B',
+    explanation: 'B directly undermines the claim by explaining why high species richness (the evidence that might seem to support "beneficial for biodiversity") is misleading — what cities are gaining (invasive generalists) cannot replace what they are losing (specialist natives) in terms of ecological function. A supports the claim. C is a potential counterexample but is too narrow and doesn\'t address the systemic issue. D shifts focus to rural areas and doesn\'t directly address the urban biodiversity claim.',
+  },
+  {
+    id: 'INF-042',
+    subject: 'english',
+    domain: 'information-ideas',
+    skill: 'cross-text-connections',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'Text 1: "The introduction of social media platforms has fundamentally altered the nature of political discourse, enabling the rapid spread of misinformation and echo chambers that reinforce partisan divides." (from a 2021 political science essay)\n\nText 2: "Claims that social media uniquely destabilizes democracy overstate the case. Historical records show that yellow journalism of the 1890s produced similar panic about misinformation eroding public trust. Each new medium — radio, television, cable news — has prompted identical fears. Social media is simply the latest in this pattern." (from a 2023 media history essay)',
+    question: 'How would the author of Text 2 most likely respond to the claim made in Text 1?',
+    options: [
+      { id: 'A', text: 'By arguing that echo chambers have always existed and are not specific to social media.' },
+      { id: 'B', text: 'By conceding that social media does spread misinformation but disputing that it is unprecedented.' },
+      { id: 'C', text: 'By claiming that yellow journalism was more harmful than social media.' },
+      { id: 'D', text: 'By agreeing that social media fundamentally alters political discourse.' },
+    ],
+    answer: 'B',
+    explanation: 'Text 2\'s author does not deny misinformation exists on social media — the passage says fears are "identical" but doesn\'t say they\'re groundless. The argument is that social media is "simply the latest in this pattern" of new media causing concern, implying misinformation concerns are real but not unprecedented. B best captures this nuance: conceding the issue exists while challenging the uniqueness claim. A goes beyond what Text 2 says (it doesn\'t mention echo chambers specifically). C makes an explicit comparison that Text 2 doesn\'t support. D would agree with Text 1, which contradicts Text 2\'s argument.',
+  },
+  {
+    id: 'INF-043',
+    subject: 'english',
+    domain: 'information-ideas',
+    skill: 'inferences',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'A marine ecologist studying coral bleaching observed that bleaching events in the Pacific occurred most severely in years when the Pacific Decadal Oscillation (PDO) was in its "warm phase," characterized by elevated sea surface temperatures. However, bleaching also occurred — though less severely — during PDO "cool phases." The ecologist noted: "The warm phase appears to intensify bleaching beyond a base rate that exists regardless of oscillation phase."',
+    question: 'Which inference is best supported by the ecologist\'s observation?',
+    options: [
+      { id: 'A', text: 'Coral bleaching is caused entirely by the Pacific Decadal Oscillation.' },
+      { id: 'B', text: 'Bleaching severity is influenced by the PDO, but the PDO is not the sole cause of bleaching.' },
+      { id: 'C', text: 'Bleaching does not occur during cool PDO phases.' },
+      { id: 'D', text: 'Elevated sea surface temperature is not related to bleaching severity.' },
+    ],
+    answer: 'B',
+    explanation: 'The ecologist explicitly states bleaching occurs "regardless of oscillation phase" (at a "base rate") and that the warm phase "intensifies" it beyond this base rate. This means the PDO influences severity but is not the sole cause. B captures this precisely. A contradicts the observation (bleaching also occurs in cool phases). C contradicts the observation ("less severely" but still occurring). D is directly contradicted by the warm phase correlation with more severe bleaching.',
+  },
+
   // ─── CRAFT & STRUCTURE: CRA-007 to CRA-018 ───────────────────────────────
 
   {
