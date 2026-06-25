@@ -2893,6 +2893,61 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
           </div>
         )}
 
+        {/* Coach's Eye — data-driven insights */}
+        {history.length >= 5 && (() => {
+          const insights = []
+
+          // Pacing: avg seconds per question
+          const totalSecs = history.reduce((s, h) => s + (h.elapsedSeconds ?? 0), 0)
+          const totalQs = history.reduce((s, h) => s + h.score.total, 0)
+          if (totalSecs > 0 && totalQs > 0) {
+            const avgSec = Math.round(totalSecs / totalQs)
+            if (avgSec > 100) insights.push({ icon: '⏱', text: `You average ${avgSec}s/question — the SAT budgets ~75s. Try to pick up pace on easier questions.`, color: 'text-rose-600', bg: 'bg-rose-50 border-rose-100' })
+            else if (avgSec < 30) insights.push({ icon: '⚡', text: `You answer in ${avgSec}s/question on average — fast! Make sure you're reading carefully.`, color: 'text-amber-600', bg: 'bg-amber-50 border-amber-100' })
+            else insights.push({ icon: '✅', text: `Your pace is solid at ${avgSec}s/question — right in the sweet spot for the SAT.`, color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' })
+          }
+
+          // Best time of day
+          const byHour = { morning: { c: 0, t: 0 }, afternoon: { c: 0, t: 0 }, evening: { c: 0, t: 0 } }
+          for (const s of history) {
+            const h = new Date(s.completedAt).getHours()
+            const tod = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'
+            byHour[tod].c += s.score.correct; byHour[tod].t += s.score.total
+          }
+          const todPct = Object.entries(byHour).filter(([, v]) => v.t >= 5).map(([k, v]) => [k, Math.round((v.c / v.t) * 100)])
+          if (todPct.length >= 2) {
+            const best = todPct.sort((a, b) => b[1] - a[1])[0]
+            insights.push({ icon: '🕐', text: `You perform best in the ${best[0]} (${best[1]}% accuracy). Schedule your hardest sessions then.`, color: 'text-indigo-600', bg: 'bg-indigo-50 border-indigo-100' })
+          }
+
+          // Hard question performance
+          let hardC = 0, hardT = 0
+          for (const s of history) for (const q of s.questions) {
+            if (q.difficulty === 3) { hardT++; if ((s.answers?.[q.id] ?? null) === q.answer) hardC++ }
+          }
+          if (hardT >= 10) {
+            const hardPct = Math.round((hardC / hardT) * 100)
+            if (hardPct >= 70) insights.push({ icon: '🔥', text: `You nail ${hardPct}% of hard questions — top-tier performance. Keep targeting difficulty 3.`, color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100' })
+            else if (hardPct < 40) insights.push({ icon: '📐', text: `Hard questions: ${hardPct}% accuracy (${hardC}/${hardT}). Drilling these could unlock your biggest score gains.`, color: 'text-rose-600', bg: 'bg-rose-50 border-rose-100' })
+          }
+
+          if (insights.length === 0) return null
+          const shown = insights.slice(0, 2)
+          return (
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-4">
+              <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">📊 Coach's Eye</p>
+              <div className="space-y-2.5">
+                {shown.map((ins, i) => (
+                  <div key={i} className={`flex items-start gap-2.5 rounded-xl border p-3 ${ins.bg}`}>
+                    <span className="text-base shrink-0 mt-0.5">{ins.icon}</span>
+                    <p className={`text-xs leading-snug font-medium ${ins.color}`}>{ins.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Motivational nudge */}
         {nudge && (
           <div className={`rounded-2xl border-2 p-4 mb-4 flex items-start gap-3 ${nudge.color}`}>
