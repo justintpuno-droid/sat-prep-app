@@ -156,6 +156,8 @@ function getHint(achId, stats, gam) {
       const estScore = stats.totalQ > 0 ? Math.round((400 + (stats.totalC / stats.totalQ) * 1200) / 10) * 10 : 400
       return { hint: `Est. score: ${estScore}/1600 (need 1500)`, pct: Math.min(100, Math.round(((estScore - 400) / (1500 - 400)) * 100)) }
     }
+    case 'craft-ace':      return h('Craft & Structure questions', stats.dom('craft-structure').t, 25)
+    case 'expression-ace': return h('Expression of Ideas questions', stats.dom('expression-ideas').t, 25)
     default:                 return null
   }
 }

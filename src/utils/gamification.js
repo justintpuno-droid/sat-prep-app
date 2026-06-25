@@ -166,6 +166,8 @@ export const ACHIEVEMENTS = [
   { id: 'score-1200',     icon: '🏅', title: '1200 Club',         desc: 'Reach an estimated SAT score of 1200+' },
   { id: 'score-1400',     icon: '🥇', title: '1400 Club',         desc: 'Reach an estimated SAT score of 1400+' },
   { id: 'score-1500',     icon: '🌟', title: '1500 Elite',        desc: 'Reach an estimated SAT score of 1500+' },
+  { id: 'craft-ace',      icon: '🖊️', title: 'Craft Ace',          desc: '80%+ accuracy on 25+ Craft & Structure questions' },
+  { id: 'expression-ace', icon: '✏️', title: 'Expression Expert',  desc: '80%+ accuracy on 25+ Expression of Ideas questions' },
 ]
 
 const CHECKS = {
@@ -429,6 +431,16 @@ const CHECKS = {
     const totalC = recent.reduce((n, s) => n + s.score.correct, 0)
     const pct = totalC / totalQ
     return Math.round((400 + pct * 1200) / 10) * 10 >= 1500
+  },
+  'craft-ace': (h) => {
+    let c = 0, t = 0
+    for (const s of h) for (const q of s.questions) if (q.domain === 'craft-structure') { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
+    return t >= 25 && c / t >= 0.8
+  },
+  'expression-ace': (h) => {
+    let c = 0, t = 0
+    for (const s of h) for (const q of s.questions) if (q.domain === 'expression-ideas') { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
+    return t >= 25 && c / t >= 0.8
   },
 }
 
