@@ -35,6 +35,10 @@ export default function MathFlash({ onBack }) {
   const [filter, setFilter] = useState('all')
   const [done, setDone] = useState(false)
   const [results, setResults] = useState([])
+  const [sessionCombo, setSessionCombo] = useState(0)
+  const [maxSessionCombo, setMaxSessionCombo] = useState(0)
+  const [comboFlash, setComboFlash] = useState(null)
+  const [newlyMastered, setNewlyMastered] = useState([])
 
   const categories = useMemo(() => [...new Set(MATH_FORMULAS.map(f => f.category))], [])
 
@@ -71,6 +75,7 @@ export default function MathFlash({ onBack }) {
     const existing = progress[card.name] ?? { streak: 0 }
     const newStreak = knew ? (existing.streak ?? 0) + 1 : 0
     const mastered = newStreak >= 3
+    const wasAlreadyMastered = existing.mastered === true
     const next = new Date(today)
     next.setDate(today.getDate() + (knew ? Math.min(newStreak * 3, 21) : 1))
     const updated = {
@@ -80,6 +85,20 @@ export default function MathFlash({ onBack }) {
     setProgress(updated)
     saveProgress(updated)
     setResults(prev => [...prev, { name: card.name, knew }])
+
+    if (mastered && !wasAlreadyMastered) {
+      setNewlyMastered(prev => [...prev, card.name])
+    }
+
+    const newCombo = knew ? sessionCombo + 1 : 0
+    setSessionCombo(newCombo)
+    if (newCombo > maxSessionCombo) setMaxSessionCombo(newCombo)
+    if (knew && (newCombo === 3 || newCombo === 5 || newCombo === 10)) {
+      const label = newCombo === 3 ? '🔥 3 in a row!' : newCombo === 5 ? '⚡ 5 in a row!' : '💥 10 in a row!'
+      setComboFlash(label)
+      setTimeout(() => setComboFlash(null), 1200)
+    }
+
     if (idx + 1 >= deck.length) { setDone(true) }
     else { setIdx(i => i + 1); setFlipped(false); setQuizAnswer(null); setQuizChoices(null) }
   }
@@ -92,29 +111,68 @@ export default function MathFlash({ onBack }) {
 
   if (done) {
     const knew = results.filter(r => r.knew).length
+    const pct = results.length > 0 ? Math.round((knew / results.length) * 100) : 0
+    const xpEarned = knew * 5 + newlyMastered.length * 25 + (maxSessionCombo >= 5 ? 20 : 0)
+    const isMilestone10 = masteredCount >= 10 && masteredCount - newlyMastered.length < 10
+    const isMilestoneAll = masteredCount >= MATH_FORMULAS.length && newlyMastered.length > 0
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="text-6xl mb-4">{knew === results.length ? '🧮' : '📐'}</div>
-            <h2 className="text-2xl font-black text-gray-900 mb-1">Session Complete!</h2>
-            <p className="text-gray-500">{results.length} formulas reviewed</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-            <div className="grid grid-cols-3 gap-4 text-center mb-4">
-              <div><p className="text-2xl font-black text-emerald-600">{knew}</p><p className="text-xs text-gray-400 mt-0.5">Knew it</p></div>
-              <div><p className="text-2xl font-black text-rose-500">{results.length - knew}</p><p className="text-xs text-gray-400 mt-0.5">Review more</p></div>
-              <div><p className="text-2xl font-black text-indigo-600">{masteredCount}</p><p className="text-xs text-gray-400 mt-0.5">Mastered</p></div>
+          {/* Milestone banner */}
+          {(isMilestoneAll || isMilestone10) && (
+            <div className={`rounded-2xl p-5 mb-4 text-white text-center ${isMilestoneAll ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 'bg-gradient-to-r from-blue-600 to-indigo-600'}`}>
+              <div className="text-4xl mb-2">{isMilestoneAll ? '🧮' : '🔢'}</div>
+              <p className="text-xl font-black">{isMilestoneAll ? 'Formula God!' : 'Formula Learner!'}</p>
+              <p className="text-sm opacity-80 mt-1">{isMilestoneAll ? 'You mastered ALL 36 formulas!' : 'You mastered 10 formulas!'}</p>
             </div>
-            <div className="pt-4 border-t border-gray-100">
-              <p className="text-xs text-gray-400 text-center">{masteredCount} / {MATH_FORMULAS.length} formulas mastered</p>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden mt-2">
-                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(masteredCount / MATH_FORMULAS.length) * 100}%` }} />
+          )}
+
+          <div className="text-center mb-6">
+            <div className="text-5xl mb-3">{pct === 100 ? '🏆' : pct >= 80 ? '⭐' : pct >= 60 ? '📐' : '🧮'}</div>
+            <h2 className="text-2xl font-black text-gray-900 mb-1">Session Complete!</h2>
+            <p className="text-gray-500">{results.length} formula{results.length !== 1 ? 's' : ''} reviewed</p>
+          </div>
+
+          {/* XP earned */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 mb-4 text-center text-white">
+            <p className="text-3xl font-black">+{xpEarned} XP</p>
+            <p className="text-xs opacity-70 mt-0.5">
+              {knew}×5 correct{newlyMastered.length > 0 ? ` · ${newlyMastered.length}×25 mastered` : ''}{maxSessionCombo >= 5 ? ' · combo bonus' : ''}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+            <div className="grid grid-cols-4 gap-3 text-center mb-4">
+              <div><p className="text-xl font-black text-emerald-600">{knew}</p><p className="text-[10px] text-gray-400 mt-0.5">Knew it</p></div>
+              <div><p className="text-xl font-black text-rose-500">{results.length - knew}</p><p className="text-[10px] text-gray-400 mt-0.5">Review</p></div>
+              <div><p className="text-xl font-black text-indigo-600">{masteredCount}</p><p className="text-[10px] text-gray-400 mt-0.5">Mastered</p></div>
+              <div><p className="text-xl font-black text-orange-500">{maxSessionCombo}×</p><p className="text-[10px] text-gray-400 mt-0.5">Best streak</p></div>
+            </div>
+            <div className="pt-3 border-t border-gray-100">
+              <div className="flex items-center justify-between text-xs text-gray-400 mb-1.5">
+                <span>{masteredCount}/{MATH_FORMULAS.length} formulas mastered</span>
+                <span>{Math.round((masteredCount / MATH_FORMULAS.length) * 100)}%</span>
+              </div>
+              <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all" style={{ width: `${(masteredCount / MATH_FORMULAS.length) * 100}%` }} />
               </div>
             </div>
           </div>
+
+          {/* Newly mastered formulas */}
+          {newlyMastered.length > 0 && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 mb-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-2.5">✨ Newly Mastered ({newlyMastered.length})</p>
+              <div className="flex flex-wrap gap-1.5">
+                {newlyMastered.map(name => (
+                  <span key={name} className="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">{name}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
-            <button onClick={() => { setIdx(0); setFlipped(false); setDone(false); setResults([]) }}
+            <button onClick={() => { setIdx(0); setFlipped(false); setDone(false); setResults([]); setSessionCombo(0); setMaxSessionCombo(0); setNewlyMastered([]) }}
               className="w-full bg-blue-600 text-white font-bold py-3 rounded-2xl hover:bg-blue-700 transition-colors">
               Study Again
             </button>
@@ -129,6 +187,11 @@ export default function MathFlash({ onBack }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 px-4 py-10">
+      {comboFlash && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-orange-500 text-white font-black text-sm px-5 py-2.5 rounded-2xl shadow-lg animate-bounce pointer-events-none">
+          {comboFlash}
+        </div>
+      )}
       <div className="w-full max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-700 transition-colors">← Back</button>
@@ -136,7 +199,10 @@ export default function MathFlash({ onBack }) {
             <p className="text-xs font-bold text-blue-600 uppercase tracking-widest">Math Formulas</p>
             <p className="text-xs text-gray-400">{idx + 1} / {deck.length}</p>
           </div>
-          <p className="text-xs font-semibold text-gray-500">{masteredCount}/{MATH_FORMULAS.length} ✓</p>
+          <div className="text-right">
+            <p className="text-xs font-semibold text-gray-500">{masteredCount}/{MATH_FORMULAS.length} ✓</p>
+            {sessionCombo >= 2 && <p className="text-xs font-bold text-orange-500">{sessionCombo}🔥</p>}
+          </div>
         </div>
 
         {/* Study mode toggle */}
