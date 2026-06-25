@@ -1837,6 +1837,44 @@ const questions = [
     explanation: 'Set the expressions equal: 4x − 1 = x + 8 → 3x = 9 → x = 3. Check: y = 4(3) − 1 = 11 and y = 3 + 8 = 11 ✓.',
   },
 
+  // ─── Algebra Medium (ALG-031..032) ──────────────────────────────────────
+  {
+    id: 'ALG-031',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'systems-of-equations',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A school store sells pens for $2 each and notebooks for $5 each. A student buys a total of 12 items and spends $39. How many pens did the student buy?',
+    options: [
+      { id: 'A', text: '3' },
+      { id: 'B', text: '5' },
+      { id: 'C', text: '7' },
+      { id: 'D', text: '9' },
+    ],
+    answer: 'C',
+    explanation: 'Let p = pens and n = notebooks. System: p + n = 12 and 2p + 5n = 39. From equation 1: n = 12 − p. Substitute: 2p + 5(12 − p) = 39 → 2p + 60 − 5p = 39 → −3p = −21 → p = 7. Check: n = 5, 2(7) + 5(5) = 14 + 25 = 39. ✓ The student bought 7 pens.',
+  },
+  {
+    id: 'ALG-032',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-functions',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A taxi charges a flat fee of $3.50 plus $2.25 per mile. Which equation gives the total cost C (in dollars) for a ride of m miles?',
+    options: [
+      { id: 'A', text: 'C = 2.25m' },
+      { id: 'B', text: 'C = 3.50m + 2.25' },
+      { id: 'C', text: 'C = 3.50 + 2.25m' },
+      { id: 'D', text: 'C = 5.75m' },
+    ],
+    answer: 'C',
+    explanation: 'The flat fee ($3.50) is a fixed starting cost (y-intercept). The per-mile rate ($2.25) is the slope. Total cost = flat fee + rate × miles → C = 3.50 + 2.25m. B reverses the flat fee and rate positions. A omits the flat fee. D incorrectly adds the two values as a single multiplier.',
+  },
+
   // ─── ADVANCED MATH: ADV-012 to ADV-022 ───────────────────────────────────
 
   {
@@ -2423,6 +2461,43 @@ const questions = [
     ],
     answer: 'C',
     explanation: 'The correlation coefficient r = −0.72 indicates the strength and direction of the linear relationship. A negative value means as screen time increases, sleep tends to decrease. |r| = 0.72 indicates a moderate-to-strong association. A is wrong — correlation does not establish causation. D confuses r with the slope of the regression line. B is wrong — r = −0.72 is far from 0.',
+  },
+
+  // ─── Problem Solving Medium (PSD-035..036) ──────────────────────────────
+  {
+    id: 'PSD-035',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'two-variable-data',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'A survey of 200 students recorded their hours of exercise per week and their self-reported stress level (Low, Medium, High). The results showed: students exercising 0–2 hours had 60% High stress; students exercising 3–5 hours had 25% High stress; students exercising 6+ hours had 10% High stress.',
+    question: 'Based on the survey data, which of the following is a reasonable conclusion?',
+    options: [
+      { id: 'A', text: 'Exercising 6+ hours per week causes students to have low stress.' },
+      { id: 'B', text: 'There is a negative association between weekly exercise hours and high-stress rates in this survey.' },
+      { id: 'C', text: 'All students who exercise more than 2 hours per week will have low stress.' },
+      { id: 'D', text: 'The survey proves that stress reduction is the primary benefit of exercise.' },
+    ],
+    answer: 'B',
+    explanation: 'As weekly exercise increases (from 0–2 to 3–5 to 6+ hours), the percentage with High stress decreases (60% → 25% → 10%). This is a negative association. A and C overstate — correlation is not causation and "will have low stress" is an absolute claim the data doesn\'t support. D is also an overstep — the data shows stress rates, not the "primary benefit" of exercise.',
+  },
+  {
+    id: 'PSD-036',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'probability',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'A bag contains 4 red marbles, 6 blue marbles, and 2 green marbles. If one marble is drawn at random and not replaced, then a second marble is drawn, what is the probability that both marbles are blue?',
+    options: [
+      { id: 'A', text: '6/12 × 6/12' },
+      { id: 'B', text: '6/12 × 5/11' },
+      { id: 'C', text: '5/12 × 4/11' },
+      { id: 'D', text: '6/11 × 5/10' },
+    ],
+    answer: 'B',
+    explanation: 'P(first blue) = 6/12. After drawing one blue (without replacement), 5 blue and 11 total remain: P(second blue | first blue) = 5/11. Multiply: 6/12 × 5/11 = 30/132 = 5/22. A incorrectly replaces the marble. C uses wrong counts. D starts with the wrong denominator.',
   },
 
   // ─── GEOMETRY & TRIG: GEO-014 to GEO-025 ────────────────────────────────
