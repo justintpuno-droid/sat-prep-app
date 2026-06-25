@@ -292,6 +292,16 @@ export function loadBoost() { try { return JSON.parse(localStorage.getItem(BOOST
 export function saveBoost(v) { try { localStorage.setItem(BOOST_KEY, JSON.stringify(v)) } catch {} }
 export function consumeBoost() { try { localStorage.removeItem(BOOST_KEY) } catch {} }
 
+const MEGA_BOOST_KEY = 'sat_prep_mega_boost'
+export function loadMegaBoost() { try { return JSON.parse(localStorage.getItem(MEGA_BOOST_KEY)) ?? false } catch { return false } }
+export function saveMegaBoost(v) { try { localStorage.setItem(MEGA_BOOST_KEY, JSON.stringify(v)) } catch {} }
+export function consumeMegaBoost() { try { localStorage.removeItem(MEGA_BOOST_KEY) } catch {} }
+
+const SHIELD_KEY = 'sat_prep_score_shield'
+export function loadShield() { try { return JSON.parse(localStorage.getItem(SHIELD_KEY)) ?? false } catch { return false } }
+export function saveShield(v) { try { localStorage.setItem(SHIELD_KEY, JSON.stringify(v)) } catch {} }
+export function consumeShield() { try { localStorage.removeItem(SHIELD_KEY) } catch {} }
+
 export function useStreakFreeze() {
   const gam = loadGamification()
   if ((gam.streakFreezes ?? 0) < 1) return false
@@ -459,17 +469,25 @@ export function processSession(session, history, prevGam) {
   const timeBonus = isNightOwl ? 25 : isEarlyBird ? 20 : 0
   const timeBonusLabel = isNightOwl ? '🦉 Night Owl' : isEarlyBird ? '🐦 Early Bird' : null
 
-  // XP Boost power-up
+  // XP Boost / Mega Boost power-ups
   const boostActive = loadBoost()
-  const boostMult = boostActive ? 2 : 1
+  const megaBoostActive = loadMegaBoost()
+  const boostMult = megaBoostActive ? 3 : boostActive ? 2 : 1
   const boostedXP = Math.round(xp.total * boostMult)
-  if (boostActive) consumeBoost()
+  if (megaBoostActive) consumeMegaBoost()
+  else if (boostActive) consumeBoost()
 
-  const newXP = oldXP + boostedXP + challengeBonus + weeklyBonus + comebackBonus + milestoneBonus + improvementBonus + timeBonus
+  // Score Shield — if score < 60%, grant consolation XP and mark shielded
+  const shieldActive = loadShield()
+  const scorePct = session.score.total > 0 ? (session.score.correct / session.score.total) * 100 : 0
+  const shieldConsolation = shieldActive && scorePct < 60 ? 50 : 0
+  if (shieldActive) consumeShield()
+
+  const newXP = oldXP + boostedXP + shieldConsolation + challengeBonus + weeklyBonus + comebackBonus + milestoneBonus + improvementBonus + timeBonus
   const oldLevel = getLevelInfo(oldXP)
   const newLevel = getLevelInfo(newXP)
 
-  const totalXPEarned = boostedXP + challengeBonus + weeklyBonus + comebackBonus + milestoneBonus + improvementBonus + timeBonus
+  const totalXPEarned = boostedXP + shieldConsolation + challengeBonus + weeklyBonus + comebackBonus + milestoneBonus + improvementBonus + timeBonus
   const xpLog = [...(prevGam.xpLog ?? []), { date: today, xp: totalXPEarned }].slice(-90)
 
   // Award a boost at every 5-day streak milestone (5, 10, 15…)
@@ -568,7 +586,7 @@ export function processSession(session, history, prevGam) {
     }
   } catch {}
 
-  return { xp, boostedXP, boostActive, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, weeklyBonus, weeklyCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned, bossResult, timeBonus, timeBonusLabel, scoreMilestone }
+  return { xp, boostedXP, boostActive, megaBoostActive, shieldConsolation, earnedBoost, earnedFreeze, challengeBonus, challengeCompleted, weeklyBonus, weeklyCompleted, comebackBonus, improvementBonus, milestoneBonus, sessionMilestone, personalBests, sessionRank, oldXP, newXP, oldLevel, newLevel, leveledUp: newLevel.level > oldLevel.level, newAchievements, gamification: gam, streak, earnedXP: totalXPEarned, bossResult, timeBonus, timeBonusLabel, scoreMilestone }
 }
 
 // ─── Daily goal ────────────────────────────────────────────────────────────

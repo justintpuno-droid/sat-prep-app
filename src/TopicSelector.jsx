@@ -4,7 +4,7 @@ import { domainById } from './data/taxonomy'
 import questions from './data/questions'
 import { loadHistory, getSRCount } from './utils/history'
 import { SAT_VOCAB } from './data/vocab'
-import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze, getPrestigeInfo, doPrestige, saveGamification, getTodayTripleChallenges, getTripleChallengeProgress, isChallengeComplete, getWeeklyBoss } from './utils/gamification'
+import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, loadMegaBoost, saveMegaBoost, consumeMegaBoost, loadShield, saveShield, consumeShield, useStreakFreeze, getPrestigeInfo, doPrestige, saveGamification, getTodayTripleChallenges, getTripleChallengeProgress, isChallengeComplete, getWeeklyBoss } from './utils/gamification'
 import { loadDisplayName } from './ProfileScreen'
 
 const DIFFICULTIES = [
@@ -265,10 +265,12 @@ function VocabWordOfDay() {
 }
 
 const SHOP_ITEMS = [
-  { id: 'boost',   icon: '🚀', name: '2× XP Boost',      desc: 'Double XP on your next session', cost: 150, color: 'border-violet-200 bg-violet-50', tag: 'text-violet-600', textColor: 'text-violet-900' },
-  { id: 'freeze',  icon: '🧊', name: 'Streak Freeze',     desc: 'Protect your streak for one day', cost: 200, color: 'border-blue-200 bg-blue-50',   tag: 'text-blue-600',   textColor: 'text-blue-900' },
-  { id: 'hint',    icon: '💡', name: 'Hint Pack (×5)',    desc: 'Eliminate a wrong answer 5 times', cost: 100, color: 'border-amber-200 bg-amber-50', tag: 'text-amber-600', textColor: 'text-amber-900' },
-  { id: 'spin',    icon: '🎰', name: 'Extra Spin',        desc: 'Spin the wheel again today', cost: 75,  color: 'border-emerald-200 bg-emerald-50', tag: 'text-emerald-600', textColor: 'text-emerald-900' },
+  { id: 'boost',   icon: '🚀', name: '2× XP Boost',       desc: 'Double XP on your next session', cost: 150, color: 'border-violet-200 bg-violet-50', tag: 'text-violet-600', textColor: 'text-violet-900' },
+  { id: 'freeze',  icon: '🧊', name: 'Streak Freeze',      desc: 'Protect your streak for one day', cost: 200, color: 'border-blue-200 bg-blue-50',   tag: 'text-blue-600',   textColor: 'text-blue-900' },
+  { id: 'hint',    icon: '💡', name: 'Hint Pack (×5)',     desc: 'Eliminate a wrong answer 5 times', cost: 100, color: 'border-amber-200 bg-amber-50', tag: 'text-amber-600', textColor: 'text-amber-900' },
+  { id: 'spin',    icon: '🎰', name: 'Extra Spin',         desc: 'Spin the wheel again today', cost: 75,  color: 'border-emerald-200 bg-emerald-50', tag: 'text-emerald-600', textColor: 'text-emerald-900' },
+  { id: 'megaboost', icon: '⚡', name: '3× XP Mega Boost', desc: 'Triple XP for your next session — go all out!', cost: 350, color: 'border-rose-200 bg-rose-50', tag: 'text-rose-600', textColor: 'text-rose-900' },
+  { id: 'shield',  icon: '🛡️', name: 'Score Shield',       desc: 'Skip your next session from the score average if below 60%', cost: 250, color: 'border-teal-200 bg-teal-50', tag: 'text-teal-600', textColor: 'text-teal-900' },
 ]
 
 function XPShop({ gam, onPurchase }) {
@@ -649,6 +651,8 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return !history.some(s => s.completedAt.slice(0, 10) === today)
   }, [streak, history])
   const [boostActive, setBoostActive] = useState(() => loadBoost())
+  const [megaBoostActive, setMegaBoostActive] = useState(() => loadMegaBoost())
+  const [shieldActive, setShieldActive] = useState(() => loadShield())
   const [freezeCount, setFreezeCount] = useState(() => loadGamification().streakFreezes ?? 0)
   const [freezeUsed, setFreezeUsed] = useState(false)
   const [gam, setGam] = useState(() => loadGamification())
@@ -692,6 +696,8 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     const current = loadGamification()
     let updated = { ...current, totalXP: (current.totalXP ?? 0) - item.cost }
     if (item.id === 'boost') { saveBoost(true) }
+    else if (item.id === 'megaboost') { saveMegaBoost(true) }
+    else if (item.id === 'shield') { saveShield(true) }
     else if (item.id === 'freeze') { updated.streakFreezes = (updated.streakFreezes ?? 0) + 1 }
     else if (item.id === 'hint') { updated.hintCredits = (updated.hintCredits ?? 0) + 5 }
     else if (item.id === 'spin') { localStorage.removeItem('sat_prep_spin') }
@@ -4217,6 +4223,40 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                 Cancel
               </button>
             )}
+          </div>
+        )}
+
+        {/* Mega Boost power-up (purchased from shop) */}
+        {megaBoostActive && (
+          <div className="rounded-2xl border-2 border-rose-400 bg-rose-50 px-4 py-3 mb-4 flex items-center gap-3">
+            <span className="text-lg shrink-0">⚡</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-rose-800">3× XP Mega Boost — ACTIVE!</p>
+              <p className="text-xs text-rose-500">Triple XP applies to your next session</p>
+            </div>
+            <button
+              onClick={() => { consumeMegaBoost(); setMegaBoostActive(false) }}
+              className="shrink-0 text-xs font-medium text-rose-500 hover:text-rose-700 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {/* Score Shield power-up (purchased from shop) */}
+        {shieldActive && (
+          <div className="rounded-2xl border-2 border-teal-400 bg-teal-50 px-4 py-3 mb-4 flex items-center gap-3">
+            <span className="text-lg shrink-0">🛡️</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-teal-800">Score Shield — ACTIVE!</p>
+              <p className="text-xs text-teal-500">If you score below 60%, earn +50 bonus XP as consolation</p>
+            </div>
+            <button
+              onClick={() => { consumeShield(); setShieldActive(false) }}
+              className="shrink-0 text-xs font-medium text-teal-500 hover:text-teal-700 transition-colors"
+            >
+              Cancel
+            </button>
           </div>
         )}
 
