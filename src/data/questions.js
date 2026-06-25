@@ -1949,6 +1949,62 @@ const questions = [
     explanation: 'Let a = adult tickets, s = student tickets. Set up the system: a + s = 240 and 12a + 8s = 2400. From the first equation: s = 240 − a. Substituting: 12a + 8(240 − a) = 2400 → 12a + 1920 − 8a = 2400 → 4a = 480 → a = 120. Check: 120 adults + 120 students = 240 tickets. Revenue: 120(12) + 120(8) = 1440 + 960 = 2400. ✓ The key skill is setting up two equations from two constraints (total tickets and total revenue), then substituting.',
   },
 
+  // ─── ALG Medium (ALG-037..039) ───────────────────────────────────────────
+  {
+    id: 'ALG-037',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-equations',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A taxi charges a base fee of $3.50 plus $1.75 per mile. Which equation represents the total cost C for a ride of m miles?',
+    options: [
+      { id: 'A', text: 'C = 1.75m' },
+      { id: 'B', text: 'C = 3.50m + 1.75' },
+      { id: 'C', text: 'C = 1.75m + 3.50' },
+      { id: 'D', text: 'C = 3.50 + 1.75' },
+    ],
+    answer: 'C',
+    explanation: 'The cost is a flat fee ($3.50) plus a per-mile charge ($1.75 × m). This is a linear equation: C = 1.75m + 3.50. The slope is the per-mile rate, and the y-intercept is the base fee.',
+  },
+  {
+    id: 'ALG-038',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'inequalities',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which values of x satisfy 2x − 5 ≤ 9 AND x + 3 > 7?',
+    options: [
+      { id: 'A', text: '4 < x ≤ 7' },
+      { id: 'B', text: 'x ≤ 7' },
+      { id: 'C', text: 'x > 4' },
+      { id: 'D', text: '4 ≤ x ≤ 7' },
+    ],
+    answer: 'A',
+    explanation: 'Solve each: 2x − 5 ≤ 9 → 2x ≤ 14 → x ≤ 7. Then: x + 3 > 7 → x > 4. The intersection of x ≤ 7 AND x > 4 is 4 < x ≤ 7 (strict inequality on the left because the second inequality is strict).',
+  },
+  {
+    id: 'ALG-039',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-functions',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'The function f(x) = −2x + 8 is graphed in the xy-plane. Which of the following is true?',
+    options: [
+      { id: 'A', text: 'The graph has a positive slope and crosses the y-axis at 8.' },
+      { id: 'B', text: 'The graph has a negative slope and crosses the x-axis at x = 4.' },
+      { id: 'C', text: 'The graph has a positive slope and crosses the x-axis at x = 4.' },
+      { id: 'D', text: 'The graph has a negative slope and crosses the y-axis at −2.' },
+    ],
+    answer: 'B',
+    explanation: 'f(x) = −2x + 8 has slope −2 (negative) and y-intercept 8. The x-intercept is where f(x) = 0: 0 = −2x + 8 → 2x = 8 → x = 4. So the graph crosses the x-axis at x = 4. Choice B is correct: negative slope and x-intercept at 4.',
+  },
+
   // ─── ADVANCED MATH: ADV-012 to ADV-022 ───────────────────────────────────
 
   {
