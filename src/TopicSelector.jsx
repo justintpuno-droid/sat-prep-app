@@ -175,6 +175,16 @@ const MOTIVATIONAL_QUOTES = [
   { text: "The grind now, the glory later.", author: "" },
   { text: "Your effort today is your score tomorrow.", author: "" },
   { text: "SAT prep is a marathon, not a sprint. Stay consistent.", author: "" },
+  { text: "You can't go back and change the beginning, but you can start where you are and change the ending.", author: "C.S. Lewis" },
+  { text: "Discipline is choosing between what you want now and what you want most.", author: "" },
+  { text: "The difference between who you are and who you want to be is what you do.", author: "" },
+  { text: "Confidence comes from preparation. Prepare more, worry less.", author: "" },
+  { text: "Every question you get wrong today is a question you won't miss on test day.", author: "" },
+  { text: "Your score is already inside you — studying is how you unlock it.", author: "" },
+  { text: "The SAT tests skills, not intelligence. Skills are learned.", author: "" },
+  { text: "Sleep, practice, repeat. That's the formula.", author: "" },
+  { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
+  { text: "What you do every day matters more than what you do once in a while.", author: "" },
 ]
 
 const SAT_FACTS = [
@@ -198,6 +208,17 @@ const SAT_FACTS = [
   "The SAT offers 7 official test dates per year in the US, typically Aug, Oct, Nov, Dec, Mar, May, and Jun.",
   "About 60% of the SAT Math section involves algebra and functions — more than any other topic.",
   "You can flag questions in the Digital SAT and come back to them before submitting each module.",
+  "On the Digital SAT, each Reading & Writing module has 27 questions; each Math module has 22 questions.",
+  "The SAT has no dedicated vocabulary section — vocab is tested through 'Words in Context' questions embedded in passages.",
+  "There is no time limit per individual question on the SAT; you manage your own time within each module.",
+  "The SAT is scored on a section scale: 200–800 for Math and 200–800 for Reading & Writing, totaling 400–1600.",
+  "Top-10 US universities typically admit students with SAT scores above 1500; median admits are often 1470–1570.",
+  "The SAT Math section covers algebra, advanced math, geometry, and problem-solving/data — roughly in equal thirds for easy/medium/hard.",
+  "The SAT Reading & Writing section tests four skills: Words in Context, Text Structure & Purpose, Cross-Text Connections, and Standard English Conventions.",
+  "Students who take the SAT more than once often score higher the second time — practice and familiarity help significantly.",
+  "The 'hard' questions on the Digital SAT Module 2 are worth the same number of points as easy ones — never skip a guess!",
+  "Fee waivers for the SAT also cover two free college application fee waivers from the College Board's partners.",
+  "The College Board partners with Khan Academy for free, personalized SAT prep — linking your PSAT results gives the best study plan.",
 ]
 
 const QOD_KEY = 'sat_prep_qod'
