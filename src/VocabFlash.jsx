@@ -239,9 +239,9 @@ export default function VocabFlash({ onBack, onXP }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 px-4 pt-safe-10 pb-10">
       {comboFlash && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-violet-600 text-white font-black text-sm px-5 py-2.5 rounded-2xl shadow-lg animate-bounce pointer-events-none">
+        <div className="fixed top-safe-6 left-1/2 -translate-x-1/2 z-50 bg-violet-600 text-white font-black text-sm px-5 py-2.5 rounded-2xl shadow-lg animate-bounce pointer-events-none">
           {comboFlash}
         </div>
       )}

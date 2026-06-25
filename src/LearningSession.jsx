@@ -447,7 +447,7 @@ export default function LearningSession({ config, onComplete, onQuit }) {
   return (
     <div className={`min-h-screen ${isBeastMode ? 'bg-gradient-to-br from-slate-900 via-rose-950 to-slate-900' : isBlitzMode ? 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100' : 'bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100'}`}>
       {/* Sticky header */}
-      <div className={`sticky top-0 z-10 backdrop-blur-sm border-b ${isBeastMode ? 'bg-slate-900/90 border-rose-900' : isBlitzMode ? 'bg-white/90 border-orange-200' : 'bg-white/90 border-gray-200'}`}>
+      <div className={`sticky top-0 z-10 backdrop-blur-sm border-b pt-safe ${isBeastMode ? 'bg-slate-900/90 border-rose-900' : isBlitzMode ? 'bg-white/90 border-orange-200' : 'bg-white/90 border-gray-200'}`}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button

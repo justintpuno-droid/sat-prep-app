@@ -144,7 +144,7 @@ export default function SessionConfig({ filters, onStart, onBack }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 flex items-start justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 flex items-start justify-center px-4 pt-safe-12 pb-12">
       <div className="w-full max-w-2xl">
         <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 mb-8 transition-colors">
           ← Back to Topics

@@ -121,7 +121,7 @@ export default function SATStory({ onBack }) {
   const improvementColor = improvement === null ? 'text-gray-400' : improvement > 0 ? 'text-emerald-600' : improvement < 0 ? 'text-rose-500' : 'text-gray-500'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-violet-50 to-pink-50 px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-violet-50 to-pink-50 px-4 pt-safe-10 pb-10">
       <div className="max-w-md mx-auto">
         <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-700 mb-6 transition-colors">← Back</button>
 

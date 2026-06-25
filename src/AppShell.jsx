@@ -44,7 +44,7 @@ export default function AppShell({ tab, onTabChange, children }) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-40">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-40 pt-safe">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[11px] font-black text-indigo-600 uppercase tracking-widest leading-none mb-1">SAT Prep</p>
@@ -90,12 +90,12 @@ export default function AppShell({ tab, onTabChange, children }) {
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div className="flex-1 overflow-y-auto pb-nav-safe">
         {children}
       </div>
 
       {/* Footer tab bar */}
-      <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 z-50">
+      <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 z-50 pb-safe">
         <div className="max-w-md mx-auto flex">
           {TABS.map(t => {
             const active = tab === t.id

@@ -99,7 +99,7 @@ export default function DailyChallenge({ onBack, onXP }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-amber-950 to-slate-900 px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-amber-950 to-slate-900 px-4 pt-safe-8 pb-8">
       <div className="max-w-md mx-auto">
 
         {/* Header */}

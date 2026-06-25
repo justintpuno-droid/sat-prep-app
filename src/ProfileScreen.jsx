@@ -274,7 +274,7 @@ export default function ProfileScreen({ onBack }) {
   }, [history])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 px-4 pt-safe-10 pb-10">
       <div className="max-w-md mx-auto">
         <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-600 mb-6 transition-colors">← Back</button>
 

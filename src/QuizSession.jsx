@@ -286,7 +286,7 @@ export default function QuizSession({ config, onComplete, onQuit }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-200">
+      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-200 pt-safe">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button

@@ -179,7 +179,7 @@ export default function BreathingExercise({ onBack }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-slate-100 px-4 pt-safe-8 pb-8">
       <div className="max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-600 transition-colors shrink-0">← Back</button>
