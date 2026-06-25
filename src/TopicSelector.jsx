@@ -173,6 +173,16 @@ const SAT_TIPS = [
   "Reading tip: 'According to the passage' means the answer must be explicitly stated — no inferences needed.",
   "Slow down on easy questions — careless errors on easy questions hurt more than struggling on hard ones.",
   "The best SAT answer is always the one most strongly supported by the passage or problem — never 'probably right.'",
+  "On vocab-in-context questions: pretend you don't know the word and use the surrounding context to deduce meaning.",
+  "For command of evidence questions: the best answer directly relates to the specific claim made — not just a related topic.",
+  "Parallel structure: scan every list for matching verb forms, noun forms, or phrase types — mismatches are always wrong.",
+  "SAT math geometry: when in doubt, drop a perpendicular to a base to create two right triangles.",
+  "For SAT prose purpose questions: the author's tone matters — is it critical, supportive, neutral, or ironic?",
+  "On 'the author would most likely agree' questions, look for answers reflecting the passage's overall argument — not just one sentence.",
+  "In expression of ideas, ask: does this sentence ADD relevant information, or does it just repeat what was said?",
+  "Combine short choppy sentences with a comma + FANBOYS or a semicolon — never with just a comma alone.",
+  "When a question says 'primarily,' it means 'most importantly' — it still must be supported by the passage.",
+  "Math: when a rate question gives you units (miles/hour), write units in your calculations to avoid conversion errors.",
 ]
 
 const MOTIVATIONAL_QUOTES = [
@@ -277,6 +287,15 @@ const SAT_FACTS = [
   "On average, you have about 1 min 19 sec per Reading & Writing question and about 1 min 35 sec per Math question.",
   "Students who do at least 6 hours of Khan Academy SAT practice see an average 90-point score increase.",
   "The Digital SAT question bank changes every test date, but the adaptive scoring algorithm stays the same across all dates.",
+  "The SAT does not have a 'writing' essay component anymore — the optional Essay was discontinued in 2021.",
+  "Test anxiety is real: studies show slow, deep breathing for 60 seconds before a test can measurably lower cortisol levels.",
+  "The ACT and SAT are accepted equally by all major US universities — choose the test that fits your strengths.",
+  "According to College Board data, students who take the PSAT in 10th grade are significantly more prepared for the SAT in 11th.",
+  "Math Module 1 on the Digital SAT is 'medium' difficulty — it's used to calibrate your adaptive module, so don't underestimate it.",
+  "Annotating passages in the Digital SAT (highlighting, adding notes) has been shown to improve accuracy on evidence-based questions.",
+  "The SAT Math section includes a built-in reference sheet with common formulas — but you still need to know when and how to use them.",
+  "A student's SAT score is calculated using a process called 'equating' to ensure fairness across different test administrations.",
+  "Roughly 1,600 questions make up the College Board's publicly available SAT practice question pool as of 2024.",
 ]
 
 // ── Daily Missions ────────────────────────────────────────────────────────
