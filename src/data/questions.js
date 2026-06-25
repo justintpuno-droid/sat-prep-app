@@ -6864,6 +6864,166 @@ const questions = [
     explanation: 'The sentence connects arts funding to creativity, and creativity to employer demand — a chain that strengthens the case for funding the arts by tying it to economic value. It\'s not a counterargument (A), just a factual description (C), or unsupported opinion (D — it cites employer rankings as evidence).',
   },
 
+  // ─── ALG-047 Hard (Absolute Value in Systems) ────────────────────────────
+  {
+    id: 'ALG-047',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-equations',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'If |2x − 6| = 10, what are the possible values of x?',
+    options: [
+      { id: 'A', text: 'x = 8 only' },
+      { id: 'B', text: 'x = −2 only' },
+      { id: 'C', text: 'x = 8 or x = −2' },
+      { id: 'D', text: 'x = 4 or x = −4' },
+    ],
+    answer: 'C',
+    explanation: 'Split into two cases:\nCase 1: 2x − 6 = 10 → 2x = 16 → x = 8\nCase 2: 2x − 6 = −10 → 2x = −4 → x = −2\nBoth solutions: x = 8 or x = −2.',
+  },
+
+  // ─── PSD-044 Hard (Data Interpretation — Misleading Graph) ───────────────
+  {
+    id: 'PSD-044',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'statistics',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'A bar chart shows sales for a company. In Year 1 sales were $500,000. In Year 2 sales were $510,000. The y-axis starts at $490,000 and ends at $520,000.',
+    question: 'Which best describes the potential issue with this graph?',
+    options: [
+      { id: 'A', text: 'The y-axis should start at $1,000,000.' },
+      { id: 'B', text: 'The y-axis not starting at zero makes the 2% increase appear larger than it is.' },
+      { id: 'C', text: 'The chart should use a line graph instead of bars.' },
+      { id: 'D', text: 'Year 2 should have smaller bars than Year 1.' },
+    ],
+    answer: 'B',
+    explanation: 'When a bar chart\'s y-axis doesn\'t start at zero, the visual difference between bars is exaggerated. A 2% increase ($10,000 on $500,000) appears to be a much larger change because the baseline is truncated at $490,000. This is a common way data can be visually misleading.',
+  },
+
+  // ─── CRA-046 Medium (Author Rhetorical Strategy) ─────────────────────────
+  {
+    id: 'CRA-046',
+    subject: 'reading-writing',
+    domain: 'craft-structure',
+    skill: 'text-structure',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'In an editorial arguing for expanded public transit, the author opens by recounting the experience of a single mother who missed a job interview because the bus didn\'t run to her neighborhood.',
+    question: 'Why does the author most likely begin the editorial this way?',
+    options: [
+      { id: 'A', text: 'To introduce statistical evidence about transit ridership' },
+      { id: 'B', text: 'To use a personal anecdote to make the abstract issue of transit access emotionally concrete' },
+      { id: 'C', text: 'To argue that single mothers are the primary victims of poor public transit' },
+      { id: 'D', text: 'To suggest that bus companies are intentionally discriminating against low-income riders' },
+    ],
+    answer: 'B',
+    explanation: 'Opening with a personal story (anecdote) is a classic rhetorical technique that makes an abstract policy issue emotionally compelling and relatable. It puts a human face on the argument before the author presents broader evidence. It\'s not a statistic (A), doesn\'t limit the argument to single mothers (C), and doesn\'t allege intentional discrimination (D).',
+  },
+
+  // ─── INF-051 Medium (Purpose of Evidence) ────────────────────────────────
+  {
+    id: 'INF-051',
+    subject: 'reading-writing',
+    domain: 'information-ideas',
+    skill: 'command-of-evidence',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'Researcher: "Urban trees reduce ambient temperature by an average of 2.9°F per block in summer months, according to data from 50 US cities."\n\nA student wants to use this quote to support the claim that city planners should invest in urban forestry as a heat mitigation strategy.',
+    question: 'Does this evidence effectively support that claim, and why?',
+    options: [
+      { id: 'A', text: 'Yes, because it provides specific quantitative data showing trees lower temperatures, directly supporting the argument for forestry investment.' },
+      { id: 'B', text: 'No, because the data comes from only 50 cities and cannot be generalized.' },
+      { id: 'C', text: 'Yes, but only if the student also cites the cost of planting trees.' },
+      { id: 'D', text: 'No, because the evidence discusses temperature, not urban planning policy.' },
+    ],
+    answer: 'A',
+    explanation: 'The evidence provides specific, quantified data (2.9°F reduction) from a large sample (50 cities) directly supporting the claim that trees mitigate heat — which directly supports investing in urban forestry. B over-applies a limitation; 50 cities is a reasonably large sample. C and D add requirements not stated in the claim.',
+  },
+
+  // ─── GEO-046 Easy (Volume of a Cylinder) ────────────────────────────────
+  {
+    id: 'GEO-046',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'area-volume',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'What is the volume of a cylinder with radius 3 and height 5?',
+    options: [
+      { id: 'A', text: '15π' },
+      { id: 'B', text: '30π' },
+      { id: 'C', text: '45π' },
+      { id: 'D', text: '9π' },
+    ],
+    answer: 'C',
+    explanation: 'Volume of a cylinder = πr²h = π × 3² × 5 = π × 9 × 5 = 45π.',
+  },
+
+  // ─── ADV-045 Hard (Completing the Square) ────────────────────────────────
+  {
+    id: 'ADV-045',
+    subject: 'math',
+    domain: 'advanced-math',
+    skill: 'quadratics',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'The equation x² + 6x + 5 = 0 can be solved by factoring. What are the solutions?',
+    options: [
+      { id: 'A', text: 'x = 1 or x = 5' },
+      { id: 'B', text: 'x = −1 or x = −5' },
+      { id: 'C', text: 'x = −1 or x = 5' },
+      { id: 'D', text: 'x = 1 or x = −5' },
+    ],
+    answer: 'B',
+    explanation: 'Factor: x² + 6x + 5 = (x + 1)(x + 5) = 0. Set each factor to zero: x + 1 = 0 → x = −1; x + 5 = 0 → x = −5. Solutions: x = −1 or x = −5.',
+  },
+
+  // ─── CON-044 Medium (Modifier Placement) ────────────────────────────────
+  {
+    id: 'CON-044',
+    subject: 'reading-writing',
+    domain: 'conventions',
+    skill: 'sentence-boundaries',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which choice correctly rewrites the sentence to fix the misplaced modifier?\n\n"Having studied for six hours, the exam seemed easy to Maya."',
+    options: [
+      { id: 'A', text: 'Having studied for six hours, Maya found the exam easy.' },
+      { id: 'B', text: 'The exam seemed easy, having studied for six hours, to Maya.' },
+      { id: 'C', text: 'The exam, having studied for six hours, seemed easy to Maya.' },
+      { id: 'D', text: 'Having studied for six hours seemed easy to Maya on the exam.' },
+    ],
+    answer: 'A',
+    explanation: 'The phrase "Having studied for six hours" modifies a person (Maya), but in the original, it appears to modify "the exam" (which can\'t study). Moving Maya directly after the comma fixes the dangling modifier: "Having studied for six hours, Maya found the exam easy."',
+  },
+
+  // ─── EXP-046 Easy (Logical Transition) ──────────────────────────────────
+  {
+    id: 'EXP-046',
+    subject: 'reading-writing',
+    domain: 'expression-ideas',
+    skill: 'transitions',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'The company spent millions on advertising. _______, sales declined that year.\n\nWhich transition best fits?',
+    options: [
+      { id: 'A', text: 'As a result' },
+      { id: 'B', text: 'Furthermore' },
+      { id: 'C', text: 'Despite this' },
+      { id: 'D', text: 'Similarly' },
+    ],
+    answer: 'C',
+    explanation: '"Despite this" signals a contrast — the expected result (sales growth from advertising) didn\'t happen (sales declined). "As a result" implies the spending caused the decline (wrong direction). "Furthermore" adds a parallel point. "Similarly" compares two like things.',
+  },
+
 ]
 
 export default questions
