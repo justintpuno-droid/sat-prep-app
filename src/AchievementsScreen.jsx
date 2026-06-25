@@ -101,6 +101,12 @@ function getHint(achId, stats, gam) {
     case 'sat-ace':          return { hint: 'Score 90%+ on SAT Timed Mode', pct: 0 }
     case 'scholar':          return h('Days studied', stats.studyDays, 30)
     case 'comeback-king':    return h('Comeback sessions (60%→80%)', stats.comebacks, 3)
+    case 'algebra-ace':     return h('Algebra questions answered', stats.dom('algebra').t, 30)
+    case 'grammar-guru':    return h('Conventions questions answered', stats.dom('conventions').t, 25)
+    case 'math-master':     return h('Math questions answered', stats.mathT, 60)
+    case 'reading-pro':     return h('Reading & Writing questions', stats.rwT, 25)
+    case 'stats-star':      return h('Problem Solving & Data questions', stats.dom('problem-solving-data').t, 20)
+    case 'geometry-genius': return h('Geometry questions answered', stats.dom('geometry-trig').t, 20)
     default:                 return null
   }
 }
@@ -152,7 +158,14 @@ export default function AchievementsScreen({ onBack }) {
     for (let i = 1; i < history.length; i++) {
       if (history[i-1].score.percent < 60 && history[i].score.percent >= 80) comebacks++
     }
-    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed, studyDays, comebacks }
+    const dom = (id) => ({ c: byDomain[id]?.c ?? 0, t: byDomain[id]?.t ?? 0 })
+    const RW = ['information-ideas','craft-structure','expression-ideas','conventions']
+    const MATH = ['algebra','advanced-math','geometry-trig','problem-solving-data']
+    const rwC = RW.reduce((s, d) => s + (byDomain[d]?.c ?? 0), 0)
+    const rwT = RW.reduce((s, d) => s + (byDomain[d]?.t ?? 0), 0)
+    const mathC = MATH.reduce((s, d) => s + (byDomain[d]?.c ?? 0), 0)
+    const mathT = MATH.reduce((s, d) => s + (byDomain[d]?.t ?? 0), 0)
+    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed, studyDays, comebacks, byDomain, dom, rwC, rwT, mathC, mathT }
   }, [history])
 
   const visibleAchievements = useMemo(() => {
