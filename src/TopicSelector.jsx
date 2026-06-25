@@ -1384,24 +1384,6 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     return { label, emoji, pct }
   }, [history])
 
-  const dailyTarget = useMemo(() => {
-    if (history.length < 3) return null
-    const todayStr = new Date().toISOString().slice(0, 10)
-    const studiedToday = history.some(s => s.completedAt.startsWith(todayStr))
-    if (studiedToday) return null
-    if (weakDomain && weakDomain.pct < 60) {
-      const label = domainById[weakDomain.id]?.label ?? weakDomain.id
-      return { text: `Drill 10 ${label} questions`, icon: '🎯', color: 'text-rose-600 bg-rose-50 border-rose-200' }
-    }
-    const recent5 = history.filter(s => s.score.total >= 5).slice(-5)
-    if (recent5.length >= 3) {
-      const avg = recent5.reduce((s, x) => s + x.score.percent, 0) / recent5.length
-      if (avg < 65) return { text: 'Focus on accuracy today — aim for 70%+', icon: '📈', color: 'text-amber-600 bg-amber-50 border-amber-200' }
-      if (avg >= 80) return { text: 'Ready for Hard mode? Push your limits today', icon: '💪', color: 'text-indigo-600 bg-indigo-50 border-indigo-200' }
-    }
-    return { text: 'Complete a 15-question session to keep your streak', icon: '🔥', color: 'text-orange-600 bg-orange-50 border-orange-200' }
-  }, [history, weakDomain])
-
   const hotDomainThisWeek = useMemo(() => {
     const mon = new Date()
     const day = mon.getDay()
@@ -1718,6 +1700,24 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
       .map(([id, s]) => ({ id, pct: Math.round((s.correct / s.total) * 100) }))
       .sort((a, b) => a.pct - b.pct)[0] ?? null
   }, [history])
+
+  const dailyTarget = useMemo(() => {
+    if (history.length < 3) return null
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const studiedToday = history.some(s => s.completedAt.startsWith(todayStr))
+    if (studiedToday) return null
+    if (weakDomain && weakDomain.pct < 60) {
+      const label = domainById[weakDomain.id]?.label ?? weakDomain.id
+      return { text: `Drill 10 ${label} questions`, icon: '🎯', color: 'text-rose-600 bg-rose-50 border-rose-200' }
+    }
+    const recent5 = history.filter(s => s.score.total >= 5).slice(-5)
+    if (recent5.length >= 3) {
+      const avg = recent5.reduce((s, x) => s + x.score.percent, 0) / recent5.length
+      if (avg < 65) return { text: 'Focus on accuracy today — aim for 70%+', icon: '📈', color: 'text-amber-600 bg-amber-50 border-amber-200' }
+      if (avg >= 80) return { text: 'Ready for Hard mode? Push your limits today', icon: '💪', color: 'text-indigo-600 bg-indigo-50 border-indigo-200' }
+    }
+    return { text: 'Complete a 15-question session to keep your streak', icon: '🔥', color: 'text-orange-600 bg-orange-50 border-orange-200' }
+  }, [history, weakDomain])
 
   const recentWeakDomains = useMemo(() => {
     if (history.length < 3) return []
