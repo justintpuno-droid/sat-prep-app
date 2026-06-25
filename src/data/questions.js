@@ -3458,6 +3458,62 @@ const questions = [
     explanation: 'B captures both the importance of bees (one-third of food production) and the consequence of their loss (scarce and expensive food). A is about honey production, which is not mentioned in the passage. C introduces a recommendation the author never makes. D shifts focus to nutrition, which is not the topic.',
   },
 
+  // ─── Information Ideas: Quantitative Evidence (INF-035..037) ────────────
+  {
+    id: 'INF-035',
+    subject: 'english',
+    domain: 'information-ideas',
+    skill: 'quantitative',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'A study tracked 500 high school students over 3 years. Students who participated in after-school tutoring for at least 6 months showed a 22% average increase in GPA, while students without tutoring showed a 4% average increase. The tutoring group also had a 15% higher graduation rate.',
+    question: 'Which claim is best supported by the data in the passage?',
+    options: [
+      { id: 'A', text: 'All students who participate in tutoring will graduate from high school.' },
+      { id: 'B', text: 'After-school tutoring is associated with higher GPA gains and graduation rates than no tutoring.' },
+      { id: 'C', text: 'Students who do not receive tutoring are unlikely to improve their GPA.' },
+      { id: 'D', text: 'Tutoring causes students to work harder in all aspects of school.' },
+    ],
+    answer: 'B',
+    explanation: 'B accurately reflects the data: tutoring group had 22% GPA increase vs. 4% for non-tutoring (higher gains) and 15% higher graduation rate. A overstates ("all will graduate"). C overstates — non-tutoring students still showed a 4% GPA increase. D implies a cause ("causes to work harder") and introduces a claim about motivation not present in the data.',
+  },
+  {
+    id: 'INF-036',
+    subject: 'english',
+    domain: 'information-ideas',
+    skill: 'quantitative',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'A climate scientist presents the following data in a report:\n- Global average temperatures have risen 1.1°C since 1880.\n- The 10 warmest years on record have all occurred since 2010.\n- CO₂ concentrations have increased from 280 ppm (pre-industrial) to 420 ppm today.\n\nThe scientist argues that human activity is driving unprecedented climate change.',
+    question: 'Which statement best describes how the data supports the scientist\'s argument?',
+    options: [
+      { id: 'A', text: 'The data shows temperatures have been rising steadily, which directly proves human activity is the cause.' },
+      { id: 'B', text: 'The data shows concurrent trends — rising temperatures, concentration of warming in recent decades, and increasing CO₂ — that are consistent with the argument.' },
+      { id: 'C', text: 'The data alone is sufficient to rule out natural causes of climate change.' },
+      { id: 'D', text: 'The scientist\'s argument is weakened by the fact that only three data points are presented.' },
+    ],
+    answer: 'B',
+    explanation: 'B carefully describes what the data actually does — it shows trends consistent with the argument without overclaiming. A says the data "directly proves" causation, but correlation ≠ causation; the data supports but does not prove. C overclaims ("rule out natural causes"). D is incorrect — three robust data points (temperature trend, recent clustering, CO₂ rise) constitute meaningful evidence, not a weakness.',
+  },
+  {
+    id: 'INF-037',
+    subject: 'english',
+    domain: 'information-ideas',
+    skill: 'quantitative',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'A researcher studying urban parks surveyed 1,200 city residents. The results showed:\n• 68% of residents living within 0.5 miles of a park reported "high life satisfaction."\n• 41% of residents living more than 1 mile from a park reported "high life satisfaction."\n• Income levels were not controlled for in the survey.\n\nThe researcher concludes: "Access to urban parks directly improves residents\' well-being."',
+    question: 'Which of the following most effectively challenges the researcher\'s conclusion?',
+    options: [
+      { id: 'A', text: 'The sample size of 1,200 is too small to draw any valid conclusions.' },
+      { id: 'B', text: 'The survey only measured life satisfaction, not well-being more broadly.' },
+      { id: 'C', text: 'Because income was not controlled for, higher-income residents (who may live near parks and have other advantages) could account for the difference in satisfaction.' },
+      { id: 'D', text: 'The 27-percentage-point difference is not statistically significant.' },
+    ],
+    answer: 'C',
+    explanation: 'C identifies the key confounding variable: income was not controlled. Higher-income residents may both live near parks (more resources) and report higher satisfaction for unrelated reasons. A is incorrect — 1,200 is a reasonable sample size. B is a minor concern but doesn\'t undermine the core methodology. D is unsupported — a 27-point difference is large and likely significant; we have no information suggesting otherwise.',
+  },
+
   // ─── CRAFT & STRUCTURE: CRA-007 to CRA-018 ───────────────────────────────
 
   {
