@@ -123,7 +123,7 @@ function getHint(achId, stats, gam) {
     case 'formula-10':      return h('Formulas mastered', stats.formulaMastered, 10)
     case 'formula-20':      return h('Formulas mastered', stats.formulaMastered, 20)
     case 'formula-40':      return h('Formulas mastered', stats.formulaMastered, 40)
-    case 'formula-all':     return h('Formulas mastered', stats.formulaMastered, 56)
+    case 'formula-all':     return h('Formulas mastered', stats.formulaMastered, 60)
     case 'vocab-75':        return h('Vocab words mastered', stats.vocabMastered, 75)
     case 'vocab-100':       return h('Vocab words mastered', stats.vocabMastered, 100)
     case 'vocab-150':       return h('Vocab words mastered', stats.vocabMastered, 150)

@@ -405,4 +405,34 @@ export const MATH_FORMULAS = [
     tip: 'm is slope (rate of change), b is y-intercept (starting value). Parallel lines have equal slopes.',
     example: 'y = 3x + 5: slope 3 (rises 3 for every 1 right), y-intercept 5',
   },
+
+  // ── Batch 4 formulas ──────────────────────────────────────────────────────
+  {
+    name: 'Sum of Angles in a Polygon',
+    category: 'Geometry',
+    formula: 'Sum = (n − 2) × 180°',
+    tip: 'n = number of sides. Triangle: (3−2)×180=180. Quadrilateral: (4−2)×180=360.',
+    example: 'Hexagon (6 sides): (6−2)×180 = 4×180 = 720°',
+  },
+  {
+    name: 'Absolute Value Equation',
+    category: 'Algebra',
+    formula: '|ax + b| = c → ax+b = c  OR  ax+b = −c',
+    tip: 'Always split into two cases. Check both solutions in the original equation.',
+    example: '|x − 3| = 5 → x−3=5 → x=8  OR  x−3=−5 → x=−2',
+  },
+  {
+    name: 'Exponential Growth/Decay',
+    category: 'Algebra',
+    formula: 'A = P(1 ± r)ᵗ',
+    tip: 'Growth: A = P(1+r)ᵗ. Decay: A = P(1−r)ᵗ. r = decimal rate, t = time.',
+    example: '$1000 at 5% growth for 3 years: A = 1000(1.05)³ ≈ $1,157.63',
+  },
+  {
+    name: 'Zero Product Property',
+    category: 'Algebra',
+    formula: 'If (x − a)(x − b) = 0, then x = a or x = b',
+    tip: 'Factor first, then set each factor equal to zero. SAT uses this constantly.',
+    example: 'x² − 5x + 6 = 0 → (x−2)(x−3)=0 → x = 2 or x = 3',
+  },
 ]
