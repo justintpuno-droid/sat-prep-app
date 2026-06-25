@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import TopicSelector from './TopicSelector'
+import AppShell from './AppShell'
+import HomeTab from './HomeTab'
+import ProfileTab from './ProfileTab'
+import FriendsTab from './FriendsTab'
 import SessionConfig from './SessionConfig'
 import LearningSession from './LearningSession'
 import QuizSession from './QuizSession'
@@ -10,9 +13,8 @@ import AnalyticsScreen from './AnalyticsScreen'
 import AchievementsScreen from './AchievementsScreen'
 import VocabFlash from './VocabFlash'
 import MathFlash from './MathFlash'
-import ProfileScreen from './ProfileScreen'
 import WrongAnswerJournal from './WrongAnswerJournal'
-import { saveToHistory, loadHistory, recordSRAnswer, getDueReviews, getSRCount } from './utils/history'
+import { saveToHistory, loadHistory, recordSRAnswer, getDueReviews } from './utils/history'
 import { loadGamification, saveGamification, processSession } from './utils/gamification'
 import { shuffle } from './utils/index'
 import allQuestions from './data/questions'
@@ -31,6 +33,7 @@ import DailyChallenge from './DailyChallenge'
 export default function App() {
   const [onboarded, setOnboarded] = useState(() => hasOnboarded())
   const [screen, setScreen] = useState('home')
+  const [tab, setTab] = useState('home')
   const [filters, setFilters] = useState(null)
   const [sessionConfig, setSessionConfig] = useState(null)
   const [completedSession, setCompletedSession] = useState(null)
@@ -434,7 +437,40 @@ export default function App() {
     return <Onboarding onDone={() => setOnboarded(true)} />
 
   if (screen === 'home')
-    return <TopicSelector onStart={handleFiltersSet} onHistory={() => setScreen('history')} onQuestionBank={() => setScreen('question-bank')} onQuickPractice={handleQuickPractice} onQuick5={handleQuick5} onAdaptiveQuiz={handleAdaptiveQuiz} onWrongAnswerSprint={handleWrongAnswerSprint} onProblemAreasDrill={handleProblemAreasDrill} onSuddenDeath={handleSuddenDeath} onTimedChallenge={handleTimedChallenge} onFullPractice={handleFullPractice} onAchievements={() => setScreen('achievements')} onFocusPractice={handleFocusPractice} onSkillFocus={handleSkillFocus} onBeastMode={handleBeastMode} onBlitzMode={handleBlitzMode} onFlaggedReview={handleFlaggedReview} onSpacedRepetition={handleSpacedRepetition} onVocab={() => setScreen('vocab')} onMathFlash={() => setScreen('math-flash')} onHeadToHead={handleHeadToHead} onProfile={() => setScreen('profile')} onSATTimed={handleSATTimed} onHeartsMode={handleHeartsMode} onSurvivalMode={handleSurvivalMode} onRampMode={handleRampMode} onWrongJournal={() => setScreen('wrong-journal')} onQuickAssessment={handleQuickAssessment} onPowerHour={handlePowerHour} onStrategyGuide={() => setScreen('strategy-guide')} onStudyNotes={() => setScreen('study-notes')} onGrammarRef={() => setScreen('grammar-ref')} onMathRef={() => setScreen('math-ref')} onDigitalSAT={() => setScreen('digital-sat')} onBreathing={() => setScreen('breathing')} onScoreCalculator={() => setScreen('score-calculator')} onConfidenceBooster={handleConfidenceBooster} onSATStory={() => setScreen('sat-story')} onDailyChallenge={() => setScreen('daily-challenge')} pendingXP={pendingXP} onClearPendingXP={() => setPendingXP(null)} />
+    return (
+      <AppShell tab={tab} onTabChange={setTab}>
+        {tab === 'home' && (
+          <HomeTab
+            onQuickPractice={handleQuickPractice}
+            onFullPractice={handleFullPractice}
+            onCustom={handleFiltersSet}
+            onAdaptive={handleAdaptiveQuiz}
+            onBeast={handleBeastMode}
+            onTimed={handleTimedChallenge}
+            onWrong={handleWrongAnswerSprint}
+            onRamp={handleRampMode}
+            onAssessment={handleQuickAssessment}
+            onVocab={() => setScreen('vocab')}
+            onMathFlash={() => setScreen('math-flash')}
+            onGrammar={() => setScreen('grammar-ref')}
+            onStrategy={() => setScreen('strategy-guide')}
+            onHistory={() => setScreen('history')}
+            onDailyChallenge={() => setScreen('daily-challenge')}
+          />
+        )}
+        {tab === 'questions' && (
+          <QuestionBank inTab onPractice={handlePracticeFromBank} />
+        )}
+        {tab === 'profile' && (
+          <ProfileTab
+            onViewAchievements={() => setScreen('achievements')}
+            onHistory={() => setScreen('history')}
+            onAnalytics={() => setScreen('analytics')}
+          />
+        )}
+        {tab === 'friends' && <FriendsTab />}
+      </AppShell>
+    )
   if (screen === 'session-config')
     return <SessionConfig filters={filters} onStart={handleSessionStart} onBack={() => setScreen('home')} />
   if (screen === 'learning')

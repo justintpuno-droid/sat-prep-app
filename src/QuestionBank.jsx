@@ -33,7 +33,7 @@ const SKILL_MAP = Object.fromEntries(
 )
 const ALL_DOMAIN_IDS = new Set(TAXONOMY.flatMap(s => s.domains.map(d => d.id)))
 
-export default function QuestionBank({ onBack, onPractice }) {
+export default function QuestionBank({ onBack, onPractice, inTab = false }) {
   const [section, setSection] = useState('all')
   const [selectedDomains, setSelectedDomains] = useState(() => new Set(ALL_DOMAIN_IDS))
   const [diffFilter, setDiffFilter] = useState(new Set([1, 2, 3]))
@@ -112,14 +112,16 @@ export default function QuestionBank({ onBack, onPractice }) {
   const allDomainsSelected = visibleDomains.every(d => selectedDomains.has(d.id))
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className={inTab ? 'bg-gray-50' : 'min-h-screen bg-gray-50'}>
+      <div className="max-w-7xl mx-auto px-4 py-6">
 
         {/* Page header */}
         <div className="mb-6">
-          <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-700 mb-3 flex items-center gap-1 transition-colors">
-            ← Back
-          </button>
+          {!inTab && (
+            <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-700 mb-3 flex items-center gap-1 transition-colors">
+              ← Back
+            </button>
+          )}
           <h1 className="text-2xl font-bold text-gray-900">Question Bank</h1>
           <p className="text-sm text-gray-500 mt-0.5">{allQuestions.length} questions available</p>
         </div>
