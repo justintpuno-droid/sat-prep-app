@@ -6444,6 +6444,166 @@ const questions = [
     explanation: 'This is vertex form: f(x) = a(x − h)² + k with vertex (h, k). Here h = 3 and k = 16, so the vertex is (3, 16). Since a = −1 < 0, the parabola opens downward and the vertex is the maximum.',
   },
 
+  // ─── CON-042 Medium (Subject-Verb Agreement) ────────────────────────────
+  {
+    id: 'CON-042',
+    subject: 'reading-writing',
+    domain: 'conventions',
+    skill: 'subject-verb-agreement',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which choice correctly completes the sentence?\n\nNeither the students nor the teacher _______ aware of the schedule change.',
+    options: [
+      { id: 'A', text: 'were' },
+      { id: 'B', text: 'was' },
+      { id: 'C', text: 'are' },
+      { id: 'D', text: 'have been' },
+    ],
+    answer: 'B',
+    explanation: 'With "neither…nor," the verb agrees with the noun closest to it. The noun closest to the verb is "teacher" (singular), so the verb should be singular: "was." This is the "proximity rule" for neither/nor and either/or constructions.',
+  },
+
+  // ─── ALG-044 Hard (System of Equations — Special Cases) ─────────────────
+  {
+    id: 'ALG-044',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-systems',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'For what value of m does the system of equations have no solution?\n\ny = 3x + 5\ny = mx + 8',
+    options: [
+      { id: 'A', text: '3' },
+      { id: 'B', text: '5' },
+      { id: 'C', text: '8' },
+      { id: 'D', text: '−3' },
+    ],
+    answer: 'A',
+    explanation: 'A system has no solution when the lines are parallel — same slope, different y-intercepts. The first line has slope 3. Setting m = 3 gives slope 3 and y-intercept 8 ≠ 5. So the lines are parallel and the system has no solution. If m = 3 and intercepts were equal, it would be the same line (infinite solutions).',
+  },
+
+  // ─── PSD-041 Medium (Probability) ───────────────────────────────────────
+  {
+    id: 'PSD-041',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'probability',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A bag contains 5 red marbles, 3 blue marbles, and 2 green marbles. If one marble is drawn at random, what is the probability that it is NOT red?',
+    options: [
+      { id: 'A', text: '1/2' },
+      { id: 'B', text: '3/10' },
+      { id: 'C', text: '1/5' },
+      { id: 'D', text: '5/10' },
+    ],
+    answer: 'A',
+    explanation: 'Total marbles: 5 + 3 + 2 = 10. Non-red marbles: 3 + 2 = 5. P(not red) = 5/10 = 1/2.',
+  },
+
+  // ─── INF-048 Hard (Quantitative Reasoning with Graph) ───────────────────
+  {
+    id: 'INF-048',
+    subject: 'reading-writing',
+    domain: 'information-ideas',
+    skill: 'quantitative-evidence',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'A study compared reading scores of students who read for pleasure daily vs. those who do not. Among daily readers, 72% scored "proficient or above." Among non-daily readers, 48% scored "proficient or above." The study surveyed 1,200 students in grades 6–8.',
+    question: 'Which claim is most directly supported by the data?',
+    options: [
+      { id: 'A', text: 'Reading for pleasure daily causes higher reading proficiency.' },
+      { id: 'B', text: 'Students who read for pleasure daily are more likely to score proficient than those who do not.' },
+      { id: 'C', text: 'Non-daily readers are unlikely to improve their reading skills.' },
+      { id: 'D', text: 'The study proves that reading every day is the most effective educational intervention.' },
+    ],
+    answer: 'B',
+    explanation: 'The data shows a correlation: daily readers have a higher proficiency rate (72% vs. 48%). However, the study does not establish causation — it just shows association. A says "causes" which is too strong for survey data. C goes beyond what the data shows. D says "proves" and "most effective" — neither is supported. B accurately reflects the comparison without overstating.',
+  },
+
+  // ─── ADV-043 Medium (Polynomial Operations) ─────────────────────────────
+  {
+    id: 'ADV-043',
+    subject: 'math',
+    domain: 'advanced-math',
+    skill: 'polynomial-expressions',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'What is the value of (x + 3)(x − 3)?',
+    options: [
+      { id: 'A', text: 'x² − 9' },
+      { id: 'B', text: 'x² + 9' },
+      { id: 'C', text: 'x² − 6x − 9' },
+      { id: 'D', text: 'x² + 6x − 9' },
+    ],
+    answer: 'A',
+    explanation: 'Use the difference of squares pattern: (a + b)(a − b) = a² − b². Here a = x and b = 3. So (x + 3)(x − 3) = x² − 3² = x² − 9.',
+  },
+
+  // ─── GEO-043 Easy (Angle Relationships) ─────────────────────────────────
+  {
+    id: 'GEO-043',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'lines-angles',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Two lines intersect forming four angles. If one angle measures 65°, what is the measure of the angle directly opposite (vertical angle) to it?',
+    options: [
+      { id: 'A', text: '25°' },
+      { id: 'B', text: '115°' },
+      { id: 'C', text: '65°' },
+      { id: 'D', text: '90°' },
+    ],
+    answer: 'C',
+    explanation: 'Vertical angles are formed when two lines intersect and are always equal. The angle directly opposite a 65° angle is also 65°.',
+  },
+
+  // ─── CRA-043 Easy (Words in Context) ────────────────────────────────────
+  {
+    id: 'CRA-043',
+    subject: 'reading-writing',
+    domain: 'craft-structure',
+    skill: 'words-in-context',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: 'The scientist\'s results were _______ — three independent labs had produced identical findings, removing all reasonable doubt about the discovery.',
+    question: 'Which word most effectively completes the sentence?',
+    options: [
+      { id: 'A', text: 'dubious' },
+      { id: 'B', text: 'contested' },
+      { id: 'C', text: 'corroborated' },
+      { id: 'D', text: 'refuted' },
+    ],
+    answer: 'C',
+    explanation: '"Corroborated" means confirmed by independent evidence — exactly what three identical lab findings would do. "Dubious" means doubtful (opposite). "Contested" means disputed (opposite). "Refuted" means disproved (opposite).',
+  },
+
+  // ─── EXP-044 Medium (Concision / Wordiness) ─────────────────────────────
+  {
+    id: 'EXP-044',
+    subject: 'reading-writing',
+    domain: 'expression-ideas',
+    skill: 'effective-language-use',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which choice is the most concise version of the underlined portion?\n\nThe new policy will, in the future, at some later point, eventually result in lower costs.',
+    options: [
+      { id: 'A', text: 'will, in the future, at some later point, eventually' },
+      { id: 'B', text: 'will, at a future point in time,' },
+      { id: 'C', text: 'will eventually' },
+      { id: 'D', text: 'will, in the future eventually at some time,' },
+    ],
+    answer: 'C',
+    explanation: '"Will eventually" communicates the same meaning as all the wordy options combined. The SAT rewards eliminating redundant time expressions. "In the future," "at some later point," and "eventually" all convey the same idea — only one is needed.',
+  },
+
 ]
 
 export default questions
