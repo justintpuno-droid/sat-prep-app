@@ -2970,6 +2970,62 @@ const questions = [
     explanation: 'By the Pythagorean theorem: c² = a² + b² = 3² + 4² = 9 + 16 = 25, so c = 5. This is the classic 3-4-5 right triangle. Choice B is 3+4. Choice C is 3×4. Choice D is the value of c² (25) without taking the square root.',
   },
 
+  // ── Hard Geometry (GEO-035..037) ─────────────────────────────────────────
+  {
+    id: 'GEO-035',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'coordinate-geometry',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A circle in the xy-plane has equation (x − 3)² + (y + 2)² = 25. Which point lies on the circle?',
+    options: [
+      { id: 'A', text: '(3, 2)' },
+      { id: 'B', text: '(7, −1)' },
+      { id: 'C', text: '(8, −2)' },
+      { id: 'D', text: '(0, −2)' },
+    ],
+    answer: 'C',
+    explanation: 'A point lies on the circle if it satisfies (x − 3)² + (y + 2)² = 25 (radius = 5, center = (3, −2)). Test each: A: (3−3)²+(2+2)²=0+16=16≠25. B: (7−3)²+(−1+2)²=16+1=17≠25. C: (8−3)²+(−2+2)²=25+0=25 ✓. D: (0−3)²+(−2+2)²=9+0=9≠25. The center is (3,−2) and (8,−2) is directly 5 units to the right of center, landing exactly on the circle.',
+  },
+  {
+    id: 'GEO-036',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'trigonometry',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'In a right triangle, sin(θ) = 3/5. What is cos(θ)?',
+    options: [
+      { id: 'A', text: '3/4' },
+      { id: 'B', text: '4/5' },
+      { id: 'C', text: '5/3' },
+      { id: 'D', text: '3/5' },
+    ],
+    answer: 'B',
+    explanation: 'Using the Pythagorean identity: sin²(θ) + cos²(θ) = 1. If sin(θ) = 3/5, then (3/5)² + cos²(θ) = 1 → 9/25 + cos²(θ) = 1 → cos²(θ) = 16/25 → cos(θ) = 4/5 (positive since θ is an acute angle in a right triangle). This corresponds to a 3-4-5 triangle: opposite = 3, hypotenuse = 5, adjacent = 4, so cos = 4/5.',
+  },
+  {
+    id: 'GEO-037',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'volume',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A cone has a radius of 6 cm and a height of 8 cm. A cylinder with the same base radius and the same height is placed around the cone. What fraction of the cylinder\'s volume is occupied by the cone?',
+    options: [
+      { id: 'A', text: '1/4' },
+      { id: 'B', text: '1/3' },
+      { id: 'C', text: '1/2' },
+      { id: 'D', text: '2/3' },
+    ],
+    answer: 'B',
+    explanation: 'Volume of cone = (1/3)πr²h = (1/3)π(36)(8) = 96π. Volume of cylinder = πr²h = π(36)(8) = 288π. Fraction = 96π/288π = 1/3. The cone always occupies exactly 1/3 of the volume of the cylinder with the same base and height — a classic geometric relationship worth memorizing.',
+  },
+
   // ─── Advanced Math Easy Questions (ADV-031..033) ─────────────────────────
   {
     id: 'ADV-031',
