@@ -104,6 +104,9 @@ export default function MathFlash({ onBack, onXP }) {
       const sessionNewMastered = newlyMastered.length + (mastered && !wasAlreadyMastered ? 1 : 0)
       const comboBonus = Math.max(newCombo, maxSessionCombo) >= 5 ? 20 : 0
       const totalXP = sessionKnew * 5 + sessionNewMastered * 25 + comboBonus
+      const allResults = [...results, { knew }]
+      const allKnew = allResults.every(r => r.knew) && allResults.length > 0
+      try { localStorage.setItem('sat_prep_math_last_session', JSON.stringify({ allKnew })) } catch {}
       if (totalXP > 0) onXP?.(totalXP)
       setDone(true)
     }

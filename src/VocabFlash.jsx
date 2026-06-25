@@ -101,7 +101,10 @@ export default function VocabFlash({ onBack, onXP }) {
     }
 
     if (idx + 1 >= deck.length) {
-      const xpEarned = sessionResults.filter(r => r.knew).length * 5 + (knew ? 5 : 0)
+      const allResults = [...sessionResults, { word: card.word, knew }]
+      const xpEarned = allResults.filter(r => r.knew).length * 5
+      const allKnew = allResults.every(r => r.knew) && allResults.length > 0
+      try { localStorage.setItem('sat_prep_vocab_last_session', JSON.stringify({ allKnew })) } catch {}
       if (studyMode === 'quiz' || studyMode === 'context') {
         setTimeout(() => {
           setDone(true)

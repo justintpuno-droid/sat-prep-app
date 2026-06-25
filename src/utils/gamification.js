@@ -143,6 +143,13 @@ export const ACHIEVEMENTS = [
   { id: 'reading-pro',     icon: '📖', title: 'Reading Pro',        desc: '80%+ accuracy on 25+ Reading & Writing questions' },
   { id: 'stats-star',      icon: '📊', title: 'Stats Star',         desc: '80%+ accuracy on 20+ Problem Solving & Data questions' },
   { id: 'geometry-genius', icon: '📏', title: 'Geometry Genius',    desc: '80%+ accuracy on 20+ Geometry questions' },
+  // Milestone achievements for expanded content
+  { id: 'formula-20',      icon: '📐', title: 'Formula Warrior',    desc: 'Master 20 math formulas in MathFlash' },
+  { id: 'vocab-75',        icon: '📕', title: 'Vocab Champion',     desc: 'Master 75 SAT vocabulary words' },
+  { id: 'all-domains',     icon: '🗺️', title: 'Explorer',          desc: 'Answer 3+ questions in every one of the 8 domains' },
+  { id: 'flash-perfect',   icon: '⚡', title: 'Flash Perfect',     desc: 'Know every card in a VocabFlash or MathFlash session (all correct)' },
+  { id: 'dual-80',         icon: '🎓', title: 'Balanced Scholar',  desc: 'Score 80%+ on both Math and English in the same full-format session' },
+  { id: 'improvement-arc', icon: '📈', title: 'Improvement Arc',   desc: 'Average of last 5 sessions beats average of first 5 by 15+ points' },
 ]
 
 const CHECKS = {
@@ -321,6 +328,34 @@ const CHECKS = {
     let c = 0, t = 0
     for (const s of h) for (const q of s.questions) if (q.domain === 'geometry-trig') { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
     return t >= 20 && c / t >= 0.8
+  },
+  'formula-20':   () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_math_flash') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 20 } catch { return false } },
+  'vocab-75':     () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 75 } catch { return false } },
+  'all-domains':  (h) => {
+    const ALL = ['algebra','advanced-math','geometry-trig','problem-solving-data','information-ideas','craft-structure','expression-ideas','conventions']
+    const byDomain = {}
+    for (const s of h) for (const q of s.questions) { byDomain[q.domain] = (byDomain[q.domain] ?? 0) + 1 }
+    return ALL.every(d => (byDomain[d] ?? 0) >= 3)
+  },
+  'flash-perfect': () => {
+    try {
+      const vocab = JSON.parse(localStorage.getItem('sat_prep_vocab_last_session') ?? 'null')
+      const math = JSON.parse(localStorage.getItem('sat_prep_math_last_session') ?? 'null')
+      return (vocab?.allKnew === true) || (math?.allKnew === true)
+    } catch { return false }
+  },
+  'dual-80': (h) => h.some(s => {
+    if (!s.phaseData || s.phaseData.length < 2) return false
+    return s.phaseData.every(p => {
+      const correct = p.questions.filter(q => (s.answers?.[q.id] ?? null) === q.answer).length
+      return p.questions.length > 0 && (correct / p.questions.length) >= 0.8
+    })
+  }),
+  'improvement-arc': (h) => {
+    if (h.length < 10) return false
+    const first5 = h.slice(0, 5).reduce((s, x) => s + x.score.percent, 0) / 5
+    const last5 = h.slice(-5).reduce((s, x) => s + x.score.percent, 0) / 5
+    return last5 - first5 >= 15
   },
 }
 

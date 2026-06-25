@@ -117,7 +117,13 @@ function getHint(achId, stats, gam) {
     case 'vocab-50':        return h('Vocab words mastered', stats.vocabMastered, 50)
     case 'vocab-all':       return h('Vocab words mastered', stats.vocabMastered, 128)
     case 'formula-10':      return h('Formulas mastered', stats.formulaMastered, 10)
+    case 'formula-20':      return h('Formulas mastered', stats.formulaMastered, 20)
     case 'formula-all':     return h('Formulas mastered', stats.formulaMastered, 44)
+    case 'vocab-75':        return h('Vocab words mastered', stats.vocabMastered, 75)
+    case 'all-domains':     return { hint: 'Answer 3+ questions in every domain (8 total)', pct: Math.min(100, Math.round((Object.values(stats.byDomain).filter(d => d.t >= 3).length / 8) * 100)) }
+    case 'flash-perfect':   return { hint: 'Know every card in a VocabFlash or MathFlash session', pct: 0 }
+    case 'dual-80':         return { hint: 'Score 80%+ on both Math and English in a full-format session', pct: 0 }
+    case 'improvement-arc': return { hint: 'Keep studying! Avg of your last 5 sessions must beat your first 5 by 15+ points', pct: Math.min(100, Math.round((stats.sessions / 10) * 50)) }
     default:                 return null
   }
 }
