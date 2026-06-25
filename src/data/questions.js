@@ -3588,6 +3588,62 @@ const questions = [
     explanation: 'C identifies the key confounding variable: income was not controlled. Higher-income residents may both live near parks (more resources) and report higher satisfaction for unrelated reasons. A is incorrect — 1,200 is a reasonable sample size. B is a minor concern but doesn\'t undermine the core methodology. D is unsupported — a 27-point difference is large and likely significant; we have no information suggesting otherwise.',
   },
 
+  // ── Hard Information and Ideas (INF-038..040) ─────────────────────────────
+  {
+    id: 'INF-038',
+    subject: 'english',
+    domain: 'information-ideas',
+    skill: 'cross-text-connections',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'Text 1: Researchers at the University of Chicago found that bilingual children consistently outperformed monolingual peers on tasks requiring attention control and cognitive flexibility. They attributed this advantage to the constant management of two competing language systems, which strengthens executive function.\n\nText 2: A 2019 meta-analysis reviewing 152 studies on bilingualism and cognitive advantages found "no reliable evidence" that bilingualism confers a general cognitive advantage. The authors noted that earlier studies showing advantages suffered from publication bias — studies finding no effect were less likely to be published.',
+    question: 'How would the author of Text 2 most likely respond to the claims made in Text 1?',
+    options: [
+      { id: 'A', text: 'By arguing that the University of Chicago researchers studied too small a sample to draw conclusions.' },
+      { id: 'B', text: 'By suggesting that the attention control advantages noted in Text 1 may reflect a reporting bias rather than a genuine cognitive benefit.' },
+      { id: 'C', text: 'By agreeing that bilingual children show advantages but questioning whether those advantages transfer to real-world tasks.' },
+      { id: 'D', text: 'By claiming that bilingualism actually harms cognitive development in young children.' },
+    ],
+    answer: 'B',
+    explanation: 'Text 2 argues that earlier studies finding bilingual advantages suffered from publication bias — positive results got published, null results did not. This critique directly applies to Text 1\'s findings. B correctly frames the author of Text 2\'s response: the University of Chicago result might reflect this reporting pattern rather than a true cognitive effect. A is not supported — Text 2 doesn\'t focus on sample size. C is too generous — Text 2 challenges the existence of the advantage, not just its transferability. D goes further than Text 2 claims (it finds no reliable evidence of advantage, not evidence of harm).',
+  },
+  {
+    id: 'INF-039',
+    subject: 'english',
+    domain: 'information-ideas',
+    skill: 'inferences',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'The following passage is from a 2024 essay about urban design:\n\nFor most of the twentieth century, American cities were designed around the automobile. Streets were widened, sidewalks narrowed, and zoning laws separated residential neighborhoods from commercial districts, requiring residents to drive even for basic errands. Urban planners called this "functional separation," but critics — notably Jane Jacobs in her 1961 book The Death and Life of Great American Cities — argued that such separation destroyed the spontaneous social interactions that made neighborhoods vibrant. Jacobs observed that streets where people walked past stores, sat on stoops, and ran errands on foot created what she called "eyes on the street" — informal surveillance that made communities safer and more cohesive. Recent empirical research has largely validated her intuitions: walkable neighborhoods show higher rates of social trust and lower rates of violent crime.',
+    question: 'Which inference about the concept of "eyes on the street" is most strongly supported by the passage?',
+    options: [
+      { id: 'A', text: 'Formal policing is ineffective in neighborhoods designed around the automobile.' },
+      { id: 'B', text: 'The presence of pedestrians performing daily activities creates informal community oversight that benefits neighborhood safety.' },
+      { id: 'C', text: 'Reducing automobile traffic is the most effective way to improve neighborhood safety.' },
+      { id: 'D', text: 'Jacobs\'s ideas about urban design were rejected by urban planners until recently.' },
+    ],
+    answer: 'B',
+    explanation: 'The passage defines "eyes on the street" as informal surveillance arising from pedestrian activity — people walking past stores, sitting on stoops, running errands. B captures this precisely and links it to safety, which the passage confirms via recent research. A introduces the idea that formal policing is ineffective — not stated or implied. C makes a causal claim about reducing automobile traffic, but the passage focuses on walkability and pedestrian activity, not simply reducing cars. D overstates: the passage says critics like Jacobs argued against functional separation, but doesn\'t say planners broadly rejected her ideas until recently.',
+  },
+  {
+    id: 'INF-040',
+    subject: 'english',
+    domain: 'information-ideas',
+    skill: 'central-ideas',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'The following passage is from a 2023 science essay:\n\nScientists have long assumed that the deep ocean — below 200 meters — is essentially dark, cold, and devoid of photosynthesis. Life there, researchers thought, depended on a process called chemosynthesis, in which bacteria convert chemical energy rather than sunlight into food. This model was upended by a 2023 study that detected oxygen production at 2,500 meters depth in the Pacific Ocean. The source appeared to be polymetallic nodules — potato-sized manganese rocks on the seafloor — which were producing oxygen through an electrochemical process as they slowly oxidized minerals from the water. The finding challenges decades of assumptions about energy production in deep-ocean ecosystems and raises questions about how life could persist on ocean worlds like Europa, where sunlight never reaches the seafloor.',
+    question: 'Which statement best describes the central idea of the passage?',
+    options: [
+      { id: 'A', text: 'Chemosynthesis is the dominant process by which deep-ocean organisms generate energy.' },
+      { id: 'B', text: 'A recent discovery of electrochemical oxygen production in the deep ocean challenges established scientific models and has implications for the search for extraterrestrial life.' },
+      { id: 'C', text: 'Polymetallic nodules are the primary source of oxygen in the Pacific Ocean.' },
+      { id: 'D', text: 'Life on ocean worlds like Europa is more likely than scientists previously thought.' },
+    ],
+    answer: 'B',
+    explanation: 'B captures both the core discovery (electrochemical oxygen production from polymetallic nodules) and its two main implications: (1) challenging established deep-ocean models and (2) broadening the search for life on worlds like Europa. A describes the OLD model that the passage explicitly says was "upended." C is too narrow — nodules as "primary source of oxygen in the Pacific Ocean" isn\'t stated and overstates the finding. D goes beyond what the passage supports: it says the finding "raises questions" about life on Europa, not that it confirms life is more likely.',
+  },
+
   // ─── CRAFT & STRUCTURE: CRA-007 to CRA-018 ───────────────────────────────
 
   {
