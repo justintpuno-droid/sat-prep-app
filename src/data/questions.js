@@ -6144,6 +6144,127 @@ const questions = [
     answer: 'D',
     explanation: 'Expand each product. (x+4)(x−3) = x² + x − 12. (x+1)(x−2) = x² − x − 2. Subtract: (x² + x − 12) − (x² − x − 2) = x² + x − 12 − x² + x + 2 = 2x − 10. This matches answer D (−10 + 2x).',
   },
+
+  // ─── CRA-040 Medium (Words in Context) ─────────────────────────────────
+  {
+    id: 'CRA-040',
+    subject: 'reading-writing',
+    domain: 'craft-structure',
+    skill: 'words-in-context',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'A leading nutritionist argued that the standard American diet does not merely cause obesity, but actively _______ it — providing the precise caloric and hormonal conditions under which the condition flourishes.',
+    question: 'Which word most effectively completes the sentence?',
+    options: [
+      { id: 'A', text: 'discourages' },
+      { id: 'B', text: 'cultivates' },
+      { id: 'C', text: 'reduces' },
+      { id: 'D', text: 'questions' },
+    ],
+    answer: 'B',
+    explanation: '"Cultivates" means to foster or actively promote growth — fitting the idea that the diet creates optimal conditions for obesity to flourish. "Discourages" and "reduces" are opposite in meaning. "Questions" implies doubt, not promotion.',
+  },
+
+  // ─── CRA-041 Hard (Text Structure & Purpose) ────────────────────────────
+  {
+    id: 'CRA-041',
+    subject: 'reading-writing',
+    domain: 'craft-structure',
+    skill: 'text-structure',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'Paragraph 1: Bats have long been portrayed as frightening creatures in popular culture. Paragraph 2: In reality, bats are essential pollinators. Over 500 plant species, including agave and banana, depend on bats for pollination. Paragraph 3: Globally, bats provide agricultural services valued at over $3.7 billion annually.',
+    question: 'What is the primary purpose of Paragraph 3 in relation to the passage as a whole?',
+    options: [
+      { id: 'A', text: 'To introduce a new criticism of bats that complicates the argument in Paragraph 2' },
+      { id: 'B', text: 'To provide a counterargument to Paragraph 1\'s portrayal of bats as dangerous' },
+      { id: 'C', text: 'To quantify the economic significance of bats, strengthening the case made in Paragraph 2' },
+      { id: 'D', text: 'To shift the passage\'s focus from ecology to economics' },
+    ],
+    answer: 'C',
+    explanation: 'Paragraph 3 adds economic data ($3.7 billion) to support the claim in Paragraph 2 that bats are ecologically and agriculturally valuable. It doesn\'t introduce a new criticism (A), address the cultural portrayal from Paragraph 1 directly (B), or completely shift focus (D) — it strengthens the same argument with quantitative evidence.',
+  },
+
+  // ─── INF-046 Easy (Supporting Evidence) ────────────────────────────────
+  {
+    id: 'INF-046',
+    subject: 'reading-writing',
+    domain: 'information-ideas',
+    skill: 'central-ideas-details',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: 'According to a 2022 Gallup poll, 61% of American adults report exercising at least three times per week. However, the Centers for Disease Control (CDC) reports that only 24% of adults actually meet federal guidelines for both aerobic and muscle-strengthening activity. This discrepancy suggests that many people overestimate how much exercise they actually get.',
+    question: 'Which statement is best supported by the passage?',
+    options: [
+      { id: 'A', text: 'Most Americans exercise more than CDC guidelines recommend.' },
+      { id: 'B', text: 'Self-reported exercise frequency may be inaccurate.' },
+      { id: 'C', text: 'Aerobic exercise is more important than strength training.' },
+      { id: 'D', text: 'Gallup polls are generally unreliable sources of health data.' },
+    ],
+    answer: 'B',
+    explanation: 'The passage directly states that the gap between self-reported exercise (61%) and actual exercise meeting guidelines (24%) "suggests that many people overestimate" their exercise — supporting B. A is contradicted by the data. C and D are not mentioned in the passage.',
+  },
+
+  // ─── CRA-042 Hard (Words in Context — Nuance) ────────────────────────────
+  {
+    id: 'CRA-042',
+    subject: 'reading-writing',
+    domain: 'craft-structure',
+    skill: 'words-in-context',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'The historian\'s account of the revolution was praised for its _______ treatment of competing factions: rather than condemning any single group, she examined each faction\'s motives with equal rigor and without favoritism.',
+    question: 'Which word most effectively completes the sentence?',
+    options: [
+      { id: 'A', text: 'partial' },
+      { id: 'B', text: 'impartial' },
+      { id: 'C', text: 'lenient' },
+      { id: 'D', text: 'decisive' },
+    ],
+    answer: 'B',
+    explanation: '"Impartial" means unbiased and treating all sides equally — exactly what the second clause describes (no condemnation, equal rigor, no favoritism). "Partial" means biased (opposite). "Lenient" implies softness, not evenhandedness. "Decisive" implies strong judgment, contradicting the lack of condemnation described.',
+  },
+
+  // ─── EXP-043 Hard (Rhetorical Synthesis with Data) ─────────────────────
+  {
+    id: 'EXP-043',
+    subject: 'reading-writing',
+    domain: 'expression-ideas',
+    skill: 'rhetorical-synthesis',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'A student is writing a paper on the economic effects of minimum wage increases. She finds the following data:\n• A 2021 study of 25 US cities found that a $1 increase in minimum wage was associated with a 0.7% decrease in employment among low-wage workers.\n• A 2020 meta-analysis of 60 studies found that minimum wage increases had "minimal effects" on overall employment.\n• Cities with stronger economies saw no employment reduction after minimum wage increases.\n\nShe wants to present a nuanced conclusion that acknowledges both potential harms and limitations of the evidence.',
+    question: 'Which sentence best accomplishes this goal?',
+    options: [
+      { id: 'A', text: 'Minimum wage increases cause unemployment and should be avoided.' },
+      { id: 'B', text: 'Although some studies show modest employment declines — particularly in weaker economies — a large body of research suggests overall employment effects are minimal.' },
+      { id: 'C', text: 'The 2021 study proves that minimum wage increases harm employment, contradicting older research.' },
+      { id: 'D', text: 'Minimum wage increases benefit the economy, as evidenced by results in stronger economies.' },
+    ],
+    answer: 'B',
+    explanation: 'A nuanced conclusion should acknowledge both the potential harm (2021 study) and the contradicting evidence (2020 meta-analysis, city-specific findings). Choice B does this: it concedes a modest risk ("modest employment declines") while noting the broader consensus ("minimal overall effects"). A and C present one-sided conclusions. D cherry-picks only the positive data.',
+  },
+
+  // ─── INF-047 Medium (Cross-text comparison) ─────────────────────────────
+  {
+    id: 'INF-047',
+    subject: 'reading-writing',
+    domain: 'information-ideas',
+    skill: 'cross-text-connections',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'Text 1: Social media platforms argue that algorithmic curation improves user experience by showing people the content they find most engaging. This personalization, they contend, keeps users informed and connected.\n\nText 2: Critics argue that algorithmic curation creates "filter bubbles" that limit users\' exposure to opposing viewpoints, undermining the democratic function of an informed public.',
+    question: 'Based on the texts, how would the author of Text 2 most likely respond to the claim in Text 1?',
+    options: [
+      { id: 'A', text: 'By agreeing that user engagement is the most important measure of a platform\'s success' },
+      { id: 'B', text: 'By arguing that the engagement benefits of curation come at the cost of broader informational diversity' },
+      { id: 'C', text: 'By claiming that social media platforms deliberately mislead users about their algorithms' },
+      { id: 'D', text: 'By suggesting that traditional media is more reliable than social media' },
+    ],
+    answer: 'B',
+    explanation: 'Text 2 argues that curation creates filter bubbles that harm democratic discourse. If responding to Text 1\'s claim that curation improves experience through engagement, the author of Text 2 would say that while curation may boost engagement, it limits informational diversity — exactly B. Text 2 doesn\'t discuss deliberate deception (C) or compare to traditional media (D), and wouldn\'t agree that engagement is the top priority (A).',
+  },
+
   {
     id: 'ADV-041',
     subject: 'math',
@@ -6167,7 +6288,7 @@ const questions = [
   {
     id: 'EXP-041',
     subject: 'reading-writing',
-    domain: 'expression-of-ideas',
+    domain: 'expression-ideas',
     skill: 'rhetorical-synthesis',
     difficulty: 3,
     type: 'multiple-choice',
@@ -6207,7 +6328,7 @@ const questions = [
   {
     id: 'CON-041',
     subject: 'reading-writing',
-    domain: 'standard-english-conventions',
+    domain: 'conventions',
     skill: 'punctuation',
     difficulty: 1,
     type: 'multiple-choice',
@@ -6287,7 +6408,7 @@ const questions = [
   {
     id: 'EXP-042',
     subject: 'reading-writing',
-    domain: 'expression-of-ideas',
+    domain: 'expression-ideas',
     skill: 'transitions',
     difficulty: 2,
     type: 'multiple-choice',
