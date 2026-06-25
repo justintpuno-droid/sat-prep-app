@@ -70,6 +70,7 @@ export const ACHIEVEMENTS = [
   { id: 'combo-10',     icon: '🔥', title: 'On Fire',          desc: '10 correct answers in a row in one session' },
   // Volume
   { id: 'century',      icon: '💪', title: 'Century',          desc: 'Answer 100 questions total' },
+  { id: 'two-fifty',    icon: '📈', title: 'Quarter Thousand', desc: 'Answer 250 questions total' },
   { id: 'five-hundred', icon: '🚀', title: 'Question Crusher', desc: 'Answer 500 questions total' },
   { id: 'thousand',     icon: '🌟', title: 'Thousand Club',    desc: 'Answer 1,000 questions total' },
   // Hard questions
@@ -186,6 +187,7 @@ const CHECKS = {
   'combo-5':      (h) => h.some(s => (s.maxCombo ?? 0) >= 5),
   'combo-10':     (h) => h.some(s => (s.maxCombo ?? 0) >= 10),
   'century':      (h) => h.reduce((t, s) => t + s.score.total, 0) >= 100,
+  'two-fifty':    (h) => h.reduce((t, s) => t + s.score.total, 0) >= 250,
   'five-hundred': (h) => h.reduce((t, s) => t + s.score.total, 0) >= 500,
   'thousand':     (h) => h.reduce((t, s) => t + s.score.total, 0) >= 1000,
   'hard-worker':  (h) => {

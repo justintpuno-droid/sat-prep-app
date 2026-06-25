@@ -5,7 +5,7 @@ import { loadHistory } from './utils/history'
 const CATEGORIES = [
   { id: 'all',      label: 'All' },
   { id: 'accuracy', label: 'Accuracy',  ids: ['perfect','sharp','consistent','hat-trick','comeback','improver'] },
-  { id: 'volume',   label: 'Volume',    ids: ['century','five-hundred','thousand','combo-5','combo-10','marathon','diversity'] },
+  { id: 'volume',   label: 'Volume',    ids: ['century','two-fifty','five-hundred','thousand','combo-5','combo-10','marathon','diversity'] },
   { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','streak-30','early-bird','night-owl','early-riser','night-grinder','grinder','perfect-week'] },
   { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid','wrong-sprint','adaptive-ace','sudden-death-5','sudden-death-ace','all-formats','timed-ace'] },
   { id: 'milestones', label: 'Progress',ids: ['first-step','xp-1000','xp-5000','xp-10000','hard-worker','hard-elite','grinder','domain-master-5'] },
@@ -65,6 +65,7 @@ function getHint(achId, stats, gam) {
   const h = (label, val, max) => ({ hint: `${label}: ${Math.min(val, max)}/${max}`, pct: Math.min(100, Math.round((val / max) * 100)) })
   switch (achId) {
     case 'century':      return h('Questions answered', stats.totalQ, 100)
+    case 'two-fifty':    return h('Questions answered', stats.totalQ, 250)
     case 'five-hundred': return h('Questions answered', stats.totalQ, 500)
     case 'thousand':     return h('Questions answered', stats.totalQ, 1000)
     case 'hard-worker':  return h('Hard questions correct', stats.hardCorrect, 25)
