@@ -168,7 +168,7 @@ export default function VocabFlash({ onBack, onXP }) {
               <div className="text-4xl mb-2">{isMilestoneAll ? '🎓' : isMilestone30 ? '📚' : '📖'}</div>
               <p className="text-xl font-black">{isMilestoneAll ? 'Word Master!' : isMilestone30 ? 'Vocabulary Pro!' : 'Word Collector!'}</p>
               <p className="text-sm opacity-80 mt-1">
-                {isMilestoneAll ? 'You mastered all 93 SAT words!' : isMilestone30 ? '30 words mastered!' : '10 words mastered!'}
+                {isMilestoneAll ? 'You mastered all 128 SAT words!' : isMilestone30 ? '30 words mastered!' : '10 words mastered!'}
               </p>
             </div>
           )}
