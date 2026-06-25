@@ -640,7 +640,7 @@ function StudyCalendar({ sessions }) {
   )
 }
 
-export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onSkillFocus, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, onStrategyGuide, onStudyNotes, onGrammarRef, onMathRef, onDigitalSAT, onBreathing, onScoreCalculator, onConfidenceBooster, pendingXP, onClearPendingXP }) {
+export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQuickPractice, onQuick5, onAdaptiveQuiz, onWrongAnswerSprint, onProblemAreasDrill, onSuddenDeath, onTimedChallenge, onFullPractice, onAchievements, onFocusPractice, onSkillFocus, onBeastMode, onBlitzMode, onFlaggedReview, onSpacedRepetition, onVocab, onMathFlash, onHeadToHead, onProfile, onSATTimed, onHeartsMode, onSurvivalMode, onRampMode, onWrongJournal, onQuickAssessment, onPowerHour, onStrategyGuide, onStudyNotes, onGrammarRef, onMathRef, onDigitalSAT, onBreathing, onScoreCalculator, onConfidenceBooster, onSATStory, pendingXP, onClearPendingXP }) {
   const history = useMemo(() => loadHistory(), [])
   const streak = useMemo(() => computeStreak(history), [history])
   const streakAtRisk = useMemo(() => {
@@ -1912,6 +1912,11 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               {onScoreCalculator && (
                 <button onClick={onScoreCalculator} className="text-xs font-semibold text-emerald-600 hover:text-emerald-800 border border-emerald-200 bg-emerald-50 rounded-lg px-3 py-1.5 transition-colors" title="SAT Score Calculator">
                   🧮 Score Calc
+                </button>
+              )}
+              {onSATStory && history.length >= 3 && (
+                <button onClick={onSATStory} className="text-xs font-semibold text-purple-600 hover:text-purple-800 border border-purple-200 bg-purple-50 rounded-lg px-3 py-1.5 transition-colors" title="My SAT Story">
+                  ✨ My Story
                 </button>
               )}
               {onQuestionBank && (
