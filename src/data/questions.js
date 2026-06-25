@@ -7024,6 +7024,166 @@ const questions = [
     explanation: '"Despite this" signals a contrast — the expected result (sales growth from advertising) didn\'t happen (sales declined). "As a result" implies the spending caused the decline (wrong direction). "Furthermore" adds a parallel point. "Similarly" compares two like things.',
   },
 
+  // ─── ADV-046 Hard (Rational Expressions) ─────────────────────────────────
+  {
+    id: 'ADV-046',
+    subject: 'math',
+    domain: 'advanced-math',
+    skill: 'polynomial-expressions',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which expression is equivalent to (x² − 4) / (x − 2) for x ≠ 2?',
+    options: [
+      { id: 'A', text: 'x + 2' },
+      { id: 'B', text: 'x − 2' },
+      { id: 'C', text: 'x² − 2' },
+      { id: 'D', text: '(x − 2)²' },
+    ],
+    answer: 'A',
+    explanation: 'Factor the numerator using difference of squares: x² − 4 = (x + 2)(x − 2). Then cancel the (x − 2) factor: (x + 2)(x − 2) / (x − 2) = x + 2 (for x ≠ 2).',
+  },
+
+  // ─── GEO-047 Medium (Perimeter with Algebra) ─────────────────────────────
+  {
+    id: 'GEO-047',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'area-volume',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A rectangle has length (2x + 3) and width (x − 1). If the perimeter is 28, what is x?',
+    options: [
+      { id: 'A', text: '4' },
+      { id: 'B', text: '3' },
+      { id: 'C', text: '5' },
+      { id: 'D', text: '2' },
+    ],
+    answer: 'A',
+    explanation: 'Perimeter = 2(length + width) = 2((2x+3) + (x−1)) = 2(3x+2) = 6x + 4. Set equal to 28: 6x + 4 = 28 → 6x = 24 → x = 4. Verify: length = 2(4)+3 = 11, width = 4−1 = 3. Perimeter = 2(11+3) = 2(14) = 28 ✓.',
+  },
+
+  // ─── INF-052 Hard (Inference from Scientific Passage) ────────────────────
+  {
+    id: 'INF-052',
+    subject: 'reading-writing',
+    domain: 'information-ideas',
+    skill: 'inferences',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'Researchers studying the "bystander effect" found that individuals are less likely to offer assistance in an emergency when other people are present. In their classic study, Darley and Latané (1968) staged a series of mock emergencies and recorded how often bystanders intervened. As group size increased from 1 to 6 people, the likelihood of any individual helping dropped from 85% to 31%.',
+    question: 'Based on the passage, which situation would most likely result in the fewest people receiving help?',
+    options: [
+      { id: 'A', text: 'A person collapses in an empty corridor.' },
+      { id: 'B', text: 'A person collapses in a busy shopping mall.' },
+      { id: 'C', text: 'A person collapses in front of one witness.' },
+      { id: 'D', text: 'A person collapses in a parking lot with two bystanders.' },
+    ],
+    answer: 'B',
+    explanation: 'The bystander effect predicts that as group size increases, individuals are less likely to help. A busy mall would have the most bystanders, leading to the lowest probability of anyone helping per individual — and thus the fewest people in the scenario receiving help. A (empty corridor) and C (one witness) have fewer bystanders, so intervention is more likely. D has 2 bystanders, still fewer than a mall.',
+  },
+
+  // ─── CON-045 Easy (Comma Splice Correction) ──────────────────────────────
+  {
+    id: 'CON-045',
+    subject: 'reading-writing',
+    domain: 'conventions',
+    skill: 'punctuation',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which choice corrects the comma splice?\n\n"The experiment failed, the scientists redesigned it."',
+    options: [
+      { id: 'A', text: 'The experiment failed the scientists redesigned it.' },
+      { id: 'B', text: 'The experiment failed; the scientists redesigned it.' },
+      { id: 'C', text: 'The experiment failed, and, the scientists redesigned it.' },
+      { id: 'D', text: 'The experiment failed the scientists, redesigned it.' },
+    ],
+    answer: 'B',
+    explanation: 'A comma splice occurs when two independent clauses are joined with only a comma. To correct it, use a semicolon (B), a period, or a comma + coordinating conjunction. Option B uses a semicolon correctly. A removes the comma but joins two complete sentences with no punctuation (a fused sentence). C adds an unnecessary second comma. D creates a new misplaced comma.',
+  },
+
+  // ─── ALG-048 Hard (Quadratic in Context) ─────────────────────────────────
+  {
+    id: 'ALG-048',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-equations',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A ball is thrown upward and its height h (in feet) at time t (in seconds) is given by h = −16t² + 64t + 6. At what time does the ball reach its maximum height?',
+    options: [
+      { id: 'A', text: 't = 1 second' },
+      { id: 'B', text: 't = 2 seconds' },
+      { id: 'C', text: 't = 4 seconds' },
+      { id: 'D', text: 't = 6 seconds' },
+    ],
+    answer: 'B',
+    explanation: 'For a quadratic h = at² + bt + c, the maximum occurs at t = −b/(2a). Here a = −16 and b = 64. So t = −64/(2 × −16) = −64/−32 = 2 seconds.',
+  },
+
+  // ─── CRA-047 Easy (Words in Context — Formal Register) ───────────────────
+  {
+    id: 'CRA-047',
+    subject: 'reading-writing',
+    domain: 'craft-structure',
+    skill: 'words-in-context',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: 'The city council _______ the new housing ordinance after months of community debate.',
+    question: 'Which word most effectively completes the sentence?',
+    options: [
+      { id: 'A', text: 'okayed' },
+      { id: 'B', text: 'ratified' },
+      { id: 'C', text: 'greenlit' },
+      { id: 'D', text: 'said yes to' },
+    ],
+    answer: 'B',
+    explanation: '"Ratified" is the precise, formal term for officially approving a law or measure — exactly what a city council does with an ordinance. "Okayed," "greenlit," and "said yes to" are informal and inappropriate for this formal context.',
+  },
+
+  // ─── PSD-045 Medium (Scatter Plot / Trend Line) ──────────────────────────
+  {
+    id: 'PSD-045',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'statistics',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'A scatter plot shows hours studied per week vs. GPA for 40 students. The line of best fit has equation GPA = 0.05(hours) + 2.0.',
+    question: 'According to the model, what is the predicted GPA of a student who studies 20 hours per week?',
+    options: [
+      { id: 'A', text: '2.5' },
+      { id: 'B', text: '3.0' },
+      { id: 'C', text: '3.5' },
+      { id: 'D', text: '2.0' },
+    ],
+    answer: 'B',
+    explanation: 'Substitute h = 20: GPA = 0.05(20) + 2.0 = 1.0 + 2.0 = 3.0.',
+  },
+
+  // ─── EXP-047 Medium (Adding a Sentence — Supporting Detail) ──────────────
+  {
+    id: 'EXP-047',
+    subject: 'reading-writing',
+    domain: 'expression-ideas',
+    skill: 'rhetorical-synthesis',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'A student writes: "The industrial revolution dramatically changed daily life. [Sentence needed here.] Factory work replaced subsistence farming as the primary means of income for many families."',
+    question: 'Which sentence most effectively bridges the first and third sentences?',
+    options: [
+      { id: 'A', text: 'The steam engine was invented by James Watt in 1765.' },
+      { id: 'B', text: 'Workers began to migrate from rural areas to cities in search of employment in the new factories.' },
+      { id: 'C', text: 'The revolution also changed fashion and art in ways that persist to this day.' },
+      { id: 'D', text: 'Some historians argue that the industrial revolution had both positive and negative consequences.' },
+    ],
+    answer: 'B',
+    explanation: 'The first sentence states the revolution changed daily life; the third shows factory work replaced farming. The bridge sentence should connect these — B does so perfectly by explaining how workers moved to cities for factory jobs, creating a logical progression from claim to specific evidence. A introduces a different fact (the steam engine). C goes off-topic to fashion. D introduces a vague historian disagreement that doesn\'t connect the two surrounding sentences.',
+  },
+
 ]
 
 export default questions
