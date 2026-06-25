@@ -14,6 +14,10 @@ const AVATAR_KEY = 'sat_prep_avatar'
 function loadAvatar() { return localStorage.getItem(AVATAR_KEY) ?? '🎓' }
 function saveAvatar(v) { localStorage.setItem(AVATAR_KEY, v) }
 
+export const NAME_KEY = 'sat_prep_display_name'
+export function loadDisplayName() { return localStorage.getItem(NAME_KEY) ?? '' }
+function saveDisplayName(v) { localStorage.setItem(NAME_KEY, v.trim().slice(0, 24)) }
+
 function computeStreak(sessions) {
   const dates = new Set(sessions.map(s => s.completedAt.slice(0, 10)))
   const d = new Date(); let streak = 0
@@ -26,6 +30,9 @@ export default function ProfileScreen({ onBack }) {
   const history = useMemo(() => loadHistory(), [])
   const [avatar, setAvatar] = useState(loadAvatar)
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
+  const [displayName, setDisplayName] = useState(loadDisplayName)
+  const [editingName, setEditingName] = useState(false)
+  const [nameDraft, setNameDraft] = useState('')
   const [shopMsg, setShopMsg] = useState(null)
   const [studyHour, setStudyHour] = useState(loadStudyHour)
 
@@ -110,6 +117,35 @@ export default function ProfileScreen({ onBack }) {
               <span className="text-white text-xs font-bold">Edit</span>
             </div>
           </button>
+          {/* Display name */}
+          {editingName ? (
+            <div className="flex items-center gap-2 justify-center mb-2">
+              <input
+                autoFocus
+                value={nameDraft}
+                onChange={e => setNameDraft(e.target.value.slice(0, 24))}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') { saveDisplayName(nameDraft); setDisplayName(nameDraft.trim()); setEditingName(false) }
+                  if (e.key === 'Escape') setEditingName(false)
+                }}
+                placeholder="Your name"
+                className="border-2 border-indigo-300 rounded-xl px-3 py-1.5 text-sm font-semibold text-center focus:outline-none focus:border-indigo-500 w-40"
+              />
+              <button onClick={() => { saveDisplayName(nameDraft); setDisplayName(nameDraft.trim()); setEditingName(false) }}
+                className="text-xs bg-indigo-600 text-white font-bold px-3 py-1.5 rounded-xl hover:bg-indigo-700">
+                Save
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => { setNameDraft(displayName); setEditingName(true) }}
+              className="flex items-center gap-1.5 mx-auto mb-2 group">
+              {displayName
+                ? <span className="text-lg font-black text-gray-900 group-hover:text-indigo-600 transition-colors">{displayName}</span>
+                : <span className="text-sm text-gray-400 group-hover:text-indigo-500 transition-colors italic">+ Add your name</span>
+              }
+              <span className="text-xs text-gray-300 group-hover:text-indigo-400 transition-colors">✏️</span>
+            </button>
+          )}
           <div className="flex items-center justify-center gap-2 mb-1">
             <p className={`text-xl font-black ${levelColor.text}`}>Level {levelInfo.level}</p>
             {prestigeInfo.title && <span className="text-xs font-bold text-amber-600">{prestigeInfo.title}</span>}

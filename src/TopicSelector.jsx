@@ -5,6 +5,7 @@ import questions from './data/questions'
 import { loadHistory, getSRCount } from './utils/history'
 import { SAT_VOCAB } from './data/vocab'
 import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, useStreakFreeze, getPrestigeInfo, doPrestige, saveGamification, getTodayTripleChallenges, getTripleChallengeProgress, isChallengeComplete, getWeeklyBoss } from './utils/gamification'
+import { loadDisplayName } from './ProfileScreen'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -1792,10 +1793,12 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <span className="text-sm font-semibold tracking-widest text-indigo-500 uppercase">
                 {(() => {
                   const h = new Date().getHours()
-                  if (h >= 5 && h < 12) return 'Good morning'
-                  if (h >= 12 && h < 17) return 'Keep it up'
-                  if (h >= 17 && h < 21) return 'Evening grind'
-                  return 'Night study'
+                  const name = loadDisplayName()
+                  const suffix = name ? `, ${name}` : ''
+                  if (h >= 5 && h < 12) return `Good morning${suffix}`
+                  if (h >= 12 && h < 17) return `Keep it up${suffix}`
+                  if (h >= 17 && h < 21) return `Evening grind${suffix}`
+                  return `Night study${suffix}`
                 })()}
               </span>
               {streak > 0 && (
