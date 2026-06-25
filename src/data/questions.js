@@ -6163,6 +6163,166 @@ const questions = [
     explanation: 'First evaluate f(2): f(2) = 3(2) − 1 = 5. Then evaluate g(f(2)) = g(5) = 5² = 25.',
   },
 
+  // ─── EXP-041 Hard (Rhetorical Synthesis — Research Claim) ──────────────
+  {
+    id: 'EXP-041',
+    subject: 'reading-writing',
+    domain: 'expression-of-ideas',
+    skill: 'rhetorical-synthesis',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'While researching sleep deprivation, a student found the following notes:\n\n• A 2019 UCLA study found that students who slept fewer than 6 hours the night before an exam performed 23% worse on average.\n• The American Academy of Pediatrics recommends 8–10 hours of sleep per night for teenagers.\n• Researchers noted that memory consolidation occurs primarily during deep REM sleep.\n\nThe student wants to write a sentence supporting the claim that sleep deprivation directly harms academic performance.',
+    question: 'Which choice most effectively uses the relevant information from the notes to accomplish this goal?',
+    options: [
+      { id: 'A', text: 'The American Academy of Pediatrics recommends 8–10 hours of sleep per night for teenagers, which is more than many students currently get.' },
+      { id: 'B', text: 'Memory consolidation occurs during REM sleep, a stage of sleep that is disrupted when teenagers do not meet recommended sleep targets.' },
+      { id: 'C', text: 'Students who slept fewer than 6 hours before an exam scored 23% lower on average, suggesting that insufficient sleep measurably reduces test performance.' },
+      { id: 'D', text: 'The AAP and UCLA researchers both studied sleep in adolescents, reaching conclusions about its importance for daily functioning.' },
+    ],
+    answer: 'C',
+    explanation: 'The goal is to support a claim that sleep deprivation directly harms academic performance. Choice C uses the specific UCLA statistic (23% lower scores) to show a direct, measurable link between insufficient sleep and test performance — the most concrete evidence for the claim. A offers a recommendation, B discusses memory consolidation without tying it to exam performance, and D is vague and unfocused.',
+  },
+
+  // ─── INF-044 Medium (Main Purpose / Central Idea) ──────────────────────
+  {
+    id: 'INF-044',
+    subject: 'reading-writing',
+    domain: 'information-ideas',
+    skill: 'central-ideas-details',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'Traditionally, scientists assumed that ocean trenches — the deepest parts of the ocean floor — were barren deserts devoid of life. However, recent expeditions using remote-operated vehicles have discovered thriving ecosystems at depths exceeding 10,000 meters. These communities rely not on photosynthesis but on chemosynthesis, in which bacteria convert chemicals released from hydrothermal vents into energy. The discovery challenges long-held assumptions about the conditions necessary to sustain life.',
+    question: 'Which choice best states the main purpose of the passage?',
+    options: [
+      { id: 'A', text: 'To describe the equipment scientists use to explore the ocean floor' },
+      { id: 'B', text: 'To argue that chemosynthesis is more common than photosynthesis' },
+      { id: 'C', text: 'To explain how recent discoveries have overturned assumptions about life in the deep ocean' },
+      { id: 'D', text: 'To compare hydrothermal vent ecosystems with coral reef ecosystems' },
+    ],
+    answer: 'C',
+    explanation: 'The passage describes how scientists once believed deep ocean trenches were lifeless, and how new discoveries of chemosynthesis-based ecosystems have challenged that assumption. The main purpose is C — explaining how new evidence overturned old beliefs. A focuses on tools (mentioned only briefly), B makes a comparative claim not supported by the passage, and D introduces coral reefs, which aren\'t mentioned.',
+  },
+
+  // ─── CON-041 Easy (Possessive vs Plural) ────────────────────────────────
+  {
+    id: 'CON-041',
+    subject: 'reading-writing',
+    domain: 'standard-english-conventions',
+    skill: 'punctuation',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which choice correctly completes the sentence?\n\nThe company revised _______ policy after employee complaints.',
+    options: [
+      { id: 'A', text: 'its' },
+      { id: 'B', text: "it's" },
+      { id: 'C', text: 'their' },
+      { id: 'D', text: "its'" },
+    ],
+    answer: 'A',
+    explanation: '"Its" (no apostrophe) is the possessive pronoun — the policy belonging to the company. "It\'s" = "it is" (a contraction). "Their" is plural and doesn\'t agree with the singular "company." "Its\'" is not a standard English form.',
+  },
+
+  // ─── ALG-043 Medium (Slope from Context) ────────────────────────────────
+  {
+    id: 'ALG-043',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-functions',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A car rental company charges a flat fee of $30 plus $0.20 per mile driven. Which equation models the total cost C in terms of miles driven m?',
+    options: [
+      { id: 'A', text: 'C = 30m + 0.20' },
+      { id: 'B', text: 'C = 0.20m + 30' },
+      { id: 'C', text: 'C = 30 − 0.20m' },
+      { id: 'D', text: 'C = 0.20 + 30m' },
+    ],
+    answer: 'B',
+    explanation: 'The flat fee ($30) is the y-intercept; the per-mile charge ($0.20) is the slope. The equation is C = 0.20m + 30, matching answer B.',
+  },
+
+  // ─── GEO-042 Hard (Sector Area) ─────────────────────────────────────────
+  {
+    id: 'GEO-042',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'circles',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A sector of a circle has a central angle of 90° and a radius of 6. What is the area of the sector?',
+    options: [
+      { id: 'A', text: '6π' },
+      { id: 'B', text: '9π' },
+      { id: 'C', text: '12π' },
+      { id: 'D', text: '3π' },
+    ],
+    answer: 'B',
+    explanation: 'Area of a sector = (θ/360°) × πr². With θ = 90° and r = 6: Area = (90/360) × π × 36 = (1/4) × 36π = 9π.',
+  },
+
+  // ─── INF-045 Hard (Inference / Implication) ─────────────────────────────
+  {
+    id: 'INF-045',
+    subject: 'reading-writing',
+    domain: 'information-ideas',
+    skill: 'inferences',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'Economists have long studied the "paradox of thrift": if every household increases its savings rate simultaneously, total spending in the economy falls, which can lead to lower production, higher unemployment, and ultimately reduced income. Paradoxically, the collective attempt to save more may leave everyone with less to save.\n\nThis dynamic illustrates a key tension in macroeconomics. What is individually rational — saving more — can produce an outcome that harms all individuals in the aggregate.',
+    question: 'Which claim do the economists described in the passage most directly support?',
+    options: [
+      { id: 'A', text: 'Individuals should be discouraged from saving money during economic downturns.' },
+      { id: 'B', text: 'A policy that is optimal for one household may produce harmful results when adopted universally.' },
+      { id: 'C', text: 'Government intervention is necessary to prevent households from saving too much.' },
+      { id: 'D', text: 'Unemployment is the primary cause of reduced household income.' },
+    ],
+    answer: 'B',
+    explanation: 'The passage describes how individually rational saving behavior (each household saving more) leads to collective harm when done simultaneously. This directly supports B — that a policy optimal at the individual level can be harmful at the aggregate level. A goes beyond the passage (it advises discouraging saving, which the passage doesn\'t do). C introduces government intervention, which is not discussed. D mischaracterizes the causal direction — reduced income is the result, not the cause.',
+  },
+
+  // ─── EXP-042 Medium (Transition) ────────────────────────────────────────
+  {
+    id: 'EXP-042',
+    subject: 'reading-writing',
+    domain: 'expression-of-ideas',
+    skill: 'transitions',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'The study found no significant difference between the two treatment groups. _______, researchers concluded that both approaches were equally effective.\n\nWhich transition best fits the logical relationship between these sentences?',
+    options: [
+      { id: 'A', text: 'However' },
+      { id: 'B', text: 'Therefore' },
+      { id: 'C', text: 'In contrast' },
+      { id: 'D', text: 'Nevertheless' },
+    ],
+    answer: 'B',
+    explanation: '"Therefore" signals that the second sentence is a logical conclusion drawn from the first — the finding of no difference led to the conclusion of equal effectiveness. "However" and "Nevertheless" signal contrast or unexpected results. "In contrast" signals comparison with an opposing idea.',
+  },
+
+  // ─── ADV-042 Hard (Quadratic / Vertex Form) ─────────────────────────────
+  {
+    id: 'ADV-042',
+    subject: 'math',
+    domain: 'advanced-math',
+    skill: 'quadratics',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'The function f(x) = −(x − 3)² + 16 reaches its maximum value at what point?',
+    options: [
+      { id: 'A', text: '(−3, 16)' },
+      { id: 'B', text: '(3, 16)' },
+      { id: 'C', text: '(3, −16)' },
+      { id: 'D', text: '(0, 7)' },
+    ],
+    answer: 'B',
+    explanation: 'This is vertex form: f(x) = a(x − h)² + k with vertex (h, k). Here h = 3 and k = 16, so the vertex is (3, 16). Since a = −1 < 0, the parabola opens downward and the vertex is the maximum.',
+  },
+
 ]
 
 export default questions

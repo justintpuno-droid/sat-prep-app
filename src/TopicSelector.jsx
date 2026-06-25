@@ -472,6 +472,8 @@ const SHOP_ITEMS = [
   { id: 'spin',    icon: '🎰', name: 'Extra Spin',         desc: 'Spin the wheel again today', cost: 75,  color: 'border-emerald-200 bg-emerald-50', tag: 'text-emerald-600', textColor: 'text-emerald-900' },
   { id: 'megaboost', icon: '⚡', name: '3× XP Mega Boost', desc: 'Triple XP for your next session — go all out!', cost: 350, color: 'border-rose-200 bg-rose-50', tag: 'text-rose-600', textColor: 'text-rose-900' },
   { id: 'shield',  icon: '🛡️', name: 'Score Shield',       desc: 'Skip your next session from the score average if below 60%', cost: 250, color: 'border-teal-200 bg-teal-50', tag: 'text-teal-600', textColor: 'text-teal-900' },
+  { id: 'timewarp', icon: '⏰', name: 'Time Warp',          desc: 'Restore a day to your streak (up to 1 day back)', cost: 300, color: 'border-purple-200 bg-purple-50', tag: 'text-purple-600', textColor: 'text-purple-900' },
+  { id: 'lucky',   icon: '🍀', name: 'Lucky Charm',        desc: 'Get +15% bonus XP on any correct answers today', cost: 125, color: 'border-green-200 bg-green-50', tag: 'text-green-600', textColor: 'text-green-900' },
 ]
 
 function DailyMissions({ history, onXP }) {
