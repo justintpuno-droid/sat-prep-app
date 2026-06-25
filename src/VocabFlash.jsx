@@ -18,16 +18,29 @@ function getQuizChoices(word, allWords) {
   return shuffle([correct, ...distractors])
 }
 
+function getContextChoices(word, allWords) {
+  const correct = { word: word.word, correct: true }
+  const distractors = shuffle(allWords.filter(w => w.word !== word.word)).slice(0, 3).map(w => ({ word: w.word, correct: false }))
+  return shuffle([correct, ...distractors])
+}
+
+function blankSentence(sentence, word) {
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return sentence.replace(new RegExp(escaped, 'i'), '______')
+}
+
 export default function VocabFlash({ onBack, onXP }) {
   const [progress, setProgress] = useState(loadVocabProgress)
   const [idx, setIdx] = useState(0)
   const [flipped, setFlipped] = useState(false)
-  const [studyMode, setStudyMode] = useState('flash') // 'flash' | 'quiz'
+  const [studyMode, setStudyMode] = useState('flash') // 'flash' | 'quiz' | 'context'
   const [mode, setMode] = useState('all') // 'all' | 'due'
   const [done, setDone] = useState(false)
   const [sessionResults, setSessionResults] = useState([])
   const [quizAnswer, setQuizAnswer] = useState(null) // null | { def, correct }
   const [quizChoices, setQuizChoices] = useState(null)
+  const [contextAnswer, setContextAnswer] = useState(null) // null | { word, correct }
+  const [contextChoices, setContextChoices] = useState(null)
 
   const deck = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10)
@@ -71,8 +84,7 @@ export default function VocabFlash({ onBack, onXP }) {
 
     if (idx + 1 >= deck.length) {
       const xpEarned = sessionResults.filter(r => r.knew).length * 5 + (knew ? 5 : 0)
-      if (studyMode === 'quiz') {
-        // In quiz mode, delay so student sees final answer feedback
+      if (studyMode === 'quiz' || studyMode === 'context') {
         setTimeout(() => {
           setDone(true)
           if (xpEarned > 0) onXP?.(xpEarned)
@@ -86,6 +98,8 @@ export default function VocabFlash({ onBack, onXP }) {
       setFlipped(false)
       setQuizAnswer(null)
       setQuizChoices(null)
+      setContextAnswer(null)
+      setContextChoices(null)
     }
   }
 
@@ -95,11 +109,26 @@ export default function VocabFlash({ onBack, onXP }) {
     rate(choice.correct)
   }
 
+  function pickContextAnswer(choice) {
+    if (contextAnswer) return
+    setContextAnswer(choice)
+    rate(choice.correct)
+  }
+
   const currentQuizChoices = useMemo(() => {
     if (studyMode !== 'quiz' || !card) return null
     if (quizChoices) return quizChoices
     const choices = getQuizChoices(card, SAT_VOCAB)
     setQuizChoices(choices)
+    return choices
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studyMode, card?.word])
+
+  const currentContextChoices = useMemo(() => {
+    if (studyMode !== 'context' || !card) return null
+    if (contextChoices) return contextChoices
+    const choices = getContextChoices(card, SAT_VOCAB)
+    setContextChoices(choices)
     return choices
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studyMode, card?.word])
@@ -173,9 +202,9 @@ export default function VocabFlash({ onBack, onXP }) {
         </div>
 
         {/* Study mode + deck toggle */}
-        <div className="flex gap-2 mb-4">
-          {[['flash', '🃏 Flashcards'], ['quiz', '🎯 Quiz Mode']].map(([m, label]) => (
-            <button key={m} onClick={() => { setStudyMode(m); setQuizAnswer(null); setQuizChoices(null); setFlipped(false) }}
+        <div className="flex gap-1.5 mb-4">
+          {[['flash', '🃏 Flash'], ['quiz', '🎯 Def Quiz'], ['context', '✍️ In Context']].map(([m, label]) => (
+            <button key={m} onClick={() => { setStudyMode(m); setQuizAnswer(null); setQuizChoices(null); setContextAnswer(null); setContextChoices(null); setFlipped(false) }}
               className={`flex-1 py-1.5 text-xs font-semibold rounded-xl transition-colors ${studyMode === m ? 'bg-violet-600 text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>
               {label}
             </button>
@@ -183,7 +212,7 @@ export default function VocabFlash({ onBack, onXP }) {
         </div>
         <div className="flex gap-2 mb-6">
           {['all', 'due'].map(m => (
-            <button key={m} onClick={() => { setMode(m); setIdx(0); setFlipped(false); setDone(false); setSessionResults([]); setQuizAnswer(null); setQuizChoices(null) }}
+            <button key={m} onClick={() => { setMode(m); setIdx(0); setFlipped(false); setDone(false); setSessionResults([]); setQuizAnswer(null); setQuizChoices(null); setContextAnswer(null); setContextChoices(null) }}
               className={`flex-1 py-1.5 text-xs font-semibold rounded-xl transition-colors ${mode === m ? 'bg-violet-200 text-violet-800' : 'bg-white text-gray-500 border border-gray-200'}`}>
               {m === 'all' ? `All (${SAT_VOCAB.length})` : `Review Due (${totalDue})`}
             </button>
@@ -204,7 +233,56 @@ export default function VocabFlash({ onBack, onXP }) {
           </div>
         ) : (
           <>
-            {studyMode === 'quiz' && currentQuizChoices ? (
+            {studyMode === 'context' && currentContextChoices ? (
+              /* In-Context Mode */
+              <div>
+                <div className="bg-white rounded-3xl border-2 border-violet-100 shadow-lg p-7 mb-5">
+                  <p className="text-xs font-bold text-violet-400 uppercase tracking-widest mb-3 text-center">Fill in the blank</p>
+                  <p className="text-base text-gray-800 leading-relaxed text-center italic">
+                    "{card.example ? blankSentence(card.example, card.word) : `The word "______" fits perfectly in this sentence.`}"
+                  </p>
+                  {contextAnswer && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <p className="text-xs font-semibold text-violet-500 uppercase tracking-wide mb-1">Definition</p>
+                      <p className="text-sm text-gray-700 leading-snug">{card.def}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2.5 mb-4">
+                  {currentContextChoices.map((choice, i) => {
+                    let cls = 'bg-white border-2 border-gray-200 text-gray-700 hover:border-violet-300 cursor-pointer'
+                    if (contextAnswer) {
+                      if (choice.correct) cls = 'bg-emerald-50 border-2 border-emerald-500 text-emerald-800'
+                      else if (choice === contextAnswer) cls = 'bg-rose-50 border-2 border-rose-400 text-rose-700'
+                      else cls = 'bg-white border-2 border-gray-100 text-gray-300'
+                    }
+                    return (
+                      <button key={i} onClick={() => pickContextAnswer(choice)} disabled={!!contextAnswer}
+                        className={`w-full text-left rounded-2xl px-4 py-3 text-sm font-semibold transition-all flex items-center gap-3 ${cls}`}>
+                        <span className="font-black text-xs w-5 shrink-0">{String.fromCharCode(65+i)}.</span>
+                        <span className="flex-1">{choice.word}</span>
+                        {contextAnswer && choice.correct && <span className="shrink-0 text-emerald-500 font-bold">✓</span>}
+                        {contextAnswer && choice === contextAnswer && !choice.correct && <span className="shrink-0 text-rose-400 font-bold">✗</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+                {contextAnswer && (
+                  <div className={`rounded-2xl p-4 mb-4 ${contextAnswer.correct ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
+                    <p className={`text-xs font-bold ${contextAnswer.correct ? 'text-emerald-700' : 'text-rose-600'} mb-1`}>
+                      {contextAnswer.correct ? '✓ Correct! +5 XP' : `✗ The word was "${card.word}"`}
+                    </p>
+                    {!contextAnswer.correct && <p className="text-sm text-gray-600">{card.def}</p>}
+                  </div>
+                )}
+                {contextAnswer && idx + 1 < deck.length && (
+                  <button onClick={() => { setContextAnswer(null); setContextChoices(null) }}
+                    className="w-full py-3 bg-violet-600 text-white font-bold rounded-2xl hover:bg-violet-700 transition-colors">
+                    Next word →
+                  </button>
+                )}
+              </div>
+            ) : studyMode === 'quiz' && currentQuizChoices ? (
               /* Quiz Mode */
               <div>
                 <div className="bg-white rounded-3xl border-2 border-violet-100 shadow-lg p-7 mb-5 text-center">
