@@ -130,7 +130,7 @@ export default function MathFlash({ onBack, onXP }) {
             <div className={`rounded-2xl p-5 mb-4 text-white text-center ${isMilestoneAll ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 'bg-gradient-to-r from-blue-600 to-indigo-600'}`}>
               <div className="text-4xl mb-2">{isMilestoneAll ? '🧮' : '🔢'}</div>
               <p className="text-xl font-black">{isMilestoneAll ? 'Formula God!' : 'Formula Learner!'}</p>
-              <p className="text-sm opacity-80 mt-1">{isMilestoneAll ? 'You mastered ALL 36 formulas!' : 'You mastered 10 formulas!'}</p>
+              <p className="text-sm opacity-80 mt-1">{isMilestoneAll ? 'You mastered ALL 44 formulas!' : 'You mastered 10 formulas!'}</p>
             </div>
           )}
 

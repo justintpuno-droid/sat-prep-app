@@ -257,4 +257,66 @@ export const MATH_FORMULAS = [
     tip: 'Direct: both go up together. Inverse: when one doubles, the other halves.',
     example: 'Direct: y=3x. If x=4, y=12. Inverse: xy=12. If x=4, y=3.',
   },
+
+  // ── Additional Geometry formulas ────────────────────────────────────────────
+  {
+    name: 'Arc Length',
+    category: 'Geometry',
+    formula: 'Arc Length = (θ/360) × 2πr',
+    tip: 'θ is the central angle in degrees. Arc length is a portion of the full circumference.',
+    example: 'r=10, θ=90° → Arc = (90/360)×2π(10) = (1/4)×20π = 5π ≈ 15.7',
+  },
+  {
+    name: 'Sector Area',
+    category: 'Geometry',
+    formula: 'Sector Area = (θ/360) × πr²',
+    tip: 'A sector is a "pie slice" of a circle. Use the same (θ/360) fraction as arc length.',
+    example: 'r=6, θ=60° → Area = (60/360)×π(36) = (1/6)×36π = 6π ≈ 18.8',
+  },
+  {
+    name: 'Similar Triangles',
+    category: 'Geometry',
+    formula: 'Corresponding sides in proportion: a/a\' = b/b\' = c/c\'',
+    tip: 'When a line is parallel to a side of a triangle, it creates a smaller similar triangle. Scale the sides by the same ratio.',
+    example: 'Triangle with sides 3, 4, 5 similar to one with sides 6, 8, 10 → ratio = 2',
+  },
+
+  // ── Additional Algebra formulas ─────────────────────────────────────────────
+  {
+    name: 'Difference of Squares',
+    category: 'Algebra',
+    formula: 'a² − b² = (a + b)(a − b)',
+    tip: 'Spot it when you have two perfect squares subtracted. Factor instantly!',
+    example: 'x² − 25 = (x+5)(x−5). Or 49 − 4y² = (7+2y)(7−2y)',
+  },
+  {
+    name: 'Average Rate of Change',
+    category: 'Algebra',
+    formula: 'Rate = (f(b) − f(a)) / (b − a)',
+    tip: 'This is just slope between two points on a function. "Average rate" = slope of the secant line.',
+    example: 'f(x) from x=2 to x=5: if f(2)=3 and f(5)=12, rate = (12−3)/(5−2) = 3',
+  },
+  {
+    name: 'Absolute Value Equations',
+    category: 'Algebra',
+    formula: '|ax + b| = c  →  ax + b = c  OR  ax + b = −c',
+    tip: 'Split into two equations. If c < 0, there is no solution (absolute value can\'t be negative).',
+    example: '|2x − 1| = 5 → 2x−1=5 (x=3) or 2x−1=−5 (x=−2)',
+  },
+
+  // ── Additional Statistics formulas ─────────────────────────────────────────
+  {
+    name: 'Quartiles and IQR',
+    category: 'Statistics',
+    formula: 'IQR = Q3 − Q1',
+    tip: 'Order the data, split at the median: Q1=median of lower half, Q3=median of upper half. Outlier if value < Q1−1.5×IQR or > Q3+1.5×IQR.',
+    example: 'Data: 1,3,5,7,9,11 → Q1=3, Q3=9 → IQR=6',
+  },
+  {
+    name: 'Expected Value',
+    category: 'Statistics',
+    formula: 'E(X) = Σ [x · P(x)]',
+    tip: 'Multiply each outcome by its probability, then add all products. The "long-run average."',
+    example: 'Win $10 (P=0.3), lose $5 (P=0.7) → E = 10(0.3)+(-5)(0.7) = 3−3.5 = −$0.50',
+  },
 ]
