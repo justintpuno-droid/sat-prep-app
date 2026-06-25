@@ -213,6 +213,15 @@ const MOTIVATIONAL_QUOTES = [
   { text: "Hard Mode unlocks when you score well on Module 1. That ceiling is the real prize.", author: "" },
   { text: "If it's hard, that's good — your brain is building new circuits.", author: "" },
   { text: "Vocabulary isn't memorization — it's pattern recognition. Read widely, score higher.", author: "" },
+  { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+  { text: "Hard work beats talent when talent doesn't work hard.", author: "Tim Notke" },
+  { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+  { text: "Education is the passport to the future.", author: "Malcolm X" },
+  { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+  { text: "The beautiful thing about learning is that nobody can take it away from you.", author: "B.B. King" },
+  { text: "I am not a product of my circumstances. I am a product of my decisions.", author: "Stephen Covey" },
+  { text: "Don't stop when you're tired. Stop when you're done.", author: "" },
+  { text: "Wake up with determination. Go to bed with satisfaction.", author: "" },
 ]
 
 const SAT_FACTS = [
@@ -2088,6 +2097,20 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               ) : (
                 <p className="text-xs font-semibold text-amber-700 text-center">You slayed the boss this week! New boss arrives Monday 🗡️</p>
               )}
+            </div>
+          )
+        })()}
+
+        {/* Motivational Quote of the Day */}
+        {(() => {
+          const dateStr = new Date().toISOString().slice(0, 10)
+          const seed = dateStr.split('-').reduce((a, b) => a * 100 + parseInt(b), 0) + 3
+          const q = MOTIVATIONAL_QUOTES[Math.abs(Math.sin(seed) * 10000 | 0) % MOTIVATIONAL_QUOTES.length]
+          return (
+            <div className="rounded-2xl bg-gradient-to-r from-slate-800 to-slate-700 px-4 py-3.5 mb-3 text-left">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Quote of the Day</p>
+              <p className="text-sm font-semibold text-white leading-snug italic">"{q.text}"</p>
+              <p className="text-[10px] text-slate-400 mt-1.5">— {q.author}</p>
             </div>
           )
         })()}
