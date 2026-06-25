@@ -70,9 +70,17 @@ export default function VocabFlash({ onBack, onXP }) {
     setSessionResults(prev => [...prev, { word: card.word, knew }])
 
     if (idx + 1 >= deck.length) {
-      setDone(true)
       const xpEarned = sessionResults.filter(r => r.knew).length * 5 + (knew ? 5 : 0)
-      if (xpEarned > 0) onXP?.(xpEarned)
+      if (studyMode === 'quiz') {
+        // In quiz mode, delay so student sees final answer feedback
+        setTimeout(() => {
+          setDone(true)
+          if (xpEarned > 0) onXP?.(xpEarned)
+        }, 1400)
+      } else {
+        setDone(true)
+        if (xpEarned > 0) onXP?.(xpEarned)
+      }
     } else {
       setIdx(i => i + 1)
       setFlipped(false)

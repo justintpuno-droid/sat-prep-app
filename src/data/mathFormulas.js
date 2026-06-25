@@ -214,32 +214,11 @@ export const MATH_FORMULAS = [
 
   // ── Additional Arithmetic formulas ─────────────────────────────────────────
   {
-    name: 'Percent Change',
-    category: 'Arithmetic',
-    formula: '% change = [(new − old) ÷ old] × 100',
-    tip: 'Positive = increase; negative = decrease. The base is always the ORIGINAL value.',
-    example: 'Price goes from $80 to $100: (100−80)/80 × 100 = 25% increase',
-  },
-  {
     name: 'Part-Whole Percent',
     category: 'Arithmetic',
     formula: 'Part = (Percent ÷ 100) × Whole',
     tip: 'Rearrange to find any of the three: Whole = Part ÷ (Percent/100), Percent = (Part/Whole)×100.',
     example: '35% of 200 = (35/100) × 200 = 70',
-  },
-  {
-    name: 'Simple Interest',
-    category: 'Arithmetic',
-    formula: 'I = P × r × t',
-    tip: 'P = principal, r = annual rate as decimal, t = time in years. Total = P + I.',
-    example: '$1,000 at 5% for 3 years: I = 1000 × 0.05 × 3 = $150',
-  },
-  {
-    name: 'Compound Interest',
-    category: 'Arithmetic',
-    formula: 'A = P(1 + r/n)^(nt)',
-    tip: 'n = times compounded per year. For annual compounding, n = 1: A = P(1+r)^t.',
-    example: '$1,000 at 6% compounded annually for 2 yr: A = 1000(1.06)² ≈ $1,123.60',
   },
   {
     name: 'Unit Rate / Unit Price',
@@ -248,15 +227,15 @@ export const MATH_FORMULAS = [
     tip: 'Always divide to find the "per one" value. Then multiply back to find any total.',
     example: '5 pounds for $8.75 → unit price = $8.75 ÷ 5 = $1.75/lb',
   },
+  {
+    name: 'Ratio and Proportion',
+    category: 'Arithmetic',
+    formula: 'a/b = c/d  →  cross-multiply: a × d = b × c',
+    tip: 'To scale a ratio: multiply or divide both parts by the same number.',
+    example: '3:4 = x:20 → 4x = 60 → x = 15',
+  },
 
   // ── Additional Algebra formulas ─────────────────────────────────────────────
-  {
-    name: 'Vertex Form of a Parabola',
-    category: 'Algebra',
-    formula: 'y = a(x − h)² + k',
-    tip: 'Vertex is at (h, k). If a > 0, opens up; a < 0, opens down. h has opposite sign in equation.',
-    example: 'y = 2(x − 3)² + 1 → vertex at (3, 1), opens up',
-  },
   {
     name: 'Exponential Growth/Decay',
     category: 'Algebra',
