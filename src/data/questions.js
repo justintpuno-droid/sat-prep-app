@@ -3082,6 +3082,46 @@ const questions = [
     explanation: 'Volume of cone = (1/3)πr²h = (1/3)π(36)(8) = 96π. Volume of cylinder = πr²h = π(36)(8) = 288π. Fraction = 96π/288π = 1/3. The cone always occupies exactly 1/3 of the volume of the cylinder with the same base and height — a classic geometric relationship worth memorizing.',
   },
 
+  // ─── PSD Easy (PSD-040) ───────────────────────────────────────────────────
+  {
+    id: 'PSD-040',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'ratios-rates',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A recipe uses 3 cups of flour for every 2 cups of sugar. How many cups of flour are needed when using 8 cups of sugar?',
+    options: [
+      { id: 'A', text: '10' },
+      { id: 'B', text: '12' },
+      { id: 'C', text: '14' },
+      { id: 'D', text: '16' },
+    ],
+    answer: 'B',
+    explanation: 'Set up the ratio: flour/sugar = 3/2. With 8 cups of sugar: flour = (3/2) × 8 = 12.',
+  },
+
+  // ─── GEO Medium (GEO-038) ────────────────────────────────────────────────
+  {
+    id: 'GEO-038',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'area-volume',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A rectangular garden is 15 meters long and 8 meters wide. A path 1 meter wide runs along the outside of the entire garden. What is the area of the path alone, in square meters?',
+    options: [
+      { id: 'A', text: '48' },
+      { id: 'B', text: '50' },
+      { id: 'C', text: '52' },
+      { id: 'D', text: '56' },
+    ],
+    answer: 'B',
+    explanation: 'Outer rectangle (garden + 1 m path on all sides): (15 + 2)(8 + 2) = 17 × 10 = 170 sq m. Inner garden: 15 × 8 = 120 sq m. Area of path only = 170 − 120 = 50 sq m.',
+  },
+
   // ─── Advanced Math Easy Questions (ADV-031..033) ─────────────────────────
   {
     id: 'ADV-031',
