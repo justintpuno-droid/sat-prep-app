@@ -7184,6 +7184,186 @@ const questions = [
     explanation: 'The first sentence states the revolution changed daily life; the third shows factory work replaced farming. The bridge sentence should connect these — B does so perfectly by explaining how workers moved to cities for factory jobs, creating a logical progression from claim to specific evidence. A introduces a different fact (the steam engine). C goes off-topic to fashion. D introduces a vague historian disagreement that doesn\'t connect the two surrounding sentences.',
   },
 
+  // ─── ADV-047 Medium (Discriminant of Quadratic) ────────────────────────
+  {
+    id: 'ADV-047',
+    subject: 'math',
+    domain: 'advanced-math',
+    skill: 'quadratics',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'The quadratic equation 2x² − 4x + k = 0 has exactly one real solution. What is k?',
+    options: [
+      { id: 'A', text: '1' },
+      { id: 'B', text: '2' },
+      { id: 'C', text: '4' },
+      { id: 'D', text: '8' },
+    ],
+    answer: 'B',
+    explanation: 'Exactly one solution means the discriminant = 0: b² − 4ac = 0. Here a = 2, b = −4, c = k. (−4)² − 4(2)(k) = 0 → 16 − 8k = 0 → k = 2.',
+  },
+
+  // ─── PSD-046 Easy (Median vs Mean) ─────────────────────────────────────
+  {
+    id: 'PSD-046',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'statistics',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A data set is: {3, 5, 7, 9, 11}. What is the median?',
+    options: [
+      { id: 'A', text: '5' },
+      { id: 'B', text: '7' },
+      { id: 'C', text: '9' },
+      { id: 'D', text: '6' },
+    ],
+    answer: 'B',
+    explanation: 'The median is the middle value when data is ordered. Ordered: 3, 5, 7, 9, 11 — 5 values, so median = 3rd value = 7.',
+  },
+
+  // ─── CON-046 Hard (Tense Consistency) ─────────────────────────────────
+  {
+    id: 'CON-046',
+    subject: 'reading-writing',
+    domain: 'conventions',
+    skill: 'verb-tense',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which choice best completes the sentence with consistent verb tense?\n\nBy the time the researchers published their findings, they _______ the study for three years.',
+    options: [
+      { id: 'A', text: 'conducted' },
+      { id: 'B', text: 'have conducted' },
+      { id: 'C', text: 'had been conducting' },
+      { id: 'D', text: 'are conducting' },
+    ],
+    answer: 'C',
+    explanation: '"By the time... published" sets a past reference point. The study happened before that point, so past perfect is needed. "Had been conducting" (past perfect progressive) is correct for an ongoing action that was completed before another past event. "Conducted" (simple past) doesn\'t show the duration. "Have conducted" is present perfect. "Are conducting" is present tense.',
+  },
+
+  // ─── ALG-049 Easy (Solving Multi-Step Equation) ────────────────────────
+  {
+    id: 'ALG-049',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-equations',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'If 3(x − 4) = 2x + 1, what is x?',
+    options: [
+      { id: 'A', text: '11' },
+      { id: 'B', text: '13' },
+      { id: 'C', text: '7' },
+      { id: 'D', text: '5' },
+    ],
+    answer: 'B',
+    explanation: 'Expand: 3x − 12 = 2x + 1. Subtract 2x from both sides: x − 12 = 1. Add 12: x = 13.',
+  },
+
+  // ─── CRA-048 Hard (Cross-Text Words in Context) ────────────────────────
+  {
+    id: 'CRA-048',
+    subject: 'reading-writing',
+    domain: 'craft-structure',
+    skill: 'words-in-context',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'In this passage about conservation biology, a researcher describes an ecosystem that has been severely damaged by invasive species: "Despite years of remediation efforts, the wetland remained _______ — its native flora unable to reestablish a foothold against the resilient invaders."',
+    question: 'Which word most precisely completes the sentence?',
+    options: [
+      { id: 'A', text: 'compromised' },
+      { id: 'B', text: 'rehabilitated' },
+      { id: 'C', text: 'thriving' },
+      { id: 'D', text: 'pristine' },
+    ],
+    answer: 'A',
+    explanation: '"Compromised" means damaged or weakened — perfectly describing an ecosystem where native flora can\'t reestablish itself despite remediation. "Rehabilitated" means restored (opposite — the sentence says native species can\'t reestablish). "Thriving" and "pristine" suggest health and cleanliness (opposite of damaged). The "despite" signals the ecosystem is still damaged, eliminating B, C, and D.',
+  },
+
+  // ─── INF-053 Easy (Citing Evidence from Passage) ───────────────────────
+  {
+    id: 'INF-053',
+    subject: 'reading-writing',
+    domain: 'information-ideas',
+    skill: 'command-of-evidence',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: 'Plants use a process called photosynthesis to convert sunlight into food. This process takes place primarily in the chloroplasts of plant cells. Without sufficient sunlight, photosynthesis cannot occur, and the plant will eventually die.',
+    question: 'Which detail from the passage directly supports the claim that sunlight is essential for plant survival?',
+    options: [
+      { id: 'A', text: 'Plants use a process called photosynthesis to convert sunlight into food.' },
+      { id: 'B', text: 'This process takes place primarily in the chloroplasts of plant cells.' },
+      { id: 'C', text: 'Without sufficient sunlight, photosynthesis cannot occur, and the plant will eventually die.' },
+      { id: 'D', text: 'Plants need water and soil nutrients in addition to sunlight.' },
+    ],
+    answer: 'C',
+    explanation: 'The claim is that sunlight is essential for plant survival. Only C directly states the consequence of insufficient sunlight: photosynthesis fails and the plant dies. A says sunlight is used for food but doesn\'t say it\'s essential for survival. B is about cell structure. D is not in the passage.',
+  },
+
+  // ─── GEO-048 Hard (Coordinate Geometry — Circle) ───────────────────────
+  {
+    id: 'GEO-048',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'circles',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A circle has center (2, −3) and passes through the point (6, 0). What is the radius of the circle?',
+    options: [
+      { id: 'A', text: '√7' },
+      { id: 'B', text: '5' },
+      { id: 'C', text: '7' },
+      { id: 'D', text: '√13' },
+    ],
+    answer: 'B',
+    explanation: 'The radius = distance from center (2, −3) to point (6, 0). Using the distance formula: r = √[(6−2)² + (0−(−3))²] = √[4² + 3²] = √[16 + 9] = √25 = 5.',
+  },
+
+  // ─── EXP-048 Hard (Combining Sentences — Complexity) ─────────────────
+  {
+    id: 'EXP-048',
+    subject: 'reading-writing',
+    domain: 'expression-ideas',
+    skill: 'sentence-structure',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A student wants to combine the following sentences to emphasize that the second event directly caused the first: "The dam broke. The town flooded."\n\nWhich version best shows this causal relationship?',
+    options: [
+      { id: 'A', text: 'The dam broke, and the town flooded.' },
+      { id: 'B', text: 'The breaking of the dam caused the town to flood.' },
+      { id: 'C', text: 'The town flooded; the dam broke.' },
+      { id: 'D', text: 'The dam broke, so there was a flood in the town.' },
+    ],
+    answer: 'B',
+    explanation: 'The goal is to show that the dam breaking caused the flooding — a direct causal link. B explicitly states "caused" — the clearest and most direct way to express causation. A and D use "and" and "so" which suggest consequence but are less explicit about causation. C reverses the order and the logic.',
+  },
+
+  // ─── ADV-048 Easy (Quadratic Roots — Sum of Roots) ─────────────────────
+  {
+    id: 'ADV-048',
+    subject: 'math',
+    domain: 'advanced-math',
+    skill: 'quadratics',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'What is the sum of the roots of the equation x² − 2x − 3 = 0?',
+    options: [
+      { id: 'A', text: '2' },
+      { id: 'B', text: '−2' },
+      { id: 'C', text: '−3' },
+      { id: 'D', text: '3' },
+    ],
+    answer: 'A',
+    explanation: 'Factor: x² − 2x − 3 = (x − 3)(x + 1) = 0. Roots: x = 3 and x = −1. Sum = 3 + (−1) = 2. Alternatively: for ax² + bx + c = 0, sum of roots = −b/a = −(−2)/1 = 2.',
+  },
+
 ]
 
 export default questions
