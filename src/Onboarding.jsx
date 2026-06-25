@@ -66,13 +66,13 @@ export default function Onboarding({ onDone }) {
           <div className="flex flex-wrap gap-1.5 mt-2 mb-2">
             <p className="text-xs text-gray-400 w-full mb-0.5">Or pick an official SAT date:</p>
             {[
-              { label: 'Aug 23, 2025', val: '2025-08-23' },
-              { label: 'Oct 4, 2025',  val: '2025-10-04' },
-              { label: 'Nov 1, 2025',  val: '2025-11-01' },
-              { label: 'Dec 6, 2025',  val: '2025-12-06' },
-              { label: 'Mar 14, 2026', val: '2026-03-14' },
-              { label: 'May 2, 2026',  val: '2026-05-02' },
-              { label: 'Jun 6, 2026',  val: '2026-06-06' },
+              { label: 'Aug 29, 2026', val: '2026-08-29' },
+              { label: 'Oct 3, 2026',  val: '2026-10-03' },
+              { label: 'Nov 7, 2026',  val: '2026-11-07' },
+              { label: 'Dec 5, 2026',  val: '2026-12-05' },
+              { label: 'Mar 13, 2027', val: '2027-03-13' },
+              { label: 'May 1, 2027',  val: '2027-05-01' },
+              { label: 'Jun 5, 2027',  val: '2027-06-05' },
             ].filter(d => d.val > new Date().toISOString().slice(0, 10)).slice(0, 4).map(d => (
               <button
                 key={d.val}
