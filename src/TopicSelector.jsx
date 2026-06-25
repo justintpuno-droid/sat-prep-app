@@ -707,6 +707,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
   const [examDate, setExamDate] = useState(() => loadExamDate())
   const [editingExam, setEditingExam] = useState(false)
   const [wotdOpen, setWotdOpen] = useState(false)
+  const [fotdOpen, setFotdOpen] = useState(false)
   const daysLeft = useMemo(() => daysUntil(examDate), [examDate])
   const [customDailyGoal, setCustomDailyGoal] = useState(() => loadDailyGoal())
   const [editingDailyGoal, setEditingDailyGoal] = useState(false)
@@ -741,6 +742,13 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
     const seed = dateStr.split('-').reduce((a, b) => a * 100 + parseInt(b), 0)
     const idx = Math.abs(Math.sin(seed) * 10000 | 0) % SAT_VOCAB.length
     return SAT_VOCAB[idx]
+  }, [])
+
+  const formulaOfDay = useMemo(() => {
+    const dateStr = new Date().toISOString().slice(0, 10)
+    const seed = dateStr.split('-').reduce((a, b) => a * 100 + parseInt(b), 0) + 7
+    const idx = Math.abs(Math.sin(seed) * 10000 | 0) % MATH_FORMULAS.length
+    return MATH_FORMULAS[idx]
   }, [])
 
   const [prestigeInfo, setPrestigeInfo] = useState(() => getPrestigeInfo(loadGamification()))
@@ -1863,6 +1871,30 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <div className="mt-2.5 pt-2.5 border-t border-indigo-100 space-y-1.5">
                 <p className="text-xs text-indigo-700 leading-relaxed"><span className="font-bold">Def:</span> {wordOfDay.def}</p>
                 <p className="text-xs text-indigo-500 italic leading-relaxed">"{wordOfDay.example}"</p>
+              </div>
+            )}
+          </button>
+        )}
+
+        {/* Formula of the Day */}
+        {formulaOfDay && (
+          <button onClick={() => setFotdOpen(o => !o)}
+            className="w-full rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50 p-3.5 mb-3 text-left transition-all active:scale-[0.99]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="text-lg">🔢</span>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Formula of the Day</p>
+                  <p className="text-sm font-black text-emerald-900">{formulaOfDay.name}</p>
+                </div>
+              </div>
+              <span className="text-xs text-emerald-400">{fotdOpen ? '▲' : '▼'}</span>
+            </div>
+            {fotdOpen && (
+              <div className="mt-2.5 pt-2.5 border-t border-emerald-100 space-y-1.5">
+                <p className="text-xs font-mono font-bold text-emerald-800 bg-emerald-100 rounded-lg px-2 py-1">{formulaOfDay.formula}</p>
+                <p className="text-xs text-emerald-600 leading-relaxed">{formulaOfDay.tip}</p>
+                {formulaOfDay.example && <p className="text-xs text-emerald-500 italic">e.g. {formulaOfDay.example}</p>}
               </div>
             )}
           </button>
