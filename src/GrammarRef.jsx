@@ -161,6 +161,42 @@ const RULES = [
         wrong: '"The reason is because" is redundant.',
         tip: 'Red flags: "due to the fact that" (use "because"), "in order to" (use "to"), "at this point in time" (use "now").',
       },
+      {
+        title: 'Active voice is preferred over passive voice',
+        example: '"The student solved the problem" (active) vs. "The problem was solved by the student" (passive).',
+        wrong: '"The problem was solved by the student" — passive is often wordier.',
+        tip: 'On the SAT, if two choices say the same thing but one is active (subject does the action), it\'s usually better.',
+      },
+      {
+        title: '"Which" vs. "that": restrictive vs. non-restrictive clauses',
+        example: '"The test that I studied for…" (essential) vs. "The test, which was long, …" (extra info)',
+        wrong: '"The test, that was long, started on time." (wrong: use "which" with commas for non-essential info)',
+        tip: 'Use "that" for essential clauses (no commas). Use "which" with commas for parenthetical, non-essential info.',
+      },
+    ],
+  },
+  {
+    category: 'Commonly Confused',
+    color: 'bg-orange-500', bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200',
+    rules: [
+      {
+        title: 'Affect (verb) vs. Effect (noun)',
+        example: '"The weather affected her mood." / "The effect of the storm was devastating."',
+        wrong: '"The weather effected her mood." (wrong — effect is usually a noun)',
+        tip: 'Affect = verb (to influence). Effect = noun (the result). Exception: "to effect change" uses effect as a verb.',
+      },
+      {
+        title: 'Less vs. Fewer',
+        example: '"Fewer students attended." (countable) / "Less water remained." (uncountable)',
+        wrong: '"Less students attended." (wrong — students are countable)',
+        tip: 'Use "fewer" with things you can count (people, items). Use "less" with uncountable quantities (water, time, money).',
+      },
+      {
+        title: 'Who vs. Whom',
+        example: '"Who called?" / "To whom did you speak?" / "She is the one who called."',
+        wrong: '"Who did you call?" (should be "Whom did you call?")',
+        tip: 'Use "who" as a subject (who does the action). Use "whom" as an object (receiving the action). Replace with he/him: if "him" fits, use "whom."',
+      },
     ],
   },
 ]
