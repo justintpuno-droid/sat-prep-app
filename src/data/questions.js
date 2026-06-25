@@ -6604,6 +6604,126 @@ const questions = [
     explanation: '"Will eventually" communicates the same meaning as all the wordy options combined. The SAT rewards eliminating redundant time expressions. "In the future," "at some later point," and "eventually" all convey the same idea — only one is needed.',
   },
 
+  // ─── PSD-042 Hard (Two-way Table / Conditional Probability) ─────────────
+  {
+    id: 'PSD-042',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'statistics',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'A survey of 200 students asked whether they preferred math or reading, and whether they studied more than 2 hours daily. Results:\n\n• Math + Study 2h+: 40\n• Math + Study <2h: 60\n• Reading + Study 2h+: 30\n• Reading + Study <2h: 70',
+    question: 'Of the students who study more than 2 hours daily, what fraction prefer math?',
+    options: [
+      { id: 'A', text: '4/7' },
+      { id: 'B', text: '2/5' },
+      { id: 'C', text: '1/5' },
+      { id: 'D', text: '1/4' },
+    ],
+    answer: 'A',
+    explanation: 'We need the conditional probability: P(math | study 2h+). Students who study 2h+: 40 + 30 = 70. Of those, 40 prefer math. Fraction = 40/70 = 4/7.',
+  },
+
+  // ─── ALG-045 Easy (Slope-Intercept from Table) ──────────────────────────
+  {
+    id: 'ALG-045',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-functions',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'The table shows values for a linear function. What is the slope of the function?\n\nx: 1, 3, 5\ny: 4, 10, 16',
+    options: [
+      { id: 'A', text: '2' },
+      { id: 'B', text: '3' },
+      { id: 'C', text: '4' },
+      { id: 'D', text: '6' },
+    ],
+    answer: 'B',
+    explanation: 'Use slope = (y₂ − y₁) / (x₂ − x₁). From (1,4) to (3,10): (10−4)/(3−1) = 6/2 = 3. Verify: from (3,10) to (5,16): (16−10)/(5−3) = 6/2 = 3. Slope = 3.',
+  },
+
+  // ─── CRA-044 Medium (Author's Purpose — Tone) ────────────────────────────
+  {
+    id: 'CRA-044',
+    subject: 'reading-writing',
+    domain: 'craft-structure',
+    skill: 'text-structure',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'The environmental regulations proposed by the committee are, at best, well-intentioned but naive. They fail to account for the economic realities faced by manufacturers and will almost certainly result in job losses without meaningfully reducing carbon output.',
+    question: 'The tone of this passage is best described as:',
+    options: [
+      { id: 'A', text: 'Enthusiastic and supportive' },
+      { id: 'B', text: 'Critical and skeptical' },
+      { id: 'C', text: 'Neutral and informative' },
+      { id: 'D', text: 'Hopeful and optimistic' },
+    ],
+    answer: 'B',
+    explanation: 'The author uses dismissive language ("at best, well-intentioned but naive") and predicts negative outcomes ("will almost certainly result in job losses"). This is a critical and skeptical tone — the author doubts the policy will work and criticizes its design. It is not supportive (A), neutral (C), or optimistic (D).',
+  },
+
+  // ─── GEO-044 Medium (Triangle Similarity) ────────────────────────────────
+  {
+    id: 'GEO-044',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'similarity-congruence',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Two similar triangles have corresponding sides in a ratio of 2:5. If the smaller triangle has an area of 12 cm², what is the area of the larger triangle?',
+    options: [
+      { id: 'A', text: '30 cm²' },
+      { id: 'B', text: '60 cm²' },
+      { id: 'C', text: '75 cm²' },
+      { id: 'D', text: '25 cm²' },
+    ],
+    answer: 'C',
+    explanation: 'When two similar figures have a side ratio of a:b, their area ratio is a²:b². Side ratio = 2:5, so area ratio = 4:25. If small area = 12, then large area = 12 × (25/4) = 12 × 6.25 = 75 cm².',
+  },
+
+  // ─── INF-049 Easy (Main Idea — Short Passage) ────────────────────────────
+  {
+    id: 'INF-049',
+    subject: 'reading-writing',
+    domain: 'information-ideas',
+    skill: 'central-ideas-details',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: 'For centuries, mathematicians treated zero as a controversial number. Ancient Greek mathematicians, tied to geometric reasoning, found the concept of "nothing" philosophically troubling. It wasn\'t until Indian mathematicians in the 5th century CE formally defined zero and its arithmetic properties that it became an accepted part of the number system.',
+    question: 'Which statement best expresses the main idea of the passage?',
+    options: [
+      { id: 'A', text: 'Ancient Greek mathematicians were more advanced than Indian mathematicians.' },
+      { id: 'B', text: 'Zero was a controversial concept that took centuries to be formally accepted.' },
+      { id: 'C', text: 'The number zero was invented in India in the 5th century.' },
+      { id: 'D', text: 'Geometric reasoning is less rigorous than arithmetic reasoning.' },
+    ],
+    answer: 'B',
+    explanation: 'The passage describes how zero was controversial for centuries among Greek mathematicians and only accepted after Indian mathematicians formalized it. B captures this overall arc. A makes a false comparison. C says "invented" but the passage says it was "formally defined." D makes a judgment about reasoning types that the passage doesn\'t make.',
+  },
+
+  // ─── CON-043 Hard (Pronoun Case — Complex Sentence) ─────────────────────
+  {
+    id: 'CON-043',
+    subject: 'reading-writing',
+    domain: 'conventions',
+    skill: 'pronouns',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which choice correctly completes the sentence?\n\nThe award was given to _______ had contributed the most to the project — Maya and him.',
+    options: [
+      { id: 'A', text: 'whoever' },
+      { id: 'B', text: 'whomever' },
+      { id: 'C', text: 'whomsoever' },
+      { id: 'D', text: 'those whom' },
+    ],
+    answer: 'A',
+    explanation: 'The clause "whoever had contributed the most" needs a subject pronoun because it functions as the subject of "had contributed." "Whoever" = subject (like "he/she"). "Whomever" = object (like "him/her"). Test: substitute "he/him" — "he had contributed" works → use "whoever." The fact that the whole clause is the object of "to" doesn\'t change the internal grammar of the clause.',
+  },
+
 ]
 
 export default questions
