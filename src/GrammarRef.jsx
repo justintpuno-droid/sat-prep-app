@@ -197,6 +197,30 @@ const RULES = [
         wrong: '"Who did you call?" (should be "Whom did you call?")',
         tip: 'Use "who" as a subject (who does the action). Use "whom" as an object (receiving the action). Replace with he/him: if "him" fits, use "whom."',
       },
+      {
+        title: 'Comparatives vs. Superlatives',
+        example: '"She is taller than her brother." (comparative) / "She is the tallest in the class." (superlative)',
+        wrong: '"She is the most tallest in the class." (double superlative — never use "most + -est")',
+        tip: 'Use comparative (-er / more) for two things. Use superlative (-est / most) for three or more. Never double up: "more smarter" or "most fastest" are always wrong.',
+      },
+      {
+        title: 'Reflexive pronouns (myself, himself, etc.)',
+        example: '"She hurt herself." / "He completed the work himself."',
+        wrong: '"Please contact myself if you have questions." (wrong — use "me" not "myself" unless referring back to the subject)',
+        tip: 'Use reflexive pronouns ONLY when the subject and object are the same person, or for emphasis. "Myself" cannot replace "me" or "I."',
+      },
+      {
+        title: 'Gerunds and infinitives as subjects',
+        example: '"Swimming is good exercise." (gerund) / "To err is human." (infinitive)',
+        wrong: '"Swim is good exercise." (bare verb cannot be subject)',
+        tip: 'A verb used as a subject must be a gerund (-ing form) or an infinitive (to + verb). This is a common error source in SAT Conventions questions.',
+      },
+      {
+        title: '"Than" vs. "Then"',
+        example: '"She scored higher than her classmates." / "Study first; then take the test."',
+        wrong: '"She scored higher then her classmates."',
+        tip: '"Than" is used for comparisons. "Then" refers to time or sequence. When comparing, always use "than."',
+      },
     ],
   },
 ]
