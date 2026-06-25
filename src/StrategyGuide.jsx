@@ -83,6 +83,9 @@ const SECTIONS = [
       { title: 'Breathe During Hard Questions', body: 'If anxiety spikes: 4 counts in, hold 4, out 4. One breath resets your prefrontal cortex. Use it.' },
       { title: 'Trust Your Prep', body: 'You\'ve practiced. Your brain knows this material. Trust the process — over-thinking questions hurts more than it helps.' },
       { title: 'Don\'t Panic on Hard Questions', body: 'Hard questions are designed to be hard. Everyone else is also struggling. Stay calm, eliminate, and guess if needed.' },
+      { title: 'Take the Break', body: 'The 10-minute break between modules is mandatory — take it. Stand up, look away from the screen, drink water. Your brain needs to reset.' },
+      { title: 'Review Your Answers', body: 'If you finish a module early, go back and review your most uncertain answers. Always double-check your interpretation of "which BEST" or "primarily."' },
+      { title: 'Visualize Success', body: 'Before the test, take 2 minutes to visualize yourself sitting confidently, reading clearly, and choosing right answers. Mental rehearsal works.' },
     ],
   },
 ]
