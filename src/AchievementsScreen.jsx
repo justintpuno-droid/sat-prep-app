@@ -5,7 +5,7 @@ import { loadHistory } from './utils/history'
 const CATEGORIES = [
   { id: 'all',      label: 'All' },
   { id: 'accuracy', label: 'Accuracy',  ids: ['perfect','sharp','consistent','hat-trick','comeback','improver'] },
-  { id: 'volume',   label: 'Volume',    ids: ['century','two-fifty','five-hundred','thousand','combo-5','combo-10','marathon','diversity'] },
+  { id: 'volume',   label: 'Volume',    ids: ['century','two-fifty','five-hundred','thousand','hour-1','hour-5','hour-10','combo-5','combo-10','marathon','diversity'] },
   { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','streak-30','early-bird','night-owl','early-riser','night-grinder','grinder','perfect-week'] },
   { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid','wrong-sprint','adaptive-ace','sudden-death-5','sudden-death-ace','all-formats','timed-ace'] },
   { id: 'milestones', label: 'Progress',ids: ['first-step','xp-1000','xp-5000','xp-10000','hard-worker','hard-elite','grinder','domain-master-5'] },
@@ -68,6 +68,9 @@ function getHint(achId, stats, gam) {
     case 'two-fifty':    return h('Questions answered', stats.totalQ, 250)
     case 'five-hundred': return h('Questions answered', stats.totalQ, 500)
     case 'thousand':     return h('Questions answered', stats.totalQ, 1000)
+    case 'hour-1':       return { hint: `Study time: ${stats.totalStudyMins}/60 min`, pct: Math.min(100, Math.round((stats.totalStudyMins / 60) * 100)) }
+    case 'hour-5':       return { hint: `Study time: ${stats.totalStudyMins}/300 min`, pct: Math.min(100, Math.round((stats.totalStudyMins / 300) * 100)) }
+    case 'hour-10':      return { hint: `Study time: ${stats.totalStudyMins}/600 min`, pct: Math.min(100, Math.round((stats.totalStudyMins / 600) * 100)) }
     case 'hard-worker':  return h('Hard questions correct', stats.hardCorrect, 25)
     case 'streak-3':     return h('Current streak', stats.streak, 3)
     case 'streak-7':     return h('Current streak', stats.streak, 7)
@@ -200,7 +203,9 @@ export default function AchievementsScreen({ onBack }) {
     let vocabMastered = 0, formulaMastered = 0
     try { vocabMastered = Object.values(JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}')).filter(p => p.mastered).length } catch {}
     try { formulaMastered = Object.values(JSON.parse(localStorage.getItem('sat_prep_math_flash') ?? '{}')).filter(p => p.mastered).length } catch {}
-    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed, studyDays, comebacks, byDomain, dom, rwC, rwT, mathC, mathT, sessions: history.length, vocabMastered, formulaMastered }
+    const totalStudySecs = history.reduce((t, s) => t + (s.elapsedSeconds ?? 0), 0)
+    const totalStudyMins = Math.round(totalStudySecs / 60)
+    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed, studyDays, comebacks, byDomain, dom, rwC, rwT, mathC, mathT, sessions: history.length, vocabMastered, formulaMastered, totalStudyMins }
   }, [history])
 
   const visibleAchievements = useMemo(() => {

@@ -73,6 +73,10 @@ export const ACHIEVEMENTS = [
   { id: 'two-fifty',    icon: '📈', title: 'Quarter Thousand', desc: 'Answer 250 questions total' },
   { id: 'five-hundred', icon: '🚀', title: 'Question Crusher', desc: 'Answer 500 questions total' },
   { id: 'thousand',     icon: '🌟', title: 'Thousand Club',    desc: 'Answer 1,000 questions total' },
+  // Study time
+  { id: 'hour-1',       icon: '⏱️', title: 'First Hour',        desc: 'Study for 1 hour total' },
+  { id: 'hour-5',       icon: '⌛', title: 'Time Investor',     desc: 'Study for 5 hours total' },
+  { id: 'hour-10',      icon: '🕐', title: 'Study Veteran',     desc: 'Study for 10 hours total' },
   // Hard questions
   { id: 'hard-worker',  icon: '🔥', title: 'Hard Worker',      desc: 'Get 25 Hard questions correct' },
   // Day streaks
@@ -190,6 +194,9 @@ const CHECKS = {
   'two-fifty':    (h) => h.reduce((t, s) => t + s.score.total, 0) >= 250,
   'five-hundred': (h) => h.reduce((t, s) => t + s.score.total, 0) >= 500,
   'thousand':     (h) => h.reduce((t, s) => t + s.score.total, 0) >= 1000,
+  'hour-1':       (h) => h.reduce((t, s) => t + (s.elapsedSeconds ?? 0), 0) >= 3600,
+  'hour-5':       (h) => h.reduce((t, s) => t + (s.elapsedSeconds ?? 0), 0) >= 18000,
+  'hour-10':      (h) => h.reduce((t, s) => t + (s.elapsedSeconds ?? 0), 0) >= 36000,
   'hard-worker':  (h) => {
     let n = 0
     for (const s of h) for (const q of s.questions)
