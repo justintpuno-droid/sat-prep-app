@@ -2080,7 +2080,8 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             xp: Math.round(rng(p.seed, i) * 900 + 50),
             isMe: false,
           }))
-          const me = { name: 'You', xp: weekXP, isMe: true }
+          const myName = loadDisplayName() || 'You'
+          const me = { name: myName, xp: weekXP, isMe: true }
           const board = [...peers, me].sort((a, b) => b.xp - a.xp)
           const myRank = board.findIndex(r => r.isMe) + 1
           const medals = ['🥇','🥈','🥉']
@@ -2105,7 +2106,7 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
                     <div className="text-center text-gray-300 text-xs py-0.5">· · ·</div>
                     <div className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200">
                       <span className="w-5 text-center text-xs font-bold text-gray-500">#{myRank}</span>
-                      <span className="flex-1 text-sm font-semibold text-indigo-700">You</span>
+                      <span className="flex-1 text-sm font-semibold text-indigo-700">{myName}</span>
                       <span className="text-xs font-bold text-indigo-600">{weekXP.toLocaleString()} XP</span>
                     </div>
                   </>
