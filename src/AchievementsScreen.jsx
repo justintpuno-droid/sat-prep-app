@@ -107,6 +107,17 @@ function getHint(achId, stats, gam) {
     case 'reading-pro':     return h('Reading & Writing questions', stats.rwT, 25)
     case 'stats-star':      return h('Problem Solving & Data questions', stats.dom('problem-solving-data').t, 20)
     case 'geometry-genius': return h('Geometry questions answered', stats.dom('geometry-trig').t, 20)
+    case 'session-5':       return h('Sessions completed', stats.sessions, 5)
+    case 'session-10':      return h('Sessions completed', stats.sessions, 10)
+    case 'session-25':      return h('Sessions completed', stats.sessions, 25)
+    case 'session-50':      return h('Sessions completed', stats.sessions, 50)
+    case 'session-100':     return h('Sessions completed', stats.sessions, 100)
+    case 'vocab-10':        return h('Vocab words mastered', stats.vocabMastered, 10)
+    case 'vocab-30':        return h('Vocab words mastered', stats.vocabMastered, 30)
+    case 'vocab-50':        return h('Vocab words mastered', stats.vocabMastered, 50)
+    case 'vocab-all':       return h('Vocab words mastered', stats.vocabMastered, 93)
+    case 'formula-10':      return h('Formulas mastered', stats.formulaMastered, 10)
+    case 'formula-all':     return h('Formulas mastered', stats.formulaMastered, 36)
     default:                 return null
   }
 }
@@ -165,7 +176,10 @@ export default function AchievementsScreen({ onBack }) {
     const rwT = RW.reduce((s, d) => s + (byDomain[d]?.t ?? 0), 0)
     const mathC = MATH.reduce((s, d) => s + (byDomain[d]?.c ?? 0), 0)
     const mathT = MATH.reduce((s, d) => s + (byDomain[d]?.t ?? 0), 0)
-    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed, studyDays, comebacks, byDomain, dom, rwC, rwT, mathC, mathT }
+    let vocabMastered = 0, formulaMastered = 0
+    try { vocabMastered = Object.values(JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}')).filter(p => p.mastered).length } catch {}
+    try { formulaMastered = Object.values(JSON.parse(localStorage.getItem('sat_prep_math_flash') ?? '{}')).filter(p => p.mastered).length } catch {}
+    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed, studyDays, comebacks, byDomain, dom, rwC, rwT, mathC, mathT, sessions: history.length, vocabMastered, formulaMastered }
   }, [history])
 
   const visibleAchievements = useMemo(() => {
