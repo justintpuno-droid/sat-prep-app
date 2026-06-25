@@ -121,7 +121,7 @@ export const ACHIEVEMENTS = [
   { id: 'vocab-10',         icon: '📖', title: 'Word Collector',    desc: 'Master 10 SAT vocabulary words' },
   { id: 'vocab-30',         icon: '📚', title: 'Vocabulary Pro',    desc: 'Master 30 SAT vocabulary words' },
   { id: 'vocab-50',         icon: '📗', title: 'Vocab Veteran',     desc: 'Master 50 SAT vocabulary words' },
-  { id: 'vocab-all',        icon: '🎓', title: 'Word Master',       desc: 'Master all 200 SAT vocabulary words' },
+  { id: 'vocab-all',        icon: '🎓', title: 'Word Master',       desc: 'Master all 221 SAT vocabulary words' },
   { id: 'formula-10',       icon: '🔢', title: 'Formula Learner',   desc: 'Master 10 math formulas in MathFlash' },
   { id: 'formula-all',      icon: '🧮', title: 'Formula God',       desc: 'Master all 60 math formulas in MathFlash' },
   { id: 'ramp-master',      icon: '📈', title: 'Ramp Master',      desc: 'Complete Ramp Mode with a perfect score (15/15)' },
@@ -172,6 +172,18 @@ export const ACHIEVEMENTS = [
   { id: 'mission-1',     icon: '🎯', title: 'Mission Accepted',   desc: 'Claim your first Daily Mission reward' },
   { id: 'mission-10',    icon: '🏆', title: 'Mission Pro',        desc: 'Claim 10 Daily Mission rewards total' },
   { id: 'mission-sweep', icon: '⭐', title: 'Triple Sweep',       desc: 'Claim all 3 missions in a single day' },
+  // Dedication + long-term
+  { id: 'session-200',   icon: '🌠', title: 'Unstoppable',        desc: 'Complete 200 practice sessions — you are extraordinary' },
+  { id: 'question-2000', icon: '💥', title: 'Question Machine',   desc: 'Answer 2,000 questions total' },
+  { id: 'question-5000', icon: '🔱', title: 'Titan',              desc: 'Answer 5,000 questions total' },
+  { id: 'streak-60',     icon: '🔥', title: 'Inferno',            desc: '60-day study streak — two solid months!' },
+  { id: 'streak-100',    icon: '💯', title: 'Century Streak',     desc: '100-day study streak — the ultimate dedication' },
+  // Accuracy milestones
+  { id: 'accuracy-90-all', icon: '🎯', title: 'Sniper',           desc: 'Reach 90%+ overall accuracy across all sessions (min 100 Qs)' },
+  { id: 'first-hard',    icon: '💪', title: 'First Hard Win',     desc: 'Get your first Hard difficulty question correct' },
+  // Flashcard milestones
+  { id: 'vocab-221',     icon: '👑', title: 'Vocab King',         desc: 'Master all 221 SAT vocabulary words — absolute word mastery!' },
+  { id: 'formula-60',    icon: '🧪', title: 'Formula Master',     desc: 'Master all 60 math formulas in MathFlash — complete coverage!' },
 ]
 
 const CHECKS = {
@@ -466,6 +478,19 @@ const CHECKS = {
       return m?.date === today && Object.keys(m.claimed ?? {}).length >= 3
     } catch { return false }
   },
+  'session-200':    (h) => h.length >= 200,
+  'question-2000':  (h) => h.reduce((n, s) => n + (s.score.total ?? 0), 0) >= 2000,
+  'question-5000':  (h) => h.reduce((n, s) => n + (s.score.total ?? 0), 0) >= 5000,
+  'streak-60':      (h, gam) => (gam.streak ?? 0) >= 60 || (gam.maxStreak ?? 0) >= 60,
+  'streak-100':     (h, gam) => (gam.streak ?? 0) >= 100 || (gam.maxStreak ?? 0) >= 100,
+  'accuracy-90-all': (h) => {
+    const totalQ = h.reduce((n, s) => n + (s.score.total ?? 0), 0)
+    const totalC = h.reduce((n, s) => n + (s.score.correct ?? 0), 0)
+    return totalQ >= 100 && totalC / totalQ >= 0.90
+  },
+  'first-hard':     (h) => h.some(s => s.questions?.some(q => q.difficulty === 3 && (s.answers?.[q.id] ?? null) === q.answer)),
+  'vocab-221':      () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 221 } catch { return false } },
+  'formula-60':     () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_math_flash') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 60 } catch { return false } },
 }
 
 // ─── Storage ───────────────────────────────────────────────────────────────
