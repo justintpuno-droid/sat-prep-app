@@ -6724,6 +6724,146 @@ const questions = [
     explanation: 'The clause "whoever had contributed the most" needs a subject pronoun because it functions as the subject of "had contributed." "Whoever" = subject (like "he/she"). "Whomever" = object (like "him/her"). Test: substitute "he/him" — "he had contributed" works → use "whoever." The fact that the whole clause is the object of "to" doesn\'t change the internal grammar of the clause.',
   },
 
+  // ─── ADV-044 Hard (Exponential Growth) ───────────────────────────────────
+  {
+    id: 'ADV-044',
+    subject: 'math',
+    domain: 'advanced-math',
+    skill: 'functions',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A population of bacteria doubles every 3 hours. If there are 200 bacteria initially, which function P(t) gives the population after t hours?',
+    options: [
+      { id: 'A', text: 'P(t) = 200 × 2^t' },
+      { id: 'B', text: 'P(t) = 200 × 2^(t/3)' },
+      { id: 'C', text: 'P(t) = 200 × 3^t' },
+      { id: 'D', text: 'P(t) = 200 + 2t' },
+    ],
+    answer: 'B',
+    explanation: 'The population doubles every 3 hours, so the growth factor is 2 and it occurs at t/3 intervals. The function is P(t) = 200 × 2^(t/3). Check: at t=3, P = 200 × 2^1 = 400 ✓ (doubled). At t=6, P = 200 × 2^2 = 800 ✓ (doubled again).',
+  },
+
+  // ─── GEO-045 Hard (Right Triangle Trig) ──────────────────────────────────
+  {
+    id: 'GEO-045',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'trigonometry',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'In a right triangle, the side opposite a 30° angle measures 5. What is the length of the hypotenuse?',
+    options: [
+      { id: 'A', text: '5√2' },
+      { id: 'B', text: '10' },
+      { id: 'C', text: '5√3' },
+      { id: 'D', text: '5/2' },
+    ],
+    answer: 'B',
+    explanation: 'In a 30-60-90 triangle, sin(30°) = opposite/hypotenuse = 1/2. So hypotenuse = opposite / sin(30°) = 5 / (1/2) = 10.',
+  },
+
+  // ─── INF-050 Medium (Paired Passages — Relationship) ─────────────────────
+  {
+    id: 'INF-050',
+    subject: 'reading-writing',
+    domain: 'information-ideas',
+    skill: 'cross-text-connections',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'Text 1: Remote work has proven to be a productivity boon for many employees. Studies show workers complete tasks faster at home and report higher job satisfaction.\n\nText 2: While remote work suits individual contributors, it undermines the spontaneous collaboration that drives creative innovation. Ideas don\'t emerge from video calls alone.',
+    question: 'How do the two texts relate to each other?',
+    options: [
+      { id: 'A', text: 'Text 2 provides data that contradicts Text 1\'s claims.' },
+      { id: 'B', text: 'Text 2 concedes the individual benefits of remote work but raises a concern Text 1 does not address.' },
+      { id: 'C', text: 'Both texts agree that remote work is overall beneficial.' },
+      { id: 'D', text: 'Text 1 focuses on collaboration while Text 2 focuses on productivity.' },
+    ],
+    answer: 'B',
+    explanation: 'Text 2 explicitly "concedes" the individual benefit ("suits individual contributors") while raising a concern about collaboration and innovation that Text 1 doesn\'t address. This is a nuanced relationship — agreement on one point, divergence on another. A is wrong (Text 2 doesn\'t provide contradicting data — it raises a different concern). C is wrong (Text 2 raises a concern). D reverses the focus of each text.',
+  },
+
+  // ─── ALG-046 Medium (Inequalities on Number Line) ────────────────────────
+  {
+    id: 'ALG-046',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'inequalities',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which inequality is represented by all values of x greater than −2 and less than or equal to 5?',
+    options: [
+      { id: 'A', text: '−2 < x ≤ 5' },
+      { id: 'B', text: '−2 ≤ x < 5' },
+      { id: 'C', text: '−2 ≤ x ≤ 5' },
+      { id: 'D', text: '−2 < x < 5' },
+    ],
+    answer: 'A',
+    explanation: '"Greater than −2" means −2 is NOT included → use strict inequality: x > −2. "Less than or equal to 5" means 5 IS included → use ≤: x ≤ 5. Combined: −2 < x ≤ 5.',
+  },
+
+  // ─── EXP-045 Hard (Sentence Combining — Subordination) ───────────────────
+  {
+    id: 'EXP-045',
+    subject: 'reading-writing',
+    domain: 'expression-ideas',
+    skill: 'sentence-structure',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which best combines the following two sentences into one grammatically correct and stylistically effective sentence?\n\n"The team worked tirelessly for months. They ultimately failed to meet the deadline."',
+    options: [
+      { id: 'A', text: 'The team worked tirelessly for months and ultimately failed to meet the deadline.' },
+      { id: 'B', text: 'Despite working tirelessly for months, the team ultimately failed to meet the deadline.' },
+      { id: 'C', text: 'The team worked tirelessly for months, ultimately failing to meet the deadline, however.' },
+      { id: 'D', text: 'Working tirelessly for months was done by the team, and they failed to meet the deadline.' },
+    ],
+    answer: 'B',
+    explanation: 'B is the best combination because "Despite working tirelessly" clearly signals the contrast (effort vs. failure) without being awkward. A uses "and" which implies equal weight, losing the contrast. C has an awkward sentence structure with "however" at the end. D uses passive voice unnecessarily and is wordy.',
+  },
+
+  // ─── PSD-043 Easy (Mean from context) ────────────────────────────────────
+  {
+    id: 'PSD-043',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'statistics',
+    difficulty: 1,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'The average (mean) score of 4 students on a quiz is 85. If a fifth student joins and scores 95, what is the new mean score?',
+    options: [
+      { id: 'A', text: '87' },
+      { id: 'B', text: '88' },
+      { id: 'C', text: '90' },
+      { id: 'D', text: '85' },
+    ],
+    answer: 'A',
+    explanation: 'Sum of 4 students\' scores: 85 × 4 = 340. Adding the fifth score: 340 + 95 = 435. New mean: 435 / 5 = 87.',
+  },
+
+  // ─── CRA-045 Hard (Function of a Sentence — Rhetorical) ──────────────────
+  {
+    id: 'CRA-045',
+    subject: 'reading-writing',
+    domain: 'craft-structure',
+    skill: 'text-structure',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'In a passage arguing for more funding for the arts, the author writes: "For every dollar cut from the arts budget, a dollar is subtracted from students\' capacity to think creatively — a capacity that employers consistently rank as their number one desired trait in new hires."',
+    question: 'The primary function of this sentence is to:',
+    options: [
+      { id: 'A', text: 'Introduce a counterargument to be refuted in the following paragraph' },
+      { id: 'B', text: 'Strengthen the argument for arts funding by linking it to economic and workforce value' },
+      { id: 'C', text: 'Provide a factual description of arts budget policies' },
+      { id: 'D', text: 'Express the author\'s personal opinion without supporting evidence' },
+    ],
+    answer: 'B',
+    explanation: 'The sentence connects arts funding to creativity, and creativity to employer demand — a chain that strengthens the case for funding the arts by tying it to economic value. It\'s not a counterargument (A), just a factual description (C), or unsupported opinion (D — it cites employer rankings as evidence).',
+  },
+
 ]
 
 export default questions
