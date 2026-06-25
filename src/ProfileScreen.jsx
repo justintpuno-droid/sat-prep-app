@@ -53,6 +53,65 @@ function computeStreak(sessions) {
   return streak
 }
 
+function StudyHeatmap({ history }) {
+  const weeks = 12
+  const days = weeks * 7
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const dayData = []
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today)
+    d.setDate(d.getDate() - i)
+    const key = d.toISOString().slice(0, 10)
+    const sessions = history.filter(s => s.completedAt?.slice(0, 10) === key)
+    const avgPct = sessions.length ? Math.round(sessions.reduce((n, s) => n + s.score.percent, 0) / sessions.length) : 0
+    dayData.push({ key, sessions: sessions.length, avgPct, dow: d.getDay() })
+  }
+
+  function cellColor(d) {
+    if (d.sessions === 0) return 'bg-gray-100'
+    if (d.avgPct >= 85) return 'bg-emerald-500'
+    if (d.avgPct >= 70) return 'bg-emerald-300'
+    if (d.avgPct >= 55) return 'bg-amber-300'
+    return 'bg-rose-300'
+  }
+
+  const rows = [[], [], [], [], [], [], []]
+  dayData.forEach(d => rows[d.dow].push(d))
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Study Activity (12 Weeks)</p>
+        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+          <div className="w-2.5 h-2.5 rounded-sm bg-gray-100" />None
+          <div className="w-2.5 h-2.5 rounded-sm bg-amber-300 ml-1" />Low
+          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-300 ml-1" />Good
+          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500 ml-1" />Great
+        </div>
+      </div>
+      <div className="flex gap-0.5">
+        {Array.from({ length: weeks }, (_, wi) => (
+          <div key={wi} className="flex flex-col gap-0.5 flex-1">
+            {[0,1,2,3,4,5,6].map(dow => {
+              const cell = rows[dow][wi]
+              if (!cell) return <div key={dow} className="w-full aspect-square" />
+              return (
+                <div key={dow} title={cell.sessions > 0 ? `${cell.key}: ${cell.avgPct}% avg (${cell.sessions} session${cell.sessions !== 1 ? 's' : ''})` : cell.key}
+                  className={`w-full aspect-square rounded-sm ${cellColor(cell)}`} />
+              )
+            })}
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-between text-[10px] text-gray-300 mt-1.5">
+        {['S','M','T','W','T','F','S'].map((l, i) => <span key={i}>{l}</span>)}
+      </div>
+    </div>
+  )
+}
+
 function CollegeTarget({ estScore }) {
   const [college, setCollege] = useState(() => {
     try { return JSON.parse(localStorage.getItem(COLLEGE_KEY) ?? 'null') } catch { return null }
@@ -341,6 +400,9 @@ export default function ProfileScreen({ onBack }) {
             ))}
           </div>
         )}
+
+        {/* Study Activity Heatmap */}
+        <StudyHeatmap history={history} />
 
         {/* College Target */}
         {stats && <CollegeTarget estScore={stats.estScore} />}
