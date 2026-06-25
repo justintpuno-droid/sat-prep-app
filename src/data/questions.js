@@ -5471,6 +5471,44 @@ const questions = [
     explanation: 'D is the clearest: "discovered using a microscope" is a past participial phrase placed directly after "bacteria," clearly modifying it. The sentence then states the bacteria was invisible — no ambiguity. A seems clear but "Using a microscope" modifies "the scientist" (acceptable). B implies the microscope was invisible (wrong). C implies the scientist was invisible (wrong — dangling modifier). D is the most precise because the microscope phrase is inside an appositive structure clearly attached to "bacteria."',
   },
 
+  // ── Hard Conventions (CON-036..037) ────────────────────────────────────────
+  {
+    id: 'CON-036',
+    subject: 'english',
+    domain: 'conventions',
+    skill: 'punctuation',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'A student is revising the following sentence from her essay: "The committee presented its findings _____ a 400-page report, three data visualizations, and a summary briefing."',
+    question: 'Which punctuation mark best fills the blank?',
+    options: [
+      { id: 'A', text: ':' },
+      { id: 'B', text: ';' },
+      { id: 'C', text: ',' },
+      { id: 'D', text: '—' },
+    ],
+    answer: 'A',
+    explanation: 'A colon introduces a list, explanation, or elaboration — and it requires a complete sentence before it. "The committee presented its findings" is a complete sentence. What follows is an elaboration (the specific items). A colon (A) is the correct punctuation here. A semicolon (B) connects two independent clauses — the part after would need to be a complete sentence, but "a 400-page report..." is not. A comma (C) is too weak — "its findings" doesn\'t set up a list the way a colon does. An em dash (D) can introduce an elaboration but implies a more dramatic pause or interruption than is warranted here.',
+  },
+  {
+    id: 'CON-037',
+    subject: 'english',
+    domain: 'conventions',
+    skill: 'subject-verb-agreement',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which sentence demonstrates correct subject-verb agreement?',
+    options: [
+      { id: 'A', text: 'The collection of rare stamps, along with several vintage postcards, are displayed in the library.' },
+      { id: 'B', text: 'Neither the researchers nor the lead scientist were available for comment.' },
+      { id: 'C', text: 'Each of the students in the advanced calculus sections are required to complete a thesis.' },
+      { id: 'D', text: 'The data gathered from multiple field studies supports the original hypothesis.' },
+    ],
+    answer: 'D',
+    explanation: 'D is correct: "data" is the subject, and "gathered from multiple field studies" is a prepositional phrase that doesn\'t change the subject. The verb "supports" correctly agrees with the singular noun "data" (though "data" is technically a plural Latin noun, it is treated as singular in modern American English). A is wrong: the subject is "collection" (singular), not "stamps" — should be "is displayed." B is wrong: with "neither/nor," the verb agrees with the closest subject: "the lead scientist" (singular) → "was available." C is wrong: "each" is always singular → "is required."',
+  },
+
   // ── Advanced Math (ADV-023–ADV-025) ────────────────────────────────────────
   {
     id: 'ADV-023',
