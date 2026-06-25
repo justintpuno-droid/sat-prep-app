@@ -4644,6 +4644,62 @@ const questions = [
     explanation: 'B synthesizes two key evidence points (temperature reduction from Note 1 and hospitalization rates from Note 2) into a strong concluding claim. The phrase "not just an amenity — it is a public health necessity" elevates the evidence into a persuasive conclusion. A focuses mainly on cost (Note 3) which is less compelling for a conclusion. C is vague ("many benefits") without using the specific data effectively. D is unsupported by any specific evidence — exactly what a conclusion should avoid.',
   },
 
+  // ─── Expression of Ideas Medium (EXP-038..040) ───────────────────────────
+  {
+    id: 'EXP-038',
+    subject: 'english',
+    domain: 'expression-ideas',
+    skill: 'transitions',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'A student is writing a paragraph arguing that renewable energy is cost-effective. The paragraph ends with: "Solar panels have dropped in price by 90% over the past decade." The student wants to add a sentence that transitions to the next paragraph, which discusses government subsidies.',
+    question: 'Which sentence best serves as a transition to the next paragraph?',
+    options: [
+      { id: 'A', text: 'Despite this progress, government subsidies remain a critical factor in making solar energy accessible to all consumers.' },
+      { id: 'B', text: 'Solar panels are a great investment.' },
+      { id: 'C', text: 'Wind energy is another example of a cost-effective renewable.' },
+      { id: 'D', text: 'Clearly, renewable energy is the future.' },
+    ],
+    answer: 'A',
+    explanation: 'A effective transition acknowledges what came before (the cost drop) while introducing the next idea (government subsidies). A does this with "Despite this progress" — it validates the previous point and pivots to the next topic. B is too vague. C introduces a new topic entirely. D is a conclusion, not a transition.',
+  },
+  {
+    id: 'EXP-039',
+    subject: 'english',
+    domain: 'expression-ideas',
+    skill: 'rhetorical-synthesis',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'A student is writing a paper on the benefits of reading fiction. The student\'s notes include:\n• Note 1: A 2013 study found that reading literary fiction increases empathy scores (Kidd & Castano).\n• Note 2: Fiction readers scored higher on social cognition tests compared to non-readers.\n• Note 3: Reading nonfiction did not produce the same empathy benefits in the study.',
+    question: 'Which sentence most effectively uses the notes to support the argument that fiction uniquely builds empathy?',
+    options: [
+      { id: 'A', text: 'Fiction is more enjoyable than nonfiction for most readers.' },
+      { id: 'B', text: 'Research shows that reading literary fiction — but not nonfiction — boosts empathy and social cognition.' },
+      { id: 'C', text: 'Some people believe fiction helps build empathy.' },
+      { id: 'D', text: 'Studies have been conducted on the effects of reading.' },
+    ],
+    answer: 'B',
+    explanation: 'B incorporates evidence from Notes 1, 2, and 3 — empathy (Note 1), social cognition (Note 2), and the specific contrast with nonfiction (Note 3). The key to "uniquely builds" is using Note 3\'s contrast, which only B includes. A is opinion without evidence. C is vague. D is too general to support any specific claim.',
+  },
+  {
+    id: 'EXP-040',
+    subject: 'english',
+    domain: 'expression-ideas',
+    skill: 'effective-language-use',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: 'A student is revising the following sentence: "The company\'s decision to reduce its workforce was a difficult one that was made after a long period of time in which many discussions were held among the leadership team."',
+    question: 'Which revision of the sentence is most concise while preserving the original meaning?',
+    options: [
+      { id: 'A', text: 'The company\'s decision to reduce its workforce was very difficult and required extensive deliberations among leadership.' },
+      { id: 'B', text: 'The company decided to reduce its workforce after lengthy leadership deliberations.' },
+      { id: 'C', text: 'After many discussions, the company made a difficult workforce reduction decision.' },
+      { id: 'D', text: 'The leadership team discussed, over a long time, the company\'s workforce reduction.' },
+    ],
+    answer: 'B',
+    explanation: 'B is the most concise revision. It eliminates redundant phrases ("a difficult one that was made," "a long period of time in which many discussions were held") while preserving all key information: the company, workforce reduction, and leadership deliberations. A still includes "very difficult" which was not in the original (and adds new meaning). C loses that it was the company\'s decision. D makes leadership the subject rather than the company.',
+  },
+
   // ─── STANDARD ENGLISH CONVENTIONS: CON-008 to CON-019 ────────────────────
 
   {
