@@ -146,6 +146,8 @@ export const ACHIEVEMENTS = [
   // Milestone achievements for expanded content
   { id: 'formula-20',      icon: '📐', title: 'Formula Warrior',    desc: 'Master 20 math formulas in MathFlash' },
   { id: 'vocab-75',        icon: '📕', title: 'Vocab Champion',     desc: 'Master 75 SAT vocabulary words' },
+  { id: 'vocab-100',       icon: '📗', title: 'Century Scholar',    desc: 'Master 100 SAT vocabulary words' },
+  { id: 'vocab-150',       icon: '📘', title: 'Lexicon Master',     desc: 'Master 150 SAT vocabulary words' },
   { id: 'all-domains',     icon: '🗺️', title: 'Explorer',          desc: 'Answer 3+ questions in every one of the 8 domains' },
   { id: 'flash-perfect',   icon: '⚡', title: 'Flash Perfect',     desc: 'Know every card in a VocabFlash or MathFlash session (all correct)' },
   { id: 'dual-80',         icon: '🎓', title: 'Balanced Scholar',  desc: 'Score 80%+ on both Math and English in the same full-format session' },
@@ -334,6 +336,8 @@ const CHECKS = {
   },
   'formula-20':   () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_math_flash') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 20 } catch { return false } },
   'vocab-75':     () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 75 } catch { return false } },
+  'vocab-100':    () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 100 } catch { return false } },
+  'vocab-150':    () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 150 } catch { return false } },
   'all-domains':  (h) => {
     const ALL = ['algebra','advanced-math','geometry-trig','problem-solving-data','information-ideas','craft-structure','expression-ideas','conventions']
     const byDomain = {}
