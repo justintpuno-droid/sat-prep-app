@@ -394,6 +394,68 @@ function VocabWordOfDay() {
   )
 }
 
+// ── Test Day Countdown ────────────────────────────────────────────────────
+const TEST_DATE_KEY = 'sat_prep_test_date'
+
+function TestDateCountdown() {
+  const [testDate, setTestDate] = useState(() => localStorage.getItem(TEST_DATE_KEY) ?? '')
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState('')
+
+  const daysLeft = useMemo(() => {
+    if (!testDate) return null
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    const target = new Date(testDate + 'T00:00:00')
+    const diff = Math.round((target - today) / 86400000)
+    return diff
+  }, [testDate])
+
+  function save() {
+    localStorage.setItem(TEST_DATE_KEY, draft)
+    setTestDate(draft)
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <div className="rounded-2xl border-2 border-indigo-200 bg-indigo-50 px-4 py-3 mb-3 flex items-center gap-3">
+        <span className="text-lg">📅</span>
+        <input type="date" value={draft} onChange={e => setDraft(e.target.value)}
+          className="flex-1 border border-indigo-300 rounded-xl px-3 py-1.5 text-sm text-gray-800 focus:outline-none focus:border-indigo-500" />
+        <button onClick={save} disabled={!draft}
+          className="text-xs font-black bg-indigo-600 text-white rounded-xl px-3 py-1.5 disabled:opacity-40 hover:bg-indigo-700 transition-colors">Save</button>
+        <button onClick={() => setEditing(false)} className="text-xs text-gray-400 hover:text-gray-600">✕</button>
+      </div>
+    )
+  }
+
+  if (!testDate || daysLeft === null) {
+    return (
+      <button onClick={() => { setDraft(''); setEditing(true) }}
+        className="w-full rounded-2xl border-2 border-dashed border-indigo-200 py-3 mb-3 text-sm text-indigo-400 hover:border-indigo-400 hover:text-indigo-600 transition-colors">
+        📅 Set your SAT test date
+      </button>
+    )
+  }
+
+  const urgent = daysLeft <= 14
+  const past = daysLeft < 0
+  return (
+    <div className={`rounded-2xl border-2 px-4 py-3 mb-3 flex items-center justify-between ${past ? 'border-gray-200 bg-gray-50' : urgent ? 'border-rose-200 bg-rose-50' : 'border-indigo-200 bg-indigo-50'}`}>
+      <div className="flex items-center gap-3">
+        <span className="text-lg">{past ? '✅' : urgent ? '⏰' : '📅'}</span>
+        <div>
+          <p className={`text-xs font-bold ${past ? 'text-gray-500' : urgent ? 'text-rose-700' : 'text-indigo-700'}`}>
+            {past ? 'Test day was ' + Math.abs(daysLeft) + ' day' + (Math.abs(daysLeft) !== 1 ? 's' : '') + ' ago' : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} until your SAT`}
+          </p>
+          <p className="text-[10px] text-gray-400">{new Date(testDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+        </div>
+      </div>
+      <button onClick={() => { setDraft(testDate); setEditing(true) }} className="text-[10px] text-gray-400 hover:text-gray-600 underline">edit</button>
+    </div>
+  )
+}
+
 const SHOP_ITEMS = [
   { id: 'boost',   icon: '🚀', name: '2× XP Boost',       desc: 'Double XP on your next session', cost: 150, color: 'border-violet-200 bg-violet-50', tag: 'text-violet-600', textColor: 'text-violet-900' },
   { id: 'freeze',  icon: '🧊', name: 'Streak Freeze',      desc: 'Protect your streak for one day', cost: 200, color: 'border-blue-200 bg-blue-50',   tag: 'text-blue-600',   textColor: 'text-blue-900' },
@@ -2029,6 +2091,9 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             </div>
           )
         })()}
+
+        {/* Test Day Countdown */}
+        <TestDateCountdown />
 
         {/* Word of the Day */}
         {wordOfDay && (
