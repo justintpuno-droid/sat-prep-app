@@ -5827,6 +5827,62 @@ const questions = [
     explanation: 'The bacteria double every 3 hours, so after t hours, the number of doublings is t/3. The population is P = 500 · 2^(t/3). Check: at t = 0, P = 500 · 1 = 500 ✓. At t = 3, P = 500 · 2^1 = 1000 ✓ (one doubling). At t = 6, P = 500 · 2² = 2000 ✓. A is wrong because 2^t means doubling every hour, not every 3 hours. C uses base 3 which has no justification. D uses a decay function (1/2)^(3t) which decreases — bacteria are growing.',
   },
 
+  // ─── Advanced Math Medium (ADV-039..041) ─────────────────────────────────
+  {
+    id: 'ADV-039',
+    subject: 'math',
+    domain: 'advanced-math',
+    skill: 'quadratics',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'The function h(t) = −16t² + 64t models the height in feet of a ball thrown upward, where t is time in seconds. At what time does the ball reach its maximum height?',
+    options: [
+      { id: 'A', text: 't = 1' },
+      { id: 'B', text: 't = 2' },
+      { id: 'C', text: 't = 4' },
+      { id: 'D', text: 't = 8' },
+    ],
+    answer: 'B',
+    explanation: 'The maximum of a parabola h(t) = at² + bt + c occurs at t = −b/(2a). Here a = −16, b = 64: t = −64/(2 × −16) = −64/(−32) = 2 seconds. At t = 2: h(2) = −16(4) + 64(2) = −64 + 128 = 64 feet.',
+  },
+  {
+    id: 'ADV-040',
+    subject: 'math',
+    domain: 'advanced-math',
+    skill: 'polynomials',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which expression is equivalent to (x + 4)(x − 3) − (x + 1)(x − 2)?',
+    options: [
+      { id: 'A', text: '−10' },
+      { id: 'B', text: '−6' },
+      { id: 'C', text: 'x − 10' },
+      { id: 'D', text: '−10 + 2x' },
+    ],
+    answer: 'D',
+    explanation: 'Expand each product. (x+4)(x−3) = x² + x − 12. (x+1)(x−2) = x² − x − 2. Subtract: (x² + x − 12) − (x² − x − 2) = x² + x − 12 − x² + x + 2 = 2x − 10. This matches answer D (−10 + 2x).',
+  },
+  {
+    id: 'ADV-041',
+    subject: 'math',
+    domain: 'advanced-math',
+    skill: 'functions',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'If f(x) = 3x − 1 and g(x) = x², what is g(f(2))?',
+    options: [
+      { id: 'A', text: '11' },
+      { id: 'B', text: '25' },
+      { id: 'C', text: '29' },
+      { id: 'D', text: '35' },
+    ],
+    answer: 'B',
+    explanation: 'First evaluate f(2): f(2) = 3(2) − 1 = 5. Then evaluate g(f(2)) = g(5) = 5² = 25.',
+  },
+
 ]
 
 export default questions
