@@ -223,6 +223,42 @@ const RULES = [
       },
     ],
   },
+  {
+    category: 'SAT-Specific Traps',
+    color: 'bg-rose-500', bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200',
+    rules: [
+      {
+        title: 'Shortest correct answer wins (Conciseness trap)',
+        example: '"She left quickly." vs. "She departed in a rapid manner."',
+        wrong: '"She departed in a rapid and hasty manner due to the urgency of the situation."',
+        tip: 'On Expression of Ideas questions, the SAT rewards brevity. If two options are both grammatically correct, pick the shorter one that preserves meaning.',
+      },
+      {
+        title: 'Transition words signal logical relationship',
+        example: '"However" = contrast. "Therefore" = result. "Moreover" = addition. "For example" = illustration.',
+        wrong: '"The evidence was weak. Furthermore, the defendant was found not guilty." (Furthermore = addition, but the relationship is contrast → use "Nevertheless")',
+        tip: 'Always determine the logical relationship FIRST, then match the transition: contrast, cause-effect, addition, or illustration.',
+      },
+      {
+        title: 'Dangling modifier: the subject must match the opening phrase',
+        example: '"Running down the hall, Maria tripped." (Maria was running)',
+        wrong: '"Running down the hall, a backpack was left behind." (backpacks can\'t run)',
+        tip: 'The noun right after the comma must be able to perform the action in the opening phrase. If it can\'t, it\'s a dangling modifier.',
+      },
+      {
+        title: 'Parallel structure: list items must match form',
+        example: '"She enjoys reading, writing, and hiking." (all gerunds)',
+        wrong: '"She enjoys reading, to write, and hiking." (mixed forms)',
+        tip: 'All items in a series must use the same grammatical form. Look for lists with conjunctions (and, or, but) and ensure each element is in the same form.',
+      },
+      {
+        title: 'Non-restrictive vs. restrictive clauses',
+        example: '"My sister, who lives in Boston, called me." (non-restrictive, adds info)\n"Students who study daily earn better grades." (restrictive, identifies which students)',
+        wrong: '"Students, who study daily, earn better grades." (comma makes it non-restrictive — implies ALL students study daily)',
+        tip: 'If the clause is essential to identify the noun (restrictive), do NOT use commas. If it\'s bonus info (non-restrictive), DO use commas. That\'s it.',
+      },
+    ],
+  },
 ]
 
 export default function GrammarRef({ onBack }) {

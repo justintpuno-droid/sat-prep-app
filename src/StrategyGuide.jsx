@@ -17,6 +17,9 @@ const SECTIONS = [
       { title: 'Cross-Multiply Fractions', body: 'For proportion questions: a/b = c/d → ad = bc. Much faster than finding a common denominator.' },
       { title: 'Check Units', body: 'Word problems often trick you with units (feet vs. meters, hours vs. minutes). Convert before you calculate.' },
       { title: 'Hard ≠ Long', body: 'The hardest questions often have short, elegant solutions. If your method is getting messy, reconsider your approach.' },
+      { title: 'Read the Full Question', body: 'SAT math questions often have a twist in the last sentence. Read to the end before you start solving — many errors come from answering the wrong thing.' },
+      { title: 'Use Process of Elimination on Math', body: 'Estimate first. If the answer should be around 20, you can immediately eliminate any choice that\'s negative or over 100. Narrow the field before calculating.' },
+      { title: '"No Solution" vs. "Infinite Solutions"', body: 'Systems: same slope, different intercept = no solution. Same slope, same intercept = infinite solutions. Single intersection = one solution.' },
     ],
   },
   {
@@ -86,6 +89,9 @@ const SECTIONS = [
       { title: 'Take the Break', body: 'The 10-minute break between modules is mandatory — take it. Stand up, look away from the screen, drink water. Your brain needs to reset.' },
       { title: 'Review Your Answers', body: 'If you finish a module early, go back and review your most uncertain answers. Always double-check your interpretation of "which BEST" or "primarily."' },
       { title: 'Visualize Success', body: 'Before the test, take 2 minutes to visualize yourself sitting confidently, reading clearly, and choosing right answers. Mental rehearsal works.' },
+      { title: 'Dress Comfortably', body: 'Wear layers — testing centers can be cold or warm. Being physically uncomfortable is a distraction. Dress in what you\'d wear to sit for 3 hours.' },
+      { title: 'The Night Before: Light Review Only', body: 'Don\'t cram. Do 5–10 easy questions to warm up your brain, review your notes, and go to bed by 10pm. Rest > last-minute panic.' },
+      { title: 'Flag and Move', body: 'The digital SAT lets you flag questions. Flag anything uncertain, answer it anyway with your best guess, and return if time allows. Never leave a blank.' },
     ],
   },
 ]
