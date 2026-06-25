@@ -136,6 +136,13 @@ export const ACHIEVEMENTS = [
   { id: 'session-25',      icon: '🥈', title: 'Quarter Century',    desc: 'Complete 25 practice sessions' },
   { id: 'session-50',      icon: '🥇', title: 'Dedicated Scholar',  desc: 'Complete 50 practice sessions' },
   { id: 'session-100',     icon: '🏆', title: 'The Legend',         desc: 'Complete 100 practice sessions — legendary!' },
+  // Domain expertise achievements
+  { id: 'algebra-ace',     icon: '📐', title: 'Algebra Ace',        desc: '80%+ accuracy on 30+ Algebra questions' },
+  { id: 'grammar-guru',    icon: '✍️',  title: 'Grammar Guru',       desc: '80%+ accuracy on 25+ Conventions questions' },
+  { id: 'math-master',     icon: '🔢', title: 'Math Master',        desc: '80%+ accuracy on 60+ Math questions combined' },
+  { id: 'reading-pro',     icon: '📖', title: 'Reading Pro',        desc: '80%+ accuracy on 25+ Reading & Writing questions' },
+  { id: 'stats-star',      icon: '📊', title: 'Stats Star',         desc: '80%+ accuracy on 20+ Problem Solving & Data questions' },
+  { id: 'geometry-genius', icon: '📏', title: 'Geometry Genius',    desc: '80%+ accuracy on 20+ Geometry questions' },
 ]
 
 const CHECKS = {
@@ -283,6 +290,38 @@ const CHECKS = {
   'sat-ace':      (h) => h.some(s => s.formatLabel === 'SAT Timed Mode' && s.score.percent >= 90),
   'scholar':      (h) => { const days = new Set(h.map(s => s.completedAt.slice(0, 10))); return days.size >= 30 },
   'comeback-king':(h) => { let comebacks = 0; for (let i = 1; i < h.length; i++) { if (h[i-1].score.percent < 60 && h[i].score.percent >= 80) comebacks++ } return comebacks >= 3 },
+  'algebra-ace':  (h) => {
+    let c = 0, t = 0
+    for (const s of h) for (const q of s.questions) if (q.domain === 'algebra') { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
+    return t >= 30 && c / t >= 0.8
+  },
+  'grammar-guru': (h) => {
+    let c = 0, t = 0
+    for (const s of h) for (const q of s.questions) if (q.domain === 'conventions') { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
+    return t >= 25 && c / t >= 0.8
+  },
+  'math-master':  (h) => {
+    let c = 0, t = 0
+    const MATH = new Set(['algebra','advanced-math','geometry-trig','problem-solving-data'])
+    for (const s of h) for (const q of s.questions) if (MATH.has(q.domain)) { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
+    return t >= 60 && c / t >= 0.8
+  },
+  'reading-pro':  (h) => {
+    let c = 0, t = 0
+    const RW = new Set(['information-ideas','craft-structure','expression-ideas','conventions'])
+    for (const s of h) for (const q of s.questions) if (RW.has(q.domain)) { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
+    return t >= 25 && c / t >= 0.8
+  },
+  'stats-star':   (h) => {
+    let c = 0, t = 0
+    for (const s of h) for (const q of s.questions) if (q.domain === 'problem-solving-data') { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
+    return t >= 20 && c / t >= 0.8
+  },
+  'geometry-genius': (h) => {
+    let c = 0, t = 0
+    for (const s of h) for (const q of s.questions) if (q.domain === 'geometry-trig') { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
+    return t >= 20 && c / t >= 0.8
+  },
 }
 
 // ─── Storage ───────────────────────────────────────────────────────────────
