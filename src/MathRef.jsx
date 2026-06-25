@@ -68,6 +68,11 @@ const FORMULAS = [
       { title: 'Exponent rules', formula: 'xᵃ × xᵇ = xᵃ⁺ᵇ | xᵃ / xᵇ = xᵃ⁻ᵇ | (xᵃ)ᵇ = xᵃᵇ | x⁰ = 1 | x⁻ᵃ = 1/xᵃ', tip: 'Multiply → add exponents. Divide → subtract. Power of power → multiply. SAT frequently tests these with radicals: x^(1/2) = √x.' },
       { title: 'Systems — no solution vs. infinite solutions', formula: 'No solution: same slope, different y-intercepts (parallel lines). Infinite: identical lines (same slope AND same intercept).', tip: 'Rewrite both equations in y = mx + b form. If slopes match but intercepts differ → no solution. If both equations simplify to the same line → infinitely many solutions.' },
       { title: 'Remainder theorem', formula: 'If p(x) is divided by (x − c), the remainder = p(c)', tip: 'To find the remainder when x³ − 2x + 1 is divided by (x − 3), just evaluate: p(3) = 27 − 6 + 1 = 22. If p(c) = 0, then (x − c) is a factor.' },
+      { title: 'Rational expression simplification', formula: '(a² − b²) / (a − b) = a + b (difference of squares factoring)', tip: 'Always try to factor numerator and denominator first, then cancel common factors. Never cancel across addition/subtraction — only multiplication.' },
+      { title: 'Vertex form of a parabola', formula: 'f(x) = a(x − h)² + k; vertex = (h, k)', tip: 'Vertex form directly gives you the vertex (h, k). If a < 0, parabola opens down (max). If a > 0, opens up (min). SAT often asks: "for what value of x is f(x) maximum/minimum?"' },
+      { title: 'Sum of angles in polygon', formula: 'Sum of interior angles = (n − 2) × 180°', tip: 'Triangle: 180°. Quadrilateral: 360°. Pentagon: 540°. Hexagon: 720°. Each interior angle of a regular polygon = (n−2)×180°/n.' },
+      { title: 'Conditional probability', formula: 'P(A|B) = P(A and B) / P(B)', tip: 'Read as "the probability of A given B." For a two-way table: find the cell that matches both conditions, divide by the row or column total of the given condition.' },
+      { title: 'Negative and fractional exponents', formula: 'x^(−n) = 1/xⁿ; x^(m/n) = ⁿ√(xᵐ) = (ⁿ√x)ᵐ', tip: 'x^(1/2) = √x. x^(1/3) = ∛x. x^(2/3) = (∛x)². Negative exponents flip to denominator — they do NOT make the answer negative.' },
     ],
   },
 ]
