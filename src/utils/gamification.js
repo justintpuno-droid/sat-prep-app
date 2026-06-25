@@ -755,6 +755,14 @@ const TRIPLE_POOL = [
   // Variety
   { id: 'dom2',  type: 'domains', desc: 'Practice 2 different domains',  goal: 2, unit: 'domains',   icon: '🌈', bonus: 40 },
   { id: 'dom4',  type: 'domains', desc: 'Practice 4 different domains',  goal: 4, unit: 'domains',   icon: '🌈', bonus: 80 },
+  // English-specific
+  { id: 'eng20', type: 'english', desc: 'Answer 20 English questions',   goal: 20, unit: 'English Qs', icon: '📖', bonus: 50 },
+  // Math-specific
+  { id: 'math20', type: 'math', desc: 'Answer 20 Math questions',        goal: 20, unit: 'Math Qs',    icon: '🔢', bonus: 50 },
+  // Daily Challenge
+  { id: 'daily', type: 'daily', desc: 'Complete today\'s Daily Challenge', goal: 1, unit: 'challenge', icon: '⚡', bonus: 50 },
+  // High volume
+  { id: 'q100', type: 'volume', desc: 'Answer 100 questions',            goal: 100, unit: 'questions', icon: '🏆', bonus: 150 },
 ]
 
 function seededPick(seed, arr, n) {
@@ -794,6 +802,19 @@ export function getTripleChallengeProgress(todaySessions, challenge) {
   if (challenge.type === 'domains') {
     const domains = new Set(todaySessions.flatMap(s => s.questions.map(q => q.domain)))
     return domains.size
+  }
+  if (challenge.type === 'english') {
+    return todaySessions.reduce((n, s) => n + s.questions.filter(q => q.subject === 'english').length, 0)
+  }
+  if (challenge.type === 'math') {
+    return todaySessions.reduce((n, s) => n + s.questions.filter(q => q.subject === 'math').length, 0)
+  }
+  if (challenge.type === 'daily') {
+    try {
+      const today = new Date().toISOString().slice(0, 10)
+      const dc = JSON.parse(localStorage.getItem('sat_prep_daily_challenge') ?? 'null')
+      return (dc?.date === today && dc?.submitted) ? 1 : 0
+    } catch { return 0 }
   }
   return 0
 }
