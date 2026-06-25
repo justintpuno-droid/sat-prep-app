@@ -124,6 +124,17 @@ function getHint(achId, stats, gam) {
     case 'flash-perfect':   return { hint: 'Know every card in a VocabFlash or MathFlash session', pct: 0 }
     case 'dual-80':         return { hint: 'Score 80%+ on both Math and English in a full-format session', pct: 0 }
     case 'improvement-arc': return { hint: 'Keep studying! Avg of your last 5 sessions must beat your first 5 by 15+ points', pct: Math.min(100, Math.round((stats.sessions / 10) * 50)) }
+    case 'daily-7': {
+      let streak = 0
+      try { streak = JSON.parse(localStorage.getItem('sat_prep_daily_streak') ?? '{}').count ?? 0 } catch {}
+      return { hint: `Daily Challenge streak: ${streak}/7 days`, pct: Math.min(100, Math.round((streak / 7) * 100)) }
+    }
+    case 'daily-30': {
+      let streak = 0
+      try { streak = JSON.parse(localStorage.getItem('sat_prep_daily_streak') ?? '{}').count ?? 0 } catch {}
+      return { hint: `Daily Challenge streak: ${streak}/30 days`, pct: Math.min(100, Math.round((streak / 30) * 100)) }
+    }
+    case 'daily-correct': return { hint: 'Get today\'s Daily Challenge correct', pct: 0 }
     default:                 return null
   }
 }

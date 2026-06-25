@@ -150,6 +150,9 @@ export const ACHIEVEMENTS = [
   { id: 'flash-perfect',   icon: '⚡', title: 'Flash Perfect',     desc: 'Know every card in a VocabFlash or MathFlash session (all correct)' },
   { id: 'dual-80',         icon: '🎓', title: 'Balanced Scholar',  desc: 'Score 80%+ on both Math and English in the same full-format session' },
   { id: 'improvement-arc', icon: '📈', title: 'Improvement Arc',   desc: 'Average of last 5 sessions beats average of first 5 by 15+ points' },
+  { id: 'daily-7',         icon: '📅', title: 'Daily Devotion',    desc: 'Complete 7 Daily Challenges (streak of 7 days)' },
+  { id: 'daily-30',        icon: '🗓️', title: 'Month Warrior',     desc: 'Complete 30 Daily Challenges (streak of 30 days)' },
+  { id: 'daily-correct',   icon: '🎯', title: 'Daily Ace',         desc: 'Get today\'s Daily Challenge correct' },
 ]
 
 const CHECKS = {
@@ -356,6 +359,19 @@ const CHECKS = {
     const first5 = h.slice(0, 5).reduce((s, x) => s + x.score.percent, 0) / 5
     const last5 = h.slice(-5).reduce((s, x) => s + x.score.percent, 0) / 5
     return last5 - first5 >= 15
+  },
+  'daily-7': () => {
+    try { const s = JSON.parse(localStorage.getItem('sat_prep_daily_streak') ?? '{}'); return (s.count ?? 0) >= 7 } catch { return false }
+  },
+  'daily-30': () => {
+    try { const s = JSON.parse(localStorage.getItem('sat_prep_daily_streak') ?? '{}'); return (s.count ?? 0) >= 30 } catch { return false }
+  },
+  'daily-correct': () => {
+    try {
+      const today = new Date().toISOString().slice(0, 10)
+      const s = JSON.parse(localStorage.getItem('sat_prep_daily_challenge') ?? 'null')
+      return s?.date === today && s?.submitted === true && s?.correct === true
+    } catch { return false }
   },
 }
 
