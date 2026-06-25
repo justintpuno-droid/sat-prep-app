@@ -2574,6 +2574,62 @@ const questions = [
     explanation: 'P(first blue) = 6/12. After drawing one blue (without replacement), 5 blue and 11 total remain: P(second blue | first blue) = 5/11. Multiply: 6/12 × 5/11 = 30/132 = 5/22. A incorrectly replaces the marble. C uses wrong counts. D starts with the wrong denominator.',
   },
 
+  // ── Hard Problem-Solving & Data (PSD-037..039) ────────────────────────────
+  {
+    id: 'PSD-037',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'statistics',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'A researcher collects data on study hours per week and GPA for 80 students. She calculates a correlation of r = 0.82 between study hours and GPA.',
+    question: 'Which of the following conclusions is best supported by the correlation?',
+    options: [
+      { id: 'A', text: 'Increasing study hours causes GPA to increase.' },
+      { id: 'B', text: 'Students who study more hours tend to have higher GPAs, though this does not prove studying causes higher grades.' },
+      { id: 'C', text: 'Study hours alone explain 82% of the variation in GPA.' },
+      { id: 'D', text: 'The relationship is weak because r = 0.82 is not equal to 1.' },
+    ],
+    answer: 'B',
+    explanation: 'Correlation describes association, not causation. B correctly states that more study hours tend to co-occur with higher GPAs, while appropriately noting causation cannot be established. A makes an unsupported causal claim — correlation ≠ causation. C confuses r with r²: r = 0.82 means r² = 0.67, meaning study hours explain about 67% of GPA variance (r is not the variance explained). D is wrong: r = 0.82 indicates a strong positive correlation; r = 1 would be perfect.',
+  },
+  {
+    id: 'PSD-038',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'probability',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A bag contains 4 red balls, 3 green balls, and 2 blue balls. Two balls are drawn without replacement. What is the probability that both balls are the same color?',
+    options: [
+      { id: 'A', text: '12/72' },
+      { id: 'B', text: '29/72' },
+      { id: 'C', text: '20/72' },
+      { id: 'D', text: '5/9' },
+    ],
+    answer: 'C',
+    explanation: 'Calculate the probability each pair of matching colors is drawn: P(both red) = 4/9 × 3/8 = 12/72. P(both green) = 3/9 × 2/8 = 6/72. P(both blue) = 2/9 × 1/8 = 2/72. Add all same-color outcomes: 12/72 + 6/72 + 2/72 = 20/72 = 5/18. This is a classic "without replacement" compound probability — after removing the first ball, the total count decreases by 1 for the second draw.',
+  },
+  {
+    id: 'PSD-039',
+    subject: 'math',
+    domain: 'problem-solving-data',
+    skill: 'data-distributions',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'A class of 30 students takes a test. The scores have a mean of 78 and a standard deviation of 9. The teacher adds 5 bonus points to every student\'s score.',
+    question: 'After the bonus points are added, what are the new mean and standard deviation?',
+    options: [
+      { id: 'A', text: 'Mean = 78, Standard Deviation = 14' },
+      { id: 'B', text: 'Mean = 83, Standard Deviation = 14' },
+      { id: 'C', text: 'Mean = 83, Standard Deviation = 9' },
+      { id: 'D', text: 'Mean = 78, Standard Deviation = 9' },
+    ],
+    answer: 'C',
+    explanation: 'Adding a constant to every data point shifts the distribution up by that constant (new mean = 78 + 5 = 83) but does not change the spread (standard deviation remains 9). Standard deviation measures the distance of values from the mean — when every value increases by the same amount, the mean shifts identically, so all distances from the mean stay the same. Think of it as moving the entire distribution 5 units right without stretching or compressing it.',
+  },
+
   // ─── GEOMETRY & TRIG: GEO-014 to GEO-025 ────────────────────────────────
 
   {
