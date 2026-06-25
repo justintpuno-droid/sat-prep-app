@@ -2,6 +2,34 @@ import { useMemo, useState, useCallback } from 'react'
 import { loadGamification, getLevelInfo, getLevelColor, ACHIEVEMENTS, getPrestigeInfo, saveGamification } from './utils/gamification'
 import { loadHistory } from './utils/history'
 
+const COLLEGES = [
+  { name: 'Harvard University',      score: 1580 },
+  { name: 'MIT',                     score: 1570 },
+  { name: 'Stanford University',     score: 1565 },
+  { name: 'Yale University',         score: 1560 },
+  { name: 'Columbia University',     score: 1555 },
+  { name: 'University of Chicago',   score: 1550 },
+  { name: 'UPenn / Wharton',        score: 1530 },
+  { name: 'Duke University',         score: 1520 },
+  { name: 'Johns Hopkins',           score: 1510 },
+  { name: 'Northwestern University', score: 1510 },
+  { name: 'Dartmouth College',       score: 1505 },
+  { name: 'Brown University',        score: 1500 },
+  { name: 'Vanderbilt University',   score: 1490 },
+  { name: 'Cornell University',      score: 1480 },
+  { name: 'Georgetown University',   score: 1470 },
+  { name: 'UCLA',                    score: 1420 },
+  { name: 'UC Berkeley',             score: 1410 },
+  { name: 'University of Michigan',  score: 1400 },
+  { name: 'Boston University',       score: 1380 },
+  { name: 'University of Florida',   score: 1340 },
+  { name: 'Ohio State University',   score: 1320 },
+  { name: 'Penn State University',   score: 1300 },
+  { name: 'Arizona State University',score: 1250 },
+]
+
+const COLLEGE_KEY = 'sat_prep_target_college'
+
 const STUDY_TIME_KEY = 'sat_prep_study_hour'
 function loadStudyHour() { try { return parseInt(localStorage.getItem(STUDY_TIME_KEY) ?? '-1', 10) } catch { return -1 } }
 function saveStudyHour(h) { try { localStorage.setItem(STUDY_TIME_KEY, String(h)) } catch {} }
@@ -23,6 +51,71 @@ function computeStreak(sessions) {
   const d = new Date(); let streak = 0
   while (dates.has(d.toISOString().slice(0, 10))) { streak++; d.setDate(d.getDate() - 1) }
   return streak
+}
+
+function CollegeTarget({ estScore }) {
+  const [college, setCollege] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(COLLEGE_KEY) ?? 'null') } catch { return null }
+  })
+  const [picking, setPicking] = useState(false)
+
+  function pick(c) {
+    localStorage.setItem(COLLEGE_KEY, JSON.stringify(c))
+    setCollege(c)
+    setPicking(false)
+  }
+
+  const gap = college ? college.score - estScore : null
+  const pct = college ? Math.min(100, Math.round((estScore / college.score) * 100)) : 0
+  const reached = gap !== null && gap <= 0
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Target School</p>
+        <button onClick={() => setPicking(p => !p)} className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
+          {college ? 'Change' : 'Set Goal'}
+        </button>
+      </div>
+
+      {picking ? (
+        <div className="max-h-56 overflow-y-auto space-y-1">
+          {COLLEGES.map(c => (
+            <button key={c.name} onClick={() => pick(c)}
+              className="w-full text-left px-3 py-2 rounded-xl text-sm hover:bg-indigo-50 transition-colors flex items-center justify-between">
+              <span className="font-medium text-gray-800">{c.name}</span>
+              <span className="text-xs text-gray-400 font-semibold">{c.score}+</span>
+            </button>
+          ))}
+        </div>
+      ) : college ? (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-base font-black text-gray-900">{college.name}</p>
+              <p className="text-xs text-gray-400">Target: {college.score}+ SAT</p>
+            </div>
+            {reached
+              ? <span className="text-xl">🎉</span>
+              : <span className="text-lg font-black text-rose-500">−{gap}</span>
+            }
+          </div>
+          <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden mb-1.5">
+            <div className={`h-full rounded-full transition-all ${reached ? 'bg-emerald-500' : 'bg-indigo-500'}`} style={{ width: `${pct}%` }} />
+          </div>
+          <div className="flex justify-between text-[10px] text-gray-400">
+            <span>Est. {estScore}</span>
+            <span>{reached ? '✓ Goal reached!' : `${pct}% of the way there`}</span>
+            <span>{college.score}</span>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setPicking(true)} className="w-full py-4 rounded-xl border-2 border-dashed border-indigo-200 text-sm text-indigo-400 hover:border-indigo-400 hover:text-indigo-600 transition-colors">
+          🎓 Pick your dream school
+        </button>
+      )}
+    </div>
+  )
 }
 
 function ShareStatsButton({ stats, gam, levelInfo, displayName, avatar }) {
@@ -248,6 +341,9 @@ export default function ProfileScreen({ onBack }) {
             ))}
           </div>
         )}
+
+        {/* College Target */}
+        {stats && <CollegeTarget estScore={stats.estScore} />}
 
         {/* Share Stats */}
         {stats && (
