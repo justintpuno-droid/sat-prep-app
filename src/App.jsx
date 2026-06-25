@@ -394,10 +394,18 @@ export default function App() {
   }
 
   function handleHeadToHead(rival) {
+    const recentPct = (() => {
+      const h = loadHistory()
+      const recent = h.filter(s => s.score.total >= 5).slice(-5)
+      if (recent.length === 0) return 0.75
+      return recent.reduce((s, x) => s + x.score.percent, 0) / recent.length / 100
+    })()
     const RIVALS = {
       rookie:  { name: 'Riley',  icon: '🌱', label: 'Rookie (~65%)',   accuracy: 0.65 },
       average: { name: 'Jordan', icon: '⚡', label: 'Average (~75%)',  accuracy: 0.75 },
       elite:   { name: 'Alex',   icon: '🔥', label: 'Elite (~88%)',    accuracy: 0.88 },
+      legend:  { name: 'Sam',    icon: '🏆', label: 'Legend (~95%)',   accuracy: 0.95 },
+      adaptive:{ name: 'Echo',   icon: '🤖', label: `AI Rival (~${Math.round(Math.min(0.97, recentPct + 0.10) * 100)}%)`, accuracy: Math.min(0.97, recentPct + 0.10) },
     }
     const r = RIVALS[rival] ?? RIVALS.average
     setSessionConfig({

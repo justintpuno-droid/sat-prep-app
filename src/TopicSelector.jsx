@@ -3944,17 +3944,19 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Head-to-Head</p>
               <span className="text-xs bg-violet-100 text-violet-600 font-bold px-2 py-0.5 rounded-full">1.5× XP</span>
             </div>
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-5 gap-2">
               {[
-                { key: 'rookie',  icon: '🌱', name: 'Riley',  sub: 'Rookie · ~65%',  from: 'from-emerald-50',  border: 'border-emerald-200', text: 'text-emerald-900', sub2: 'text-emerald-600' },
-                { key: 'average', icon: '⚡', name: 'Jordan', sub: 'Average · ~75%', from: 'from-blue-50',     border: 'border-blue-200',    text: 'text-blue-900',    sub2: 'text-blue-600' },
-                { key: 'elite',   icon: '🔥', name: 'Alex',   sub: 'Elite · ~88%',  from: 'from-rose-50',     border: 'border-rose-200',    text: 'text-rose-900',    sub2: 'text-rose-500' },
+                { key: 'rookie',   icon: '🌱', name: 'Riley',  sub: 'Rookie\n~65%',   from: 'from-emerald-50',  border: 'border-emerald-200', text: 'text-emerald-900', sub2: 'text-emerald-600' },
+                { key: 'average',  icon: '⚡', name: 'Jordan', sub: 'Average\n~75%',  from: 'from-blue-50',     border: 'border-blue-200',    text: 'text-blue-900',    sub2: 'text-blue-600' },
+                { key: 'elite',    icon: '🔥', name: 'Alex',   sub: 'Elite\n~88%',    from: 'from-rose-50',     border: 'border-rose-200',    text: 'text-rose-900',    sub2: 'text-rose-500' },
+                { key: 'legend',   icon: '🏆', name: 'Sam',    sub: 'Legend\n~95%',   from: 'from-amber-50',    border: 'border-amber-300',   text: 'text-amber-900',   sub2: 'text-amber-600' },
+                { key: 'adaptive', icon: '🤖', name: 'Echo',   sub: 'AI Rival\n+10%', from: 'from-violet-50',   border: 'border-violet-200',  text: 'text-violet-900',  sub2: 'text-violet-600' },
               ].map(r => (
                 <button key={r.key} onClick={() => onHeadToHead(r.key)}
-                  className={`rounded-2xl border-2 ${r.border} bg-gradient-to-b ${r.from} to-white p-3 text-center hover:scale-[0.98] transition-all active:scale-95`}>
-                  <div className="text-2xl mb-1">{r.icon}</div>
-                  <p className={`text-xs font-black ${r.text}`}>{r.name}</p>
-                  <p className={`text-[10px] ${r.sub2} mt-0.5`}>{r.sub}</p>
+                  className={`rounded-2xl border-2 ${r.border} bg-gradient-to-b ${r.from} to-white p-2.5 text-center hover:scale-[0.98] transition-all active:scale-95`}>
+                  <div className="text-xl mb-0.5">{r.icon}</div>
+                  <p className={`text-[10px] font-black ${r.text} leading-tight`}>{r.name}</p>
+                  <p className={`text-[9px] ${r.sub2} mt-0.5 leading-tight whitespace-pre-line`}>{r.sub}</p>
                 </button>
               ))}
             </div>
