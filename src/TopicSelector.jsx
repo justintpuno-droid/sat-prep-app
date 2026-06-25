@@ -270,6 +270,66 @@ const SAT_FACTS = [
   "The Digital SAT question bank changes every test date, but the adaptive scoring algorithm stays the same across all dates.",
 ]
 
+// ── Daily Missions ────────────────────────────────────────────────────────
+const MISSION_POOL = [
+  { id: 'q5',       icon: '📝', title: 'Answer 5 Questions',   desc: 'Answer any 5 questions in practice', type: 'questions', target: 5,  xp: 30  },
+  { id: 'q10',      icon: '📝', title: 'Answer 10 Questions',  desc: 'Answer any 10 questions in practice', type: 'questions', target: 10, xp: 50  },
+  { id: 'q15',      icon: '📝', title: 'Answer 15 Questions',  desc: 'Answer any 15 questions in practice', type: 'questions', target: 15, xp: 75  },
+  { id: 'acc70',    icon: '🎯', title: '70% Accuracy',         desc: 'Score 70%+ in a single session', type: 'accuracy', target: 70, xp: 40  },
+  { id: 'acc80',    icon: '🎯', title: '80% Accuracy',         desc: 'Score 80%+ in a single session', type: 'accuracy', target: 80, xp: 60  },
+  { id: 'acc90',    icon: '🎯', title: '90% Accuracy',         desc: 'Score 90%+ in a single session', type: 'accuracy', target: 90, xp: 100 },
+  { id: 'daily',    icon: '⚡', title: 'Daily Challenge',       desc: 'Complete today\'s Daily Challenge', type: 'daily',    target: 1,  xp: 50  },
+  { id: 'combo5',   icon: '🔥', title: '5-Combo Streak',        desc: 'Get 5 correct answers in a row',   type: 'combo',    target: 5,  xp: 60  },
+  { id: 'combo8',   icon: '🔥', title: '8-Combo Streak',        desc: 'Get 8 correct answers in a row',   type: 'combo',    target: 8,  xp: 90  },
+  { id: 'mode_quick', icon: '⚡', title: 'Quick 5 Session',    desc: 'Complete a Quick 5 session',        type: 'mode', modeLabel: 'Quick 5', target: 1, xp: 35 },
+  { id: 'mode_beast', icon: '🦁', title: 'Beast Mode Session', desc: 'Complete a Beast Mode session',     type: 'mode', modeLabel: 'Beast Mode', target: 1, xp: 80 },
+  { id: 'mode_blitz', icon: '💨', title: 'Blitz Session',      desc: 'Complete a Blitz Mode session',    type: 'mode', modeLabel: 'Blitz Mode', target: 1, xp: 70 },
+  { id: 'session2', icon: '🏃', title: 'Two Sessions',          desc: 'Complete 2 separate sessions today', type: 'sessions', target: 2, xp: 55 },
+  { id: 'hard3',    icon: '💎', title: '3 Hard Correct',        desc: 'Get 3 Hard questions correct',     type: 'hard', target: 3, xp: 65 },
+  { id: 'hard5',    icon: '💎', title: '5 Hard Correct',        desc: 'Get 5 Hard questions correct',     type: 'hard', target: 5, xp: 90 },
+]
+
+const MISSIONS_KEY = 'sat_prep_daily_missions'
+
+function getMissionsToday() {
+  const dateStr = new Date().toISOString().slice(0, 10)
+  try {
+    const saved = JSON.parse(localStorage.getItem(MISSIONS_KEY) ?? 'null')
+    if (saved?.date === dateStr) return saved
+  } catch {}
+  const seed = dateStr.split('-').reduce((a, b) => a * 100 + parseInt(b), 0)
+  const picks = []
+  const used = new Set()
+  let i = 0
+  while (picks.length < 3) {
+    const idx = Math.abs(Math.sin(seed + i * 7) * 10000 | 0) % MISSION_POOL.length
+    if (!used.has(idx)) { used.add(idx); picks.push(MISSION_POOL[idx]) }
+    i++
+  }
+  return { date: dateStr, missions: picks, claimed: {} }
+}
+
+function computeMissionProgress(mission, todaySessions) {
+  const today = new Date().toISOString().slice(0, 10)
+  const sessions = todaySessions.filter(s => s.completedAt?.slice(0, 10) === today)
+  switch (mission.type) {
+    case 'questions': return sessions.reduce((n, s) => n + s.score.total, 0)
+    case 'accuracy':  return sessions.some(s => s.score.percent >= mission.target) ? mission.target : 0
+    case 'daily': {
+      try {
+        const ds = JSON.parse(localStorage.getItem('sat_prep_daily_challenge') ?? 'null')
+        return ds?.date === today && ds?.submitted ? 1 : 0
+      } catch { return 0 }
+    }
+    case 'combo':     return Math.max(0, ...sessions.map(s => s.maxCombo ?? 0))
+    case 'mode':      return sessions.filter(s => s.formatLabel === mission.modeLabel).length > 0 ? 1 : 0
+    case 'sessions':  return sessions.length
+    case 'hard':      return sessions.reduce((n, s) =>
+      n + s.questions.filter(q => q.difficulty === 3 && (s.answers?.[q.id] ?? null) === q.answer).length, 0)
+    default: return 0
+  }
+}
+
 const QOD_KEY = 'sat_prep_qod'
 function loadQOD() { try { return JSON.parse(localStorage.getItem(QOD_KEY)) ?? {} } catch { return {} } }
 function saveQOD(data) { try { localStorage.setItem(QOD_KEY, JSON.stringify(data)) } catch {} }
@@ -342,6 +402,97 @@ const SHOP_ITEMS = [
   { id: 'megaboost', icon: '⚡', name: '3× XP Mega Boost', desc: 'Triple XP for your next session — go all out!', cost: 350, color: 'border-rose-200 bg-rose-50', tag: 'text-rose-600', textColor: 'text-rose-900' },
   { id: 'shield',  icon: '🛡️', name: 'Score Shield',       desc: 'Skip your next session from the score average if below 60%', cost: 250, color: 'border-teal-200 bg-teal-50', tag: 'text-teal-600', textColor: 'text-teal-900' },
 ]
+
+function DailyMissions({ history, onXP }) {
+  const [open, setOpen] = useState(false)
+  const [missionState, setMissionState] = useState(() => getMissionsToday())
+  const today = new Date().toISOString().slice(0, 10)
+
+  const missions = missionState.missions ?? []
+  const claimed = missionState.claimed ?? {}
+
+  function claim(mission) {
+    const progress = computeMissionProgress(mission, history)
+    if (progress < mission.target) return
+    if (claimed[mission.id]) return
+    const newClaimed = { ...claimed, [mission.id]: true }
+    const next = { ...missionState, claimed: newClaimed }
+    localStorage.setItem(MISSIONS_KEY, JSON.stringify(next))
+    setMissionState(next)
+    onXP?.(mission.xp)
+  }
+
+  const allDone = missions.every(m => claimed[m.id])
+  const completedCount = missions.filter(m => {
+    const prog = computeMissionProgress(m, history)
+    return prog >= m.target
+  }).length
+
+  return (
+    <div className="rounded-2xl border border-violet-200 bg-violet-50 mb-3 overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-base">🎯</span>
+          <div className="text-left">
+            <p className="text-xs font-black text-violet-900">Daily Missions</p>
+            <p className="text-[10px] text-violet-600">{Object.keys(claimed).length}/3 claimed · resets at midnight</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {allDone && <span className="text-xs font-bold text-emerald-600 bg-emerald-100 rounded-full px-2 py-0.5">✓ All Done!</span>}
+          {!allDone && completedCount > 0 && <span className="text-xs font-bold text-violet-700 bg-violet-100 rounded-full px-2 py-0.5">{completedCount} ready</span>}
+          <span className="text-violet-400 text-xs">{open ? '▲' : '▼'}</span>
+        </div>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-2">
+          {missions.map(mission => {
+            const progress = computeMissionProgress(mission, history)
+            const pct = Math.min(100, Math.round((progress / mission.target) * 100))
+            const done = progress >= mission.target
+            const isClaimed = !!claimed[mission.id]
+            return (
+              <div key={mission.id} className={`rounded-xl p-3 border ${isClaimed ? 'bg-emerald-50 border-emerald-200' : done ? 'bg-white border-violet-300' : 'bg-white border-violet-100'}`}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{mission.icon}</span>
+                    <div>
+                      <p className={`text-xs font-bold ${isClaimed ? 'text-emerald-700' : 'text-gray-800'}`}>{mission.title}</p>
+                      <p className="text-[10px] text-gray-400">{mission.desc}</p>
+                    </div>
+                  </div>
+                  {isClaimed ? (
+                    <span className="text-xs font-bold text-emerald-600">✓ +{mission.xp} XP</span>
+                  ) : done ? (
+                    <button
+                      onClick={() => claim(mission)}
+                      className="text-xs font-black bg-violet-600 text-white rounded-lg px-2.5 py-1 hover:bg-violet-700 transition-colors"
+                    >
+                      Claim +{mission.xp}
+                    </button>
+                  ) : (
+                    <span className="text-xs text-gray-400 font-semibold">+{mission.xp} XP</span>
+                  )}
+                </div>
+                {!isClaimed && (
+                  <div className="h-1.5 bg-violet-100 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${done ? 'bg-violet-500' : 'bg-violet-300'}`} style={{ width: `${pct}%` }} />
+                  </div>
+                )}
+                {!isClaimed && (
+                  <p className="text-[10px] text-gray-400 mt-1">{Math.min(progress, mission.target)}/{mission.target}</p>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
 
 function XPShop({ gam, onPurchase }) {
   const [open, setOpen] = useState(false)
@@ -1923,6 +2074,9 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
             )}
           </button>
         )}
+
+        {/* Daily Missions */}
+        <DailyMissions history={history} onXP={xp => { const g = loadGamification(); saveGamification({ ...g, totalXP: (g.totalXP ?? 0) + xp }) }} />
 
         {/* Daily Challenge Banner */}
         {onDailyChallenge && (() => {
