@@ -258,6 +258,16 @@ const SAT_FACTS = [
   "College Board no longer sends physical score reports by default — everything is digital through your College Board account.",
   "The hardest Reading & Writing question type statistically is Cross-Text Connections — it requires comparing two separate passages.",
   "In the Digital SAT, the annotation tool lets you highlight and take notes directly on passages without pen and paper.",
+  "Some students score 1500+ without a tutor — consistent daily practice with free resources like Khan Academy is enough.",
+  "The College Board releases 4 official full-length Digital SAT practice tests — these are the most realistic preparation available.",
+  "You can take the SAT as early as 8th grade; many high achievers sit for it in 7th or 8th grade just for experience.",
+  "A 1600 SAT is not required for admissions to even the most selective schools — a 1500+ is competitive at virtually all universities.",
+  "The Digital SAT is given on a laptop or school-provided device — your own scroll wheel and typing speed can be an advantage.",
+  "SpaceX CEO Elon Musk reportedly scored a near-perfect 1400/1600 on the pre-1600-era SAT (out of 1600 when that was the max).",
+  "The Word-in-Context questions on the Digital SAT never test obscure words — they test everyday words used in unexpected ways.",
+  "On average, you have about 1 min 19 sec per Reading & Writing question and about 1 min 35 sec per Math question.",
+  "Students who do at least 6 hours of Khan Academy SAT practice see an average 90-point score increase.",
+  "The Digital SAT question bank changes every test date, but the adaptive scoring algorithm stays the same across all dates.",
 ]
 
 const QOD_KEY = 'sat_prep_qod'
