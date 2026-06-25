@@ -5829,6 +5829,62 @@ const questions = [
     explanation: 'D is correct: "data" is the subject, and "gathered from multiple field studies" is a prepositional phrase that doesn\'t change the subject. The verb "supports" correctly agrees with the singular noun "data" (though "data" is technically a plural Latin noun, it is treated as singular in modern American English). A is wrong: the subject is "collection" (singular), not "stamps" — should be "is displayed." B is wrong: with "neither/nor," the verb agrees with the closest subject: "the lead scientist" (singular) → "was available." C is wrong: "each" is always singular → "is required."',
   },
 
+  // ─── CON Hard (CON-038..040) ─────────────────────────────────────────────
+  {
+    id: 'CON-038',
+    subject: 'english',
+    domain: 'conventions',
+    skill: 'pronoun-usage',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which sentence uses pronouns correctly?',
+    options: [
+      { id: 'A', text: 'Between you and I, the proposal has several flaws.' },
+      { id: 'B', text: 'The committee gave their report to whomever asked first.' },
+      { id: 'C', text: 'The data shows that neither the director nor the managers submitted their report on time.' },
+      { id: 'D', text: 'The teacher, as well as the students, are responsible for the project.' },
+    ],
+    answer: 'C',
+    explanation: 'C is correct. With "neither...nor," the verb and pronoun agree with the noun closest to it ("managers" — plural), so "their report" is correct. A is wrong: "between you and I" should be "between you and me" (object of a preposition). B is wrong: "whomever" should be "whoever" (subject of "asked"). D is wrong: "as well as" does not create a compound subject — the subject is "teacher" (singular), so the verb should be "is."',
+  },
+  {
+    id: 'CON-039',
+    subject: 'english',
+    domain: 'conventions',
+    skill: 'punctuation',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'A student wrote the following: "The museum\'s exhibit on ancient Rome _____ which opened last month _____ drew record crowds despite the unusually cold weather."',
+    question: 'Which pair of punctuation marks correctly sets off the nonrestrictive clause?',
+    options: [
+      { id: 'A', text: 'comma, comma' },
+      { id: 'B', text: 'semicolon, semicolon' },
+      { id: 'C', text: 'dash, dash' },
+      { id: 'D', text: 'comma, semicolon' },
+    ],
+    answer: 'A',
+    explanation: '"Which opened last month" is a nonrestrictive clause — it provides extra information about the exhibit, but the sentence is still complete without it. Nonrestrictive clauses are set off by commas. Semicolons connect two independent clauses and cannot be used to set off a clause mid-sentence (B, D are wrong). While dashes (C) can set off a parenthetical, the standard and required punctuation for a "which" nonrestrictive clause is commas.',
+  },
+  {
+    id: 'CON-040',
+    subject: 'english',
+    domain: 'conventions',
+    skill: 'verb-tense',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which sentence uses verb tense correctly?',
+    options: [
+      { id: 'A', text: 'By the time the results arrived, the team had already celebrated their victory.' },
+      { id: 'B', text: 'She was studying for six hours when she finally took a break.' },
+      { id: 'C', text: 'The project was completed before the deadline arrives.' },
+      { id: 'D', text: 'We will have finished the report by Thursday and submit it yesterday.' },
+    ],
+    answer: 'A',
+    explanation: 'A correctly uses the past perfect ("had already celebrated") to show an action completed before another past event ("the results arrived"). This is textbook past perfect usage. B should use "had been studying" (past perfect progressive) for an action continuing up to a past point. C mixes past passive ("was completed") with present tense ("arrives") — should be "arrived." D mixes "will have finished" (future perfect) with "submit it yesterday" — temporal contradiction.',
+  },
+
   // ── Advanced Math (ADV-023–ADV-025) ────────────────────────────────────────
   {
     id: 'ADV-023',
