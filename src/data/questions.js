@@ -3178,6 +3178,62 @@ const questions = [
     explanation: 'Outer rectangle (garden + 1 m path on all sides): (15 + 2)(8 + 2) = 17 × 10 = 170 sq m. Inner garden: 15 × 8 = 120 sq m. Area of path only = 170 − 120 = 50 sq m.',
   },
 
+  // ─── Geometry Medium (GEO-039..041) ─────────────────────────────────────
+  {
+    id: 'GEO-039',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'angles',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Two parallel lines are cut by a transversal. One of the co-interior (same-side interior) angles measures 68°. What is the measure of the other co-interior angle?',
+    options: [
+      { id: 'A', text: '22°' },
+      { id: 'B', text: '68°' },
+      { id: 'C', text: '112°' },
+      { id: 'D', text: '122°' },
+    ],
+    answer: 'C',
+    explanation: 'Co-interior angles (also called consecutive interior angles or same-side interior angles) are supplementary — they add up to 180°. So the other angle = 180° − 68° = 112°.',
+  },
+  {
+    id: 'GEO-040',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'triangles',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'In triangle ABC, angle A = 50° and angle B = 75°. What is the measure of angle C?',
+    options: [
+      { id: 'A', text: '45°' },
+      { id: 'B', text: '55°' },
+      { id: 'C', text: '60°' },
+      { id: 'D', text: '65°' },
+    ],
+    answer: 'B',
+    explanation: 'The sum of interior angles of a triangle is always 180°. Angle C = 180° − 50° − 75° = 55°.',
+  },
+  {
+    id: 'GEO-041',
+    subject: 'math',
+    domain: 'geometry-trig',
+    skill: 'circles',
+    difficulty: 2,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A circle has a diameter of 10 cm. What is the area of the circle, in terms of π?',
+    options: [
+      { id: 'A', text: '10π cm²' },
+      { id: 'B', text: '20π cm²' },
+      { id: 'C', text: '25π cm²' },
+      { id: 'D', text: '100π cm²' },
+    ],
+    answer: 'C',
+    explanation: 'Diameter = 10, so radius = 5. Area = πr² = π(5)² = 25π cm².',
+  },
+
   // ─── Advanced Math Easy Questions (ADV-031..033) ─────────────────────────
   {
     id: 'ADV-031',
