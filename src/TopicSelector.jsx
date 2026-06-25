@@ -6,6 +6,7 @@ import { loadHistory, getSRCount } from './utils/history'
 import { SAT_VOCAB } from './data/vocab'
 import { loadGamification, getLevelInfo, getLevelColor, getDailyProgress, DAILY_GOAL, loadDailyGoal, saveDailyGoal, getTodayChallenge, getChallengeProgress, getThisWeekChallenge, getWeeklyProgress, ACHIEVEMENTS, loadBoost, saveBoost, loadMegaBoost, saveMegaBoost, consumeMegaBoost, loadShield, saveShield, consumeShield, useStreakFreeze, getPrestigeInfo, doPrestige, saveGamification, getTodayTripleChallenges, getTripleChallengeProgress, isChallengeComplete, getWeeklyBoss } from './utils/gamification'
 import { loadDisplayName } from './ProfileScreen'
+import { MATH_FORMULAS } from './data/mathFormulas'
 
 const DIFFICULTIES = [
   { id: 1, label: 'Easy',   classes: { chip: 'border-emerald-200 bg-emerald-50 text-emerald-800', active: 'border-emerald-500 bg-emerald-500 text-white' } },
@@ -3759,6 +3760,29 @@ export default function TopicSelector({ onStart, onHistory, onQuestionBank, onQu
               {word.example && (
                 <p className="text-xs text-violet-500 italic border-t border-violet-100 pt-2">"{word.example}"</p>
               )}
+            </div>
+          )
+        })()}
+
+        {/* Math Formula of the Day */}
+        {(() => {
+          const dayIdx = Math.floor(Date.now() / 86400000)
+          const formula = MATH_FORMULAS[dayIdx % MATH_FORMULAS.length]
+          if (!formula) return null
+          const mathKey = 'sat_prep_math_flash'
+          let mastered = false
+          try { const v = JSON.parse(localStorage.getItem(mathKey) ?? '{}'); mastered = v[formula.name]?.mastered === true } catch {}
+          const catColors = { Geometry: 'text-blue-600 bg-blue-50 border-blue-100', Algebra: 'text-indigo-600 bg-indigo-50 border-indigo-100', Arithmetic: 'text-emerald-600 bg-emerald-50 border-emerald-100', Statistics: 'text-violet-600 bg-violet-50 border-violet-100' }
+          const colors = catColors[formula.category] ?? 'text-blue-600 bg-blue-50 border-blue-100'
+          return (
+            <div className={`border rounded-2xl p-4 mb-4 ${colors}`}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-70">🔢 Formula of the Day</p>
+                {mastered && <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">✓ Mastered</span>}
+              </div>
+              <p className="text-base font-bold mb-1">{formula.name}</p>
+              <p className="text-2xl font-black font-mono mb-2 tracking-wide">{formula.formula}</p>
+              <p className="text-xs opacity-70 italic border-t border-current/10 pt-2">💡 {formula.tip}</p>
             </div>
           )
         })()}
