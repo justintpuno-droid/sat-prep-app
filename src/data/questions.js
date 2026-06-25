@@ -5433,9 +5433,9 @@ const questions = [
     explanation: 'Complete the square: g(x) = (x − 2)² + 3. Since (x − 2)² ≥ 0 for all x, the minimum value is 3, occurring at x = 2. Alternatively, the vertex is at x = −b/2a = 4/2 = 2, and g(2) = 4 − 8 + 7 = 3.',
   },
 
-  // ── Hard Advanced Math (ADV-031..034) ──────────────────────────────────────
+  // ── Hard Advanced Math (ADV-035..038) ──────────────────────────────────────
   {
-    id: 'ADV-031',
+    id: 'ADV-035',
     subject: 'math',
     domain: 'advanced-math',
     skill: 'quadratics',
@@ -5453,7 +5453,7 @@ const questions = [
     explanation: 'A quadratic has exactly one real solution when its discriminant equals zero: b² − 4ac = 0. Here a = 1, b = −5, c = k. So (−5)² − 4(1)(k) = 0 → 25 − 4k = 0 → k = 25/4 = 6.25. With k = 6.25, the equation factors as (x − 2.5)² = 0, giving x = 2.5 as the only solution.',
   },
   {
-    id: 'ADV-032',
+    id: 'ADV-036',
     subject: 'math',
     domain: 'advanced-math',
     skill: 'function-transformations',
@@ -5471,7 +5471,7 @@ const questions = [
     explanation: 'Rewrite: g(x) = f(2(x − 2)) + 3. In the form f(a(x − h)) + k, the transformations are: a = 2 (horizontal compression by factor of 1/2, making the graph narrower), h = 2 (shift right 2), k = 3 (shift up 3). Common trap: students see the 4 in "2x − 4" and say "right 4," but factoring out the 2 first reveals the shift is 2, not 4.',
   },
   {
-    id: 'ADV-033',
+    id: 'ADV-037',
     subject: 'math',
     domain: 'advanced-math',
     skill: 'polynomial-division',
@@ -5489,7 +5489,7 @@ const questions = [
     explanation: 'By the Factor Theorem, (x − c) is a factor if p(c) = 0. Test each option: p(−2) = −8 − 24 − 22 − 6 = −60 ≠ 0 (not A). p(−1) = −1 − 6 − 11 − 6 = −24 ≠ 0 (not B). p(2) = 8 − 24 + 22 − 6 = 0 ✓ (C works!). p(4) = 64 − 96 + 44 − 6 = 6 ≠ 0 (not D). The polynomial factors as p(x) = (x − 1)(x − 2)(x − 3), so x − 2 is indeed a factor.',
   },
   {
-    id: 'ADV-034',
+    id: 'ADV-038',
     subject: 'math',
     domain: 'advanced-math',
     skill: 'exponential-functions',
