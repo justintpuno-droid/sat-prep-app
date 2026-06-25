@@ -186,6 +186,18 @@ const MOTIVATIONAL_QUOTES = [
   { text: "Sleep, practice, repeat. That's the formula.", author: "" },
   { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
   { text: "What you do every day matters more than what you do once in a while.", author: "" },
+  { text: "A 100-point score increase doesn't happen in a day — it happens in consistent daily 20-minute sessions.", author: "" },
+  { text: "The answer is always in the passage. Trust the text, not your gut.", author: "" },
+  { text: "You're not bad at math. You're new at it. There's a difference.", author: "" },
+  { text: "Getting a question wrong in practice is far better than getting it wrong on test day.", author: "" },
+  { text: "Every 1400+ scorer once struggled with the same questions you're working on now.", author: "" },
+  { text: "The Reading section rewards patience. Read every word of the question before the passage.", author: "" },
+  { text: "One month of consistent daily practice can move your score 80–150 points.", author: "" },
+  { text: "Fear the regret of not trying more than the fear of getting a question wrong.", author: "" },
+  { text: "You've already taken the hardest step: you started.", author: "" },
+  { text: "Hard Mode unlocks when you score well on Module 1. That ceiling is the real prize.", author: "" },
+  { text: "If it's hard, that's good — your brain is building new circuits.", author: "" },
+  { text: "Vocabulary isn't memorization — it's pattern recognition. Read widely, score higher.", author: "" },
 ]
 
 const SAT_FACTS = [
