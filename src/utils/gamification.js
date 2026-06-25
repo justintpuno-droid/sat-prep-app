@@ -121,7 +121,7 @@ export const ACHIEVEMENTS = [
   { id: 'vocab-10',         icon: '📖', title: 'Word Collector',    desc: 'Master 10 SAT vocabulary words' },
   { id: 'vocab-30',         icon: '📚', title: 'Vocabulary Pro',    desc: 'Master 30 SAT vocabulary words' },
   { id: 'vocab-50',         icon: '📗', title: 'Vocab Veteran',     desc: 'Master 50 SAT vocabulary words' },
-  { id: 'vocab-all',        icon: '🎓', title: 'Word Master',       desc: 'Master all 300 SAT vocabulary words' },
+  { id: 'vocab-all',        icon: '🎓', title: 'Word Master',       desc: 'Master all 319 SAT vocabulary words' },
   { id: 'formula-10',       icon: '🔢', title: 'Formula Learner',   desc: 'Master 10 math formulas in MathFlash' },
   { id: 'formula-all',      icon: '🧮', title: 'Formula God',       desc: 'Master all 60 math formulas in MathFlash' },
   { id: 'ramp-master',      icon: '📈', title: 'Ramp Master',      desc: 'Complete Ramp Mode with a perfect score (15/15)' },
@@ -154,7 +154,7 @@ export const ACHIEVEMENTS = [
   { id: 'vocab-75',        icon: '📕', title: 'Vocab Champion',     desc: 'Master 75 SAT vocabulary words' },
   { id: 'vocab-100',       icon: '📗', title: 'Century Scholar',    desc: 'Master 100 SAT vocabulary words' },
   { id: 'vocab-150',       icon: '📘', title: 'Lexicon Master',     desc: 'Master 150 SAT vocabulary words' },
-  { id: 'vocab-200',       icon: '🏆', title: 'Vocabulary God',     desc: 'Master all 300 SAT vocabulary words — true word mastery!' },
+  { id: 'vocab-200',       icon: '🏆', title: 'Vocabulary God',     desc: 'Master all 319 SAT vocabulary words — true word mastery!' },
   { id: 'all-domains',     icon: '🗺️', title: 'Explorer',          desc: 'Answer 3+ questions in every one of the 8 domains' },
   { id: 'flash-perfect',   icon: '⚡', title: 'Flash Perfect',     desc: 'Know every card in a VocabFlash or MathFlash session (all correct)' },
   { id: 'dual-80',         icon: '🎓', title: 'Balanced Scholar',  desc: 'Score 80%+ on both Math and English in the same full-format session' },
@@ -182,7 +182,7 @@ export const ACHIEVEMENTS = [
   { id: 'accuracy-90-all', icon: '🎯', title: 'Sniper',           desc: 'Reach 90%+ overall accuracy across all sessions (min 100 Qs)' },
   { id: 'first-hard',    icon: '💪', title: 'First Hard Win',     desc: 'Get your first Hard difficulty question correct' },
   // Flashcard milestones
-  { id: 'vocab-221',     icon: '👑', title: 'Vocab King',         desc: 'Master all 300 SAT vocabulary words — absolute word mastery!' },
+  { id: 'vocab-221',     icon: '👑', title: 'Vocab King',         desc: 'Master all 319 SAT vocabulary words — absolute word mastery!' },
   { id: 'formula-60',    icon: '🧪', title: 'Formula Master',     desc: 'Master all 60 math formulas in MathFlash — complete coverage!' },
 ]
 
@@ -214,7 +214,7 @@ const CHECKS = {
   'combo-5':      (h) => h.some(s => (s.maxCombo ?? 0) >= 5),
   'combo-10':     (h) => h.some(s => (s.maxCombo ?? 0) >= 10),
   'century':      (h) => h.reduce((t, s) => t + s.score.total, 0) >= 100,
-  'two-fifty':    (h) => h.reduce((t, s) => t + s.score.total, 0) >= 300,
+  'two-fifty':    (h) => h.reduce((t, s) => t + s.score.total, 0) >= 319,
   'five-hundred': (h) => h.reduce((t, s) => t + s.score.total, 0) >= 500,
   'thousand':     (h) => h.reduce((t, s) => t + s.score.total, 0) >= 1000,
   'hour-1':       (h) => h.reduce((t, s) => t + (s.elapsedSeconds ?? 0), 0) >= 3600,
@@ -327,7 +327,7 @@ const CHECKS = {
   'vocab-10':     () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 10 } catch { return false } },
   'vocab-30':     () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 30 } catch { return false } },
   'vocab-50':     () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 50 } catch { return false } },
-  'vocab-all':    () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 300 } catch { return false } },
+  'vocab-all':    () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 319 } catch { return false } },
   'formula-10':   () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_math_flash') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 10 } catch { return false } },
   'formula-all':  () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_math_flash') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 60 } catch { return false } },
   'ramp-master':  (h) => h.some(s => s.formatLabel === 'Ramp Mode' && s.score.total === 15 && s.score.correct === 15),
@@ -372,7 +372,7 @@ const CHECKS = {
   'vocab-75':     () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 75 } catch { return false } },
   'vocab-100':    () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 100 } catch { return false } },
   'vocab-150':    () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 150 } catch { return false } },
-  'vocab-200':    () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 300 } catch { return false } },
+  'vocab-200':    () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 319 } catch { return false } },
   'all-domains':  (h) => {
     const ALL = ['algebra','advanced-math','geometry-trig','problem-solving-data','information-ideas','craft-structure','expression-ideas','conventions']
     const byDomain = {}
@@ -489,7 +489,7 @@ const CHECKS = {
     return totalQ >= 100 && totalC / totalQ >= 0.90
   },
   'first-hard':     (h) => h.some(s => s.questions?.some(q => q.difficulty === 3 && (s.answers?.[q.id] ?? null) === q.answer)),
-  'vocab-221':      () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 300 } catch { return false } },
+  'vocab-221':      () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_vocab') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 319 } catch { return false } },
   'formula-60':     () => { try { const v = JSON.parse(localStorage.getItem('sat_prep_math_flash') ?? '{}'); return Object.values(v).filter(p => p.mastered).length >= 60 } catch { return false } },
 }
 
