@@ -64,6 +64,10 @@ const FORMULAS = [
       { title: 'Compound interest', formula: 'A = P(1 + r/n)^(nt)', tip: 'P = principal, r = rate (decimal), n = compounds per year, t = years. SAT usually gives annual compounding (n=1).' },
       { title: 'Mixture / weighted average', formula: 'Total value = (amount₁ × value₁) + (amount₂ × value₂)', tip: 'Great for "two solutions mixed together" or "average score from two groups" problems.' },
       { title: 'Direct vs. inverse variation', formula: 'Direct: y = kx | Inverse: y = k/x', tip: '"y varies directly with x" → they grow together. "Inversely" → one goes up, other goes down.' },
+      { title: 'Absolute value equations', formula: '|ax + b| = c → ax + b = c  OR  ax + b = −c', tip: 'Set up two equations by removing the absolute value. One gives a positive solution, one gives negative. Check both in the original.' },
+      { title: 'Exponent rules', formula: 'xᵃ × xᵇ = xᵃ⁺ᵇ | xᵃ / xᵇ = xᵃ⁻ᵇ | (xᵃ)ᵇ = xᵃᵇ | x⁰ = 1 | x⁻ᵃ = 1/xᵃ', tip: 'Multiply → add exponents. Divide → subtract. Power of power → multiply. SAT frequently tests these with radicals: x^(1/2) = √x.' },
+      { title: 'Systems — no solution vs. infinite solutions', formula: 'No solution: same slope, different y-intercepts (parallel lines). Infinite: identical lines (same slope AND same intercept).', tip: 'Rewrite both equations in y = mx + b form. If slopes match but intercepts differ → no solution. If both equations simplify to the same line → infinitely many solutions.' },
+      { title: 'Remainder theorem', formula: 'If p(x) is divided by (x − c), the remainder = p(c)', tip: 'To find the remainder when x³ − 2x + 1 is divided by (x − 3), just evaluate: p(3) = 27 − 6 + 1 = 22. If p(c) = 0, then (x − c) is a factor.' },
     ],
   },
 ]
