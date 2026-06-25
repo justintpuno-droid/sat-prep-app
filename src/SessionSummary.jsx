@@ -585,7 +585,9 @@ export default function SessionSummary({ session, gamResult, onNewSession, onHis
               {gamResult.comebackBonus > 0 && <span className="text-amber-300 font-bold">+{gamResult.comebackBonus} comeback!</span>}
               {gamResult.improvementBonus > 0 && <span className="text-emerald-300 font-bold">+{gamResult.improvementBonus} improved!</span>}
               {gamResult.milestoneBonus > 0 && <span className="text-emerald-300 font-bold">+{gamResult.milestoneBonus} milestone!</span>}
-              {gamResult.boostActive && <span className="text-amber-300 font-bold animate-pulse">🚀 2× BOOST!</span>}
+              {gamResult.megaBoostActive && <span className="text-rose-300 font-bold animate-pulse">⚡ 3× MEGA BOOST!</span>}
+              {!gamResult.megaBoostActive && gamResult.boostActive && <span className="text-amber-300 font-bold animate-pulse">🚀 2× BOOST!</span>}
+              {gamResult.shieldConsolation > 0 && <span className="text-teal-300 font-bold">🛡️ Shield +{gamResult.shieldConsolation} XP!</span>}
               {gamResult.earnedBoost && <span className="text-amber-200 font-bold">🚀 Boost earned!</span>}
               {gamResult.earnedFreeze && <span className="text-blue-200 font-bold">🧊 Streak Freeze earned!</span>}
               {gamResult.timeBonus > 0 && <span className="text-yellow-300 font-bold">{gamResult.timeBonusLabel} +{gamResult.timeBonus} XP</span>}
