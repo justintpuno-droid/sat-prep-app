@@ -168,6 +168,9 @@ export const ACHIEVEMENTS = [
   { id: 'score-1500',     icon: '🌟', title: '1500 Elite',        desc: 'Reach an estimated SAT score of 1500+' },
   { id: 'craft-ace',      icon: '🖊️', title: 'Craft Ace',          desc: '80%+ accuracy on 25+ Craft & Structure questions' },
   { id: 'expression-ace', icon: '✏️', title: 'Expression Expert',  desc: '80%+ accuracy on 25+ Expression of Ideas questions' },
+  { id: 'mission-1',     icon: '🎯', title: 'Mission Accepted',   desc: 'Claim your first Daily Mission reward' },
+  { id: 'mission-10',    icon: '🏆', title: 'Mission Pro',        desc: 'Claim 10 Daily Mission rewards total' },
+  { id: 'mission-sweep', icon: '⭐', title: 'Triple Sweep',       desc: 'Claim all 3 missions in a single day' },
 ]
 
 const CHECKS = {
@@ -441,6 +444,25 @@ const CHECKS = {
     let c = 0, t = 0
     for (const s of h) for (const q of s.questions) if (q.domain === 'expression-ideas') { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
     return t >= 25 && c / t >= 0.8
+  },
+  'mission-1': () => {
+    try {
+      const m = JSON.parse(localStorage.getItem('sat_prep_daily_missions') ?? 'null')
+      return m && Object.keys(m.claimed ?? {}).length >= 1
+    } catch { return false }
+  },
+  'mission-10': () => {
+    try {
+      const total = parseInt(localStorage.getItem('sat_prep_missions_total') ?? '0', 10)
+      return total >= 10
+    } catch { return false }
+  },
+  'mission-sweep': () => {
+    try {
+      const m = JSON.parse(localStorage.getItem('sat_prep_daily_missions') ?? 'null')
+      const today = new Date().toISOString().slice(0, 10)
+      return m?.date === today && Object.keys(m.claimed ?? {}).length >= 3
+    } catch { return false }
   },
 }
 

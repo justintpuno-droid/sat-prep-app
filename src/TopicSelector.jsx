@@ -418,6 +418,8 @@ function DailyMissions({ history, onXP }) {
     const newClaimed = { ...claimed, [mission.id]: true }
     const next = { ...missionState, claimed: newClaimed }
     localStorage.setItem(MISSIONS_KEY, JSON.stringify(next))
+    const prev = parseInt(localStorage.getItem('sat_prep_missions_total') ?? '0', 10)
+    localStorage.setItem('sat_prep_missions_total', String(prev + 1))
     setMissionState(next)
     onXP?.(mission.xp)
   }
