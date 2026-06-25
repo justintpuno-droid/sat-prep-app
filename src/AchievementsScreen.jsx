@@ -159,6 +159,19 @@ function getHint(achId, stats, gam) {
     }
     case 'craft-ace':      return h('Craft & Structure questions', stats.dom('craft-structure').t, 25)
     case 'expression-ace': return h('Expression of Ideas questions', stats.dom('expression-ideas').t, 25)
+    case 'session-200':    return h('Sessions completed', stats.sessions, 200)
+    case 'question-2000':  return h('Questions answered', stats.totalQ, 2000)
+    case 'question-5000':  return h('Questions answered', stats.totalQ, 5000)
+    case 'streak-60':      return h('Day streak', stats.streak, 60)
+    case 'streak-100':     return h('Day streak', stats.streak, 100)
+    case 'accuracy-90-all': {
+      const pctVal = stats.totalQ >= 100 ? Math.round((stats.totalC / stats.totalQ) * 100) : 0
+      return { hint: `Overall accuracy: ${pctVal}% (need 90%, min 100 Qs)`, pct: Math.min(100, Math.round((pctVal / 90) * 100)) }
+    }
+    case 'first-hard':     return { hint: 'Get any Hard (level 3) question correct', pct: 0 }
+    case 'vocab-221':
+    case 'vocab-king':     return h('Vocab words mastered', stats.vocabMastered, 250)
+    case 'formula-60':     return h('Formulas mastered', stats.formulaMastered, 60)
     default:                 return null
   }
 }
