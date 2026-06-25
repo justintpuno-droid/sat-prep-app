@@ -220,6 +220,17 @@ const SAT_FACTS = [
   "The 'hard' questions on the Digital SAT Module 2 are worth the same number of points as easy ones — never skip a guess!",
   "Fee waivers for the SAT also cover two free college application fee waivers from the College Board's partners.",
   "The College Board partners with Khan Academy for free, personalized SAT prep — linking your PSAT results gives the best study plan.",
+  "The PSAT/NMSQT is taken in 10th or 11th grade and can qualify high scorers for National Merit Scholarship recognition.",
+  "Each SAT Reading & Writing passage is 25–150 words — much shorter than old SAT passages, so you spend more time on strategy.",
+  "In Math Module 2 on the hard path, about 5–7 of the 22 questions are rated 'hard' — they're the gateway to 700+ Math scores.",
+  "Students can take the SAT as many times as they want — there's no official limit, though testing fees add up.",
+  "The College Board reports that students who practice with official materials score an average of 90 points higher on retakes.",
+  "On the Digital SAT, scratch paper is allowed — use it freely for math and for annotating reading passages.",
+  "A 1400 SAT score places you in approximately the 95th percentile of all test takers nationally.",
+  "The 'Evidence-Based' naming is gone in the Digital SAT — it's now simply 'Math' and 'Reading and Writing.'",
+  "College Board no longer sends physical score reports by default — everything is digital through your College Board account.",
+  "The hardest Reading & Writing question type statistically is Cross-Text Connections — it requires comparing two separate passages.",
+  "In the Digital SAT, the annotation tool lets you highlight and take notes directly on passages without pen and paper.",
 ]
 
 const QOD_KEY = 'sat_prep_qod'
