@@ -159,6 +159,20 @@ const SAT_TIPS = [
   "On Desmos (calculator section): graph equations to visualize problems.",
   "Passage-based: main idea questions are usually about the whole text.",
   "Always re-read your answer choice in context before confirming.",
+  "For 'Words in Context': the definition that fits best is one you could substitute back into the sentence without changing the meaning.",
+  "In math, check if a question is faster with algebra or by plugging in numbers — both are valid strategies.",
+  "On transition questions: look for the logical relationship (contrast, cause-effect, addition) between the two clauses.",
+  "Beware of answer choices that are 'true' but don't answer the specific question being asked.",
+  "For main purpose questions: ask yourself 'Why did the author write this?' — not just 'What does it say?'",
+  "Cross-Text questions: identify the relationship between authors (agreement, disagreement, expansion) before reading options.",
+  "In the Digital SAT, flagging questions and returning to them is efficient — never stare at one question for 3+ minutes.",
+  "For rhetorical synthesis: the best answer incorporates the most relevant evidence while directly addressing the prompt.",
+  "Math tip: whenever you see 'which could be true', test all four answer choices numerically.",
+  "If an answer choice includes an extreme word like 'always', 'never', 'all', or 'only' — it's usually wrong.",
+  "In geometry, draw and label the figure even if one isn't provided.",
+  "Reading tip: 'According to the passage' means the answer must be explicitly stated — no inferences needed.",
+  "Slow down on easy questions — careless errors on easy questions hurt more than struggling on hard ones.",
+  "The best SAT answer is always the one most strongly supported by the passage or problem — never 'probably right.'",
 ]
 
 const MOTIVATIONAL_QUOTES = [
