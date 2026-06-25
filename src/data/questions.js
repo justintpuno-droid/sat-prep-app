@@ -5043,6 +5043,44 @@ const questions = [
     explanation: '"The list... is long" — the subject is "list" (singular), so the singular verb "is" is correct (D). A: "team" is the subject (singular), so the verb should be "is." B: "each" is always singular, so the verb should be "has." C: with "neither...nor," the verb agrees with the closest subject ("players," plural) — so the verb should be "were."',
   },
 
+  // ── Hard Conventions (CON-034..035) ─────────────────────────────────────
+  {
+    id: 'CON-034',
+    subject: 'english',
+    domain: 'conventions',
+    skill: 'linking-ideas',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: 'The following is a draft sentence from a student essay: "The novelist spent three years researching her subject; ___________ she conducted over 200 interviews, traveled to four countries, and immersed herself in archival documents."',
+    question: 'Which transitional word or phrase best fills the blank while maintaining grammatical correctness?',
+    options: [
+      { id: 'A', text: 'in conclusion,' },
+      { id: 'B', text: 'however,' },
+      { id: 'C', text: 'during this time,' },
+      { id: 'D', text: 'therefore' },
+    ],
+    answer: 'C',
+    explanation: '"During this time" logically connects three years of research (first clause) to the specific activities (interviews, travel, archives) that comprised it (second clause). "In conclusion" (A) signals a summary at the end of an argument, not a detail within one. "However" (B) signals contrast, but the clauses don\'t contrast — they describe the same period. "Therefore" (D) signals cause-effect and requires a comma after it when used as a conjunctive adverb after a semicolon: "therefore," not "therefore" alone.',
+  },
+  {
+    id: 'CON-035',
+    subject: 'english',
+    domain: 'conventions',
+    skill: 'modifier-placement',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Which sentence correctly places the modifier to avoid ambiguity?',
+    options: [
+      { id: 'A', text: 'Using a microscope, the scientist discovered bacteria that was invisible to the naked eye.' },
+      { id: 'B', text: 'The scientist discovered bacteria using a microscope that was invisible to the naked eye.' },
+      { id: 'C', text: 'Invisible to the naked eye, the scientist discovered bacteria using a microscope.' },
+      { id: 'D', text: 'The bacteria, discovered using a microscope, was invisible to the naked eye.' },
+    ],
+    answer: 'D',
+    explanation: 'D is the clearest: "discovered using a microscope" is a past participial phrase placed directly after "bacteria," clearly modifying it. The sentence then states the bacteria was invisible — no ambiguity. A seems clear but "Using a microscope" modifies "the scientist" (acceptable). B implies the microscope was invisible (wrong). C implies the scientist was invisible (wrong — dangling modifier). D is the most precise because the microscope phrase is inside an appositive structure clearly attached to "bacteria."',
+  },
+
   // ── Advanced Math (ADV-023–ADV-025) ────────────────────────────────────────
   {
     id: 'ADV-023',
