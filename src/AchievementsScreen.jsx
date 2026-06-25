@@ -4,7 +4,7 @@ import { loadHistory } from './utils/history'
 
 const CATEGORIES = [
   { id: 'all',      label: 'All' },
-  { id: 'accuracy', label: 'Accuracy',  ids: ['perfect','sharp','consistent','hat-trick','comeback','improver'] },
+  { id: 'accuracy', label: 'Accuracy',  ids: ['perfect','sharp','consistent','hat-trick','comeback','improver','score-1200','score-1400','score-1500'] },
   { id: 'volume',   label: 'Volume',    ids: ['century','two-fifty','five-hundred','thousand','hour-1','hour-5','hour-10','combo-5','combo-10','marathon','diversity'] },
   { id: 'streak',   label: 'Streaks',   ids: ['streak-3','streak-7','streak-14','streak-30','early-bird','night-owl','early-riser','night-grinder','grinder','perfect-week'] },
   { id: 'special',  label: 'Special',   ids: ['beast-mode','beast-ace','blitz-10','domain-day','speed','speed-run','comeback-kid','wrong-sprint','adaptive-ace','sudden-death-5','sudden-death-ace','all-formats','timed-ace'] },
@@ -142,6 +142,20 @@ function getHint(achId, stats, gam) {
       return { hint: `Daily Challenge streak: ${streak}/30 days`, pct: Math.min(100, Math.round((streak / 30) * 100)) }
     }
     case 'daily-correct': return { hint: 'Get today\'s Daily Challenge correct', pct: 0 }
+    case 'adv-math-ace':  return h('Adv. Math questions answered', stats.dom('advanced-math').t, 25)
+    case 'info-master':   return h('Info & Ideas questions answered', stats.dom('information-ideas').t, 25)
+    case 'score-1200': {
+      const estScore = stats.totalQ > 0 ? Math.round((400 + (stats.totalC / stats.totalQ) * 1200) / 10) * 10 : 400
+      return { hint: `Est. score: ${estScore}/1600 (need 1200)`, pct: Math.min(100, Math.round(((estScore - 400) / (1200 - 400)) * 100)) }
+    }
+    case 'score-1400': {
+      const estScore = stats.totalQ > 0 ? Math.round((400 + (stats.totalC / stats.totalQ) * 1200) / 10) * 10 : 400
+      return { hint: `Est. score: ${estScore}/1600 (need 1400)`, pct: Math.min(100, Math.round(((estScore - 400) / (1400 - 400)) * 100)) }
+    }
+    case 'score-1500': {
+      const estScore = stats.totalQ > 0 ? Math.round((400 + (stats.totalC / stats.totalQ) * 1200) / 10) * 10 : 400
+      return { hint: `Est. score: ${estScore}/1600 (need 1500)`, pct: Math.min(100, Math.round(((estScore - 400) / (1500 - 400)) * 100)) }
+    }
     default:                 return null
   }
 }
@@ -156,9 +170,10 @@ export default function AchievementsScreen({ onBack }) {
   const circ = 2 * Math.PI * 24
 
   const stats = useMemo(() => {
-    let totalQ = 0, hardCorrect = 0, bestCombo = 0, beastSessions = 0, bestBlitzCorrect = 0, ninety = 0
+    let totalQ = 0, totalC = 0, hardCorrect = 0, bestCombo = 0, beastSessions = 0, bestBlitzCorrect = 0, ninety = 0
     for (const s of history) {
       totalQ += s.score.total
+      totalC += s.score.correct
       for (const q of s.questions)
         if (q.difficulty === 3 && (s.answers[q.id] ?? null) === q.answer) hardCorrect++
       if (s.maxCombo) bestCombo = Math.max(bestCombo, s.maxCombo)
@@ -205,7 +220,7 @@ export default function AchievementsScreen({ onBack }) {
     try { formulaMastered = Object.values(JSON.parse(localStorage.getItem('sat_prep_math_flash') ?? '{}')).filter(p => p.mastered).length } catch {}
     const totalStudySecs = history.reduce((t, s) => t + (s.elapsedSeconds ?? 0), 0)
     const totalStudyMins = Math.round(totalStudySecs / 60)
-    return { totalQ, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed, studyDays, comebacks, byDomain, dom, rwC, rwT, mathC, mathT, sessions: history.length, vocabMastered, formulaMastered, totalStudyMins }
+    return { totalQ, totalC, hardCorrect, bestCombo, streak, beastSessions, bestBlitzCorrect, ninety, currentHatTrickRun, currentConsistentRun, masteredDomains, nightSessions, earlyMorningSessions, formatsUsed, studyDays, comebacks, byDomain, dom, rwC, rwT, mathC, mathT, sessions: history.length, vocabMastered, formulaMastered, totalStudyMins }
   }, [history])
 
   const visibleAchievements = useMemo(() => {

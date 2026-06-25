@@ -161,6 +161,11 @@ export const ACHIEVEMENTS = [
   { id: 'daily-7',         icon: '📅', title: 'Daily Devotion',    desc: 'Complete 7 Daily Challenges (streak of 7 days)' },
   { id: 'daily-30',        icon: '🗓️', title: 'Month Warrior',     desc: 'Complete 30 Daily Challenges (streak of 30 days)' },
   { id: 'daily-correct',   icon: '🎯', title: 'Daily Ace',         desc: 'Get today\'s Daily Challenge correct' },
+  { id: 'adv-math-ace',   icon: '🧮', title: 'Adv. Math Ace',     desc: '80%+ accuracy on 25+ Advanced Math questions' },
+  { id: 'info-master',    icon: '📰', title: 'Info Master',       desc: '80%+ accuracy on 25+ Information & Ideas questions' },
+  { id: 'score-1200',     icon: '🏅', title: '1200 Club',         desc: 'Reach an estimated SAT score of 1200+' },
+  { id: 'score-1400',     icon: '🥇', title: '1400 Club',         desc: 'Reach an estimated SAT score of 1400+' },
+  { id: 'score-1500',     icon: '🌟', title: '1500 Elite',        desc: 'Reach an estimated SAT score of 1500+' },
 ]
 
 const CHECKS = {
@@ -387,6 +392,43 @@ const CHECKS = {
       const s = JSON.parse(localStorage.getItem('sat_prep_daily_challenge') ?? 'null')
       return s?.date === today && s?.submitted === true && s?.correct === true
     } catch { return false }
+  },
+  'adv-math-ace': (h) => {
+    let c = 0, t = 0
+    for (const s of h) for (const q of s.questions) if (q.domain === 'advanced-math') { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
+    return t >= 25 && c / t >= 0.8
+  },
+  'info-master': (h) => {
+    let c = 0, t = 0
+    for (const s of h) for (const q of s.questions) if (q.domain === 'information-ideas') { t++; if ((s.answers?.[q.id] ?? null) === q.answer) c++ }
+    return t >= 25 && c / t >= 0.8
+  },
+  'score-1200': (h) => {
+    if (h.length === 0) return false
+    const recent = h.slice(-5)
+    const totalQ = recent.reduce((n, s) => n + s.score.total, 0)
+    if (totalQ === 0) return false
+    const totalC = recent.reduce((n, s) => n + s.score.correct, 0)
+    const pct = totalC / totalQ
+    return Math.round((400 + pct * 1200) / 10) * 10 >= 1200
+  },
+  'score-1400': (h) => {
+    if (h.length === 0) return false
+    const recent = h.slice(-5)
+    const totalQ = recent.reduce((n, s) => n + s.score.total, 0)
+    if (totalQ === 0) return false
+    const totalC = recent.reduce((n, s) => n + s.score.correct, 0)
+    const pct = totalC / totalQ
+    return Math.round((400 + pct * 1200) / 10) * 10 >= 1400
+  },
+  'score-1500': (h) => {
+    if (h.length === 0) return false
+    const recent = h.slice(-5)
+    const totalQ = recent.reduce((n, s) => n + s.score.total, 0)
+    if (totalQ === 0) return false
+    const totalC = recent.reduce((n, s) => n + s.score.correct, 0)
+    const pct = totalC / totalQ
+    return Math.round((400 + pct * 1200) / 10) * 10 >= 1500
   },
 }
 
