@@ -25,7 +25,7 @@ function getNameChoices(card, allFormulas) {
   return shuffle([correct, ...distractors])
 }
 
-export default function MathFlash({ onBack }) {
+export default function MathFlash({ onBack, onXP }) {
   const [progress, setProgress] = useState(loadProgress)
   const [idx, setIdx] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -99,7 +99,14 @@ export default function MathFlash({ onBack }) {
       setTimeout(() => setComboFlash(null), 1200)
     }
 
-    if (idx + 1 >= deck.length) { setDone(true) }
+    if (idx + 1 >= deck.length) {
+      const sessionKnew = results.filter(r => r.knew).length + (knew ? 1 : 0)
+      const sessionNewMastered = newlyMastered.length + (mastered && !wasAlreadyMastered ? 1 : 0)
+      const comboBonus = Math.max(newCombo, maxSessionCombo) >= 5 ? 20 : 0
+      const totalXP = sessionKnew * 5 + sessionNewMastered * 25 + comboBonus
+      if (totalXP > 0) onXP?.(totalXP)
+      setDone(true)
+    }
     else { setIdx(i => i + 1); setFlipped(false); setQuizAnswer(null); setQuizChoices(null) }
   }
 

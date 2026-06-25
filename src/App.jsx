@@ -443,9 +443,9 @@ export default function App() {
   if (screen === 'achievements')
     return <AchievementsScreen onBack={() => setScreen('home')} />
   if (screen === 'vocab')
-    return <VocabFlash onBack={() => setScreen('home')} onXP={xp => { const gam = loadGamification(); saveGamification({ ...gam, totalXP: gam.totalXP + xp }) }} />
+    return <VocabFlash onBack={() => setScreen('home')} onXP={xp => { const gam = loadGamification(); saveGamification({ ...gam, totalXP: (gam.totalXP ?? 0) + xp }); setPendingXP(xp) }} />
   if (screen === 'math-flash')
-    return <MathFlash onBack={() => setScreen('home')} />
+    return <MathFlash onBack={() => setScreen('home')} onXP={xp => { const gam = loadGamification(); saveGamification({ ...gam, totalXP: (gam.totalXP ?? 0) + xp }); setPendingXP(xp) }} />
   if (screen === 'profile')
     return <ProfileScreen onBack={() => setScreen('home')} />
   if (screen === 'wrong-journal')
