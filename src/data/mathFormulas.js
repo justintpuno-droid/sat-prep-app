@@ -160,4 +160,122 @@ export const MATH_FORMULAS = [
     tip: 'Convert to slope-intercept: y = (-a/b)x + c/b. Slope = -a/b.',
     example: '3x + 2y = 12 → y = -3/2 x + 6, slope = -3/2',
   },
+
+  // ── Additional Statistics formulas ──────────────────────────────────────────
+  {
+    name: 'Mean (Average)',
+    category: 'Statistics',
+    formula: 'Mean = (sum of all values) ÷ (number of values)',
+    tip: 'If the mean of n numbers is M, then their sum = n × M. Use this to find a missing value.',
+    example: 'Mean of {4, 7, 9, 12, 8} = 40 ÷ 5 = 8',
+  },
+  {
+    name: 'Median',
+    category: 'Statistics',
+    formula: 'Middle value when data is sorted (average of two middle values if even count)',
+    tip: 'Sort first! For an even number of values, average the two middle ones.',
+    example: '{1, 3, 5, 7, 9} → median = 5. {2, 4, 6, 8} → median = (4+6)/2 = 5',
+  },
+  {
+    name: 'Mode',
+    category: 'Statistics',
+    formula: 'Most frequently occurring value in a data set',
+    tip: 'A data set can have no mode, one mode, or multiple modes. The SAT rarely tests this alone.',
+    example: '{2, 3, 3, 5, 7, 3} → mode = 3',
+  },
+  {
+    name: 'Range',
+    category: 'Statistics',
+    formula: 'Range = Maximum value − Minimum value',
+    tip: 'Range measures spread. A large range means the data is more spread out.',
+    example: '{4, 8, 15, 16, 23, 42} → range = 42 − 4 = 38',
+  },
+  {
+    name: 'Probability (Basic)',
+    category: 'Statistics',
+    formula: 'P(event) = (favorable outcomes) ÷ (total possible outcomes)',
+    tip: 'Probability is always between 0 and 1. P = 0 means impossible; P = 1 means certain.',
+    example: 'Roll a die, P(even) = 3/6 = 1/2',
+  },
+  {
+    name: 'Conditional Probability',
+    category: 'Statistics',
+    formula: 'P(A|B) = P(A and B) ÷ P(B)',
+    tip: 'Read as "probability of A given B." On SAT tables: P(A|B) = (A∩B count) ÷ (B total).',
+    example: '20 students: 8 athletes, 5 both athlete and honor roll. P(honor roll | athlete) = 5/8',
+  },
+  {
+    name: 'Standard Deviation (concept)',
+    category: 'Statistics',
+    formula: 'Measures how spread out data is from the mean. Higher SD = more spread.',
+    tip: 'You won\'t calculate SD on the SAT, but you must compare it: same shape → same SD; more spread → larger SD.',
+    example: '{10,10,10}: SD=0. {1,10,19}: larger SD than {8,10,12}.',
+  },
+
+  // ── Additional Arithmetic formulas ─────────────────────────────────────────
+  {
+    name: 'Percent Change',
+    category: 'Arithmetic',
+    formula: '% change = [(new − old) ÷ old] × 100',
+    tip: 'Positive = increase; negative = decrease. The base is always the ORIGINAL value.',
+    example: 'Price goes from $80 to $100: (100−80)/80 × 100 = 25% increase',
+  },
+  {
+    name: 'Part-Whole Percent',
+    category: 'Arithmetic',
+    formula: 'Part = (Percent ÷ 100) × Whole',
+    tip: 'Rearrange to find any of the three: Whole = Part ÷ (Percent/100), Percent = (Part/Whole)×100.',
+    example: '35% of 200 = (35/100) × 200 = 70',
+  },
+  {
+    name: 'Simple Interest',
+    category: 'Arithmetic',
+    formula: 'I = P × r × t',
+    tip: 'P = principal, r = annual rate as decimal, t = time in years. Total = P + I.',
+    example: '$1,000 at 5% for 3 years: I = 1000 × 0.05 × 3 = $150',
+  },
+  {
+    name: 'Compound Interest',
+    category: 'Arithmetic',
+    formula: 'A = P(1 + r/n)^(nt)',
+    tip: 'n = times compounded per year. For annual compounding, n = 1: A = P(1+r)^t.',
+    example: '$1,000 at 6% compounded annually for 2 yr: A = 1000(1.06)² ≈ $1,123.60',
+  },
+  {
+    name: 'Unit Rate / Unit Price',
+    category: 'Arithmetic',
+    formula: 'Unit rate = total amount ÷ number of units',
+    tip: 'Always divide to find the "per one" value. Then multiply back to find any total.',
+    example: '5 pounds for $8.75 → unit price = $8.75 ÷ 5 = $1.75/lb',
+  },
+
+  // ── Additional Algebra formulas ─────────────────────────────────────────────
+  {
+    name: 'Vertex Form of a Parabola',
+    category: 'Algebra',
+    formula: 'y = a(x − h)² + k',
+    tip: 'Vertex is at (h, k). If a > 0, opens up; a < 0, opens down. h has opposite sign in equation.',
+    example: 'y = 2(x − 3)² + 1 → vertex at (3, 1), opens up',
+  },
+  {
+    name: 'Exponential Growth/Decay',
+    category: 'Algebra',
+    formula: 'y = a(1 ± r)^t  or  y = a · b^t',
+    tip: 'Growth: b > 1. Decay: 0 < b < 1. "a" is the initial value. t is time.',
+    example: 'Population of 1000 growing at 3%/yr: y = 1000(1.03)^t',
+  },
+  {
+    name: 'Systems of Equations — Elimination',
+    category: 'Algebra',
+    formula: 'Add or subtract equations to cancel one variable, then solve for the other.',
+    tip: 'Multiply one or both equations so coefficients match. Check: "infinite solutions" if both variables cancel AND the equation is true.',
+    example: '2x+y=7 and x−y=2 → add: 3x=9 → x=3, y=1',
+  },
+  {
+    name: 'Direct & Inverse Proportion',
+    category: 'Algebra',
+    formula: 'Direct: y = kx (y/x = k).  Inverse: y = k/x (xy = k)',
+    tip: 'Direct: both go up together. Inverse: when one doubles, the other halves.',
+    example: 'Direct: y=3x. If x=4, y=12. Inverse: xy=12. If x=4, y=3.',
+  },
 ]
