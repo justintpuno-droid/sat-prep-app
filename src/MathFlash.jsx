@@ -16,10 +16,22 @@ function saveProgress(data) {
   localStorage.setItem(MATH_KEY, JSON.stringify(data))
 }
 
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
+
+function getNameChoices(card, allFormulas) {
+  const correct = { name: card.name, correct: true }
+  const pool = allFormulas.filter(f => f.name !== card.name)
+  const distractors = shuffle(pool).slice(0, 3).map(f => ({ name: f.name, correct: false }))
+  return shuffle([correct, ...distractors])
+}
+
 export default function MathFlash({ onBack }) {
   const [progress, setProgress] = useState(loadProgress)
   const [idx, setIdx] = useState(0)
   const [flipped, setFlipped] = useState(false)
+  const [studyMode, setStudyMode] = useState('flash') // 'flash' | 'quiz'
+  const [quizAnswer, setQuizAnswer] = useState(null)
+  const [quizChoices, setQuizChoices] = useState(null)
   const [filter, setFilter] = useState('all')
   const [done, setDone] = useState(false)
   const [results, setResults] = useState([])
@@ -44,6 +56,15 @@ export default function MathFlash({ onBack }) {
   const masteredCount = Object.values(progress).filter(p => p.mastered).length
   const catColor = card ? (CATEGORY_COLORS[card.category] ?? 'bg-gray-600') : 'bg-gray-600'
 
+  const currentQuizChoices = useMemo(() => {
+    if (studyMode !== 'quiz' || !card) return null
+    if (quizChoices) return quizChoices
+    const choices = getNameChoices(card, MATH_FORMULAS)
+    setQuizChoices(choices)
+    return choices
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studyMode, card?.name])
+
   function rate(knew) {
     const today = new Date()
     const todayStr = today.toISOString().slice(0, 10)
@@ -60,7 +81,13 @@ export default function MathFlash({ onBack }) {
     saveProgress(updated)
     setResults(prev => [...prev, { name: card.name, knew }])
     if (idx + 1 >= deck.length) { setDone(true) }
-    else { setIdx(i => i + 1); setFlipped(false) }
+    else { setIdx(i => i + 1); setFlipped(false); setQuizAnswer(null); setQuizChoices(null) }
+  }
+
+  function pickAnswer(choice) {
+    if (quizAnswer) return
+    setQuizAnswer(choice)
+    rate(choice.correct)
   }
 
   if (done) {
@@ -112,11 +139,21 @@ export default function MathFlash({ onBack }) {
           <p className="text-xs font-semibold text-gray-500">{masteredCount}/{MATH_FORMULAS.length} ✓</p>
         </div>
 
+        {/* Study mode toggle */}
+        <div className="flex gap-2 mb-4">
+          {[['flash', '🃏 Flashcards'], ['quiz', '🔢 Name That Formula']].map(([m, label]) => (
+            <button key={m} onClick={() => { setStudyMode(m); setQuizAnswer(null); setQuizChoices(null); setFlipped(false) }}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-xl transition-colors ${studyMode === m ? 'bg-blue-600 text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+
         {/* Filter tabs */}
         <div className="flex gap-1.5 mb-4 overflow-x-auto pb-1">
           {['all', 'due', ...categories].map(f => (
-            <button key={f} onClick={() => { setFilter(f); setIdx(0); setFlipped(false); setDone(false); setResults([]) }}
-              className={`shrink-0 px-3 py-1 text-xs font-semibold rounded-full transition-colors ${filter === f ? 'bg-blue-600 text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>
+            <button key={f} onClick={() => { setFilter(f); setIdx(0); setFlipped(false); setDone(false); setResults([]); setQuizAnswer(null); setQuizChoices(null) }}
+              className={`shrink-0 px-3 py-1 text-xs font-semibold rounded-full transition-colors ${filter === f ? 'bg-blue-200 text-blue-800' : 'bg-white text-gray-500 border border-gray-200'}`}>
               {f === 'all' ? `All (${MATH_FORMULAS.length})` : f === 'due' ? `Due` : f}
             </button>
           ))}
@@ -133,7 +170,51 @@ export default function MathFlash({ onBack }) {
             <p className="text-sm text-gray-500 mb-6">No formulas due today.</p>
             <button onClick={() => setFilter('all')} className="text-sm text-blue-600 font-semibold">Study all formulas →</button>
           </div>
+        ) : studyMode === 'quiz' && currentQuizChoices ? (
+          /* Quiz Mode — show formula, pick the name */
+          <div>
+            <div className="bg-white rounded-3xl border-2 border-blue-100 shadow-lg p-7 mb-5 text-center">
+              <span className={`text-xs font-bold text-white px-3 py-1 rounded-full ${catColor} inline-block mb-3`}>{card.category}</span>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">What is this formula called?</p>
+              <p className="text-3xl font-black text-gray-900 font-mono leading-tight">{card.formula}</p>
+            </div>
+            <div className="space-y-2.5 mb-4">
+              {currentQuizChoices.map((choice, i) => {
+                let cls = 'bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-300 cursor-pointer'
+                if (quizAnswer) {
+                  if (choice.correct) cls = 'bg-emerald-50 border-2 border-emerald-500 text-emerald-800'
+                  else if (choice === quizAnswer) cls = 'bg-rose-50 border-2 border-rose-400 text-rose-700'
+                  else cls = 'bg-white border-2 border-gray-100 text-gray-300'
+                }
+                return (
+                  <button key={i} onClick={() => pickAnswer(choice)} disabled={!!quizAnswer}
+                    className={`w-full text-left rounded-2xl px-4 py-3.5 text-sm font-medium transition-all flex items-center gap-3 ${cls}`}>
+                    <span className="font-black text-xs w-5 shrink-0">{String.fromCharCode(65+i)}.</span>
+                    <span className="flex-1">{choice.name}</span>
+                    {quizAnswer && choice.correct && <span className="shrink-0 text-emerald-500 font-bold">✓</span>}
+                    {quizAnswer && choice === quizAnswer && !choice.correct && <span className="shrink-0 text-rose-400 font-bold">✗</span>}
+                  </button>
+                )
+              })}
+            </div>
+            {quizAnswer && (
+              <div className={`rounded-2xl p-4 mb-4 ${quizAnswer.correct ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
+                <p className={`text-xs font-bold mb-1.5 ${quizAnswer.correct ? 'text-emerald-700' : 'text-rose-600'}`}>
+                  {quizAnswer.correct ? '✓ Correct!' : `✗ That's the ${card.name}`}
+                </p>
+                <p className="text-xs text-indigo-600 font-semibold">💡 {card.tip}</p>
+                <p className="text-xs text-gray-500 italic mt-1">{card.example}</p>
+              </div>
+            )}
+            {quizAnswer && idx + 1 < deck.length && (
+              <button onClick={() => { setQuizAnswer(null); setQuizChoices(null) }}
+                className="w-full py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-colors">
+                Next formula →
+              </button>
+            )}
+          </div>
         ) : (
+          /* Flashcard Mode */
           <>
             <button onClick={() => setFlipped(f => !f)} className="w-full text-left">
               <div className={`bg-white rounded-3xl border-2 shadow-lg p-8 mb-6 min-h-64 flex flex-col justify-center transition-all ${flipped ? 'border-blue-300' : 'border-gray-100 hover:border-blue-200'}`}>
@@ -156,20 +237,14 @@ export default function MathFlash({ onBack }) {
                 )}
               </div>
             </button>
-
             {flipped ? (
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => rate(false)} className="py-4 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 font-bold text-sm hover:bg-rose-100 transition-colors">
-                  ✗ Need more practice
-                </button>
-                <button onClick={() => rate(true)} className="py-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 font-bold text-sm hover:bg-emerald-100 transition-colors">
-                  ✓ Got it!
-                </button>
+                <button onClick={() => rate(false)} className="py-4 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 font-bold text-sm hover:bg-rose-100 transition-colors">✗ Need more practice</button>
+                <button onClick={() => rate(true)} className="py-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 font-bold text-sm hover:bg-emerald-100 transition-colors">✓ Got it!</button>
               </div>
             ) : (
               <p className="text-center text-xs text-gray-400">Tap card to reveal · then rate yourself</p>
             )}
-
             {progress[card.name] && (
               <div className="mt-3 flex items-center justify-center gap-3">
                 <span className="text-xs text-gray-400">Streak: {progress[card.name].streak}/3</span>
