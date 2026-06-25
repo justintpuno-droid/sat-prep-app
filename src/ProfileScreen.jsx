@@ -25,6 +25,43 @@ function computeStreak(sessions) {
   return streak
 }
 
+function ShareStatsButton({ stats, gam, levelInfo, displayName, avatar }) {
+  const [copied, setCopied] = useState(false)
+  const achCount = Object.keys(gam.achievements ?? {}).length
+
+  function buildCard() {
+    const name = displayName ? `${avatar} ${displayName}` : `${avatar} SAT Warrior`
+    const bars = (pct) => '█'.repeat(Math.round(pct / 10)) + '░'.repeat(10 - Math.round(pct / 10))
+    return [
+      `${name} — Level ${levelInfo.level} (${levelInfo.title})`,
+      `📊 Est. SAT Score: ${stats.estScore}/1600`,
+      `✅ Accuracy: ${stats.overallPct}% (${stats.totalC}/${stats.totalQ})`,
+      `🔥 Streak: ${stats.streak} days`,
+      `🏅 Achievements: ${achCount}`,
+      `⏱️ Time Studied: ${stats.totalTime >= 3600 ? `${Math.round(stats.totalTime / 3600)}h` : `${Math.round(stats.totalTime / 60)}m`}`,
+      ``,
+      `${bars(stats.overallPct)} ${stats.overallPct}%`,
+      `#SATPrep #SAT2025 #StudyGrind`,
+    ].join('\n')
+  }
+
+  function handleCopy() {
+    navigator.clipboard.writeText(buildCard()).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  return (
+    <button
+      onClick={handleCopy}
+      className={`w-full mb-4 py-3 rounded-2xl border-2 font-bold text-sm transition-all ${copied ? 'border-emerald-400 bg-emerald-50 text-emerald-700' : 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'}`}
+    >
+      {copied ? '✅ Copied! Paste anywhere to share' : '📤 Share My Stats'}
+    </button>
+  )
+}
+
 export default function ProfileScreen({ onBack }) {
   const [gam, setGam] = useState(() => loadGamification())
   const history = useMemo(() => loadHistory(), [])
@@ -210,6 +247,11 @@ export default function ProfileScreen({ onBack }) {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Share Stats */}
+        {stats && (
+          <ShareStatsButton stats={stats} gam={gam} levelInfo={levelInfo} displayName={displayName} avatar={avatar} />
         )}
 
         {/* Recent achievements */}
