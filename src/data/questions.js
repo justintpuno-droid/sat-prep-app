@@ -2005,6 +2005,62 @@ const questions = [
     explanation: 'f(x) = −2x + 8 has slope −2 (negative) and y-intercept 8. The x-intercept is where f(x) = 0: 0 = −2x + 8 → 2x = 8 → x = 4. So the graph crosses the x-axis at x = 4. Choice B is correct: negative slope and x-intercept at 4.',
   },
 
+  // ─── ALG Hard (ALG-040..042) ─────────────────────────────────────────────
+  {
+    id: 'ALG-040',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-equations',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'The system below has infinitely many solutions. What is the value of k?\n3x − 6y = 12\nkx − 2y = 4',
+    options: [
+      { id: 'A', text: '1' },
+      { id: 'B', text: '2' },
+      { id: 'C', text: '3' },
+      { id: 'D', text: '6' },
+    ],
+    answer: 'A',
+    explanation: 'For infinitely many solutions the two equations must be equivalent (the same line). Divide the first equation by 3: x − 2y = 4. The second equation is kx − 2y = 4. Matching coefficients: coefficient of x must equal 1, so k = 1. Check: coefficient of y is −2 in both, and the constant is 4 in both. ✓',
+  },
+  {
+    id: 'ALG-041',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'systems-of-equations',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'A store sells two types of boxes: small boxes that hold 8 items and large boxes that hold 20 items. An order of exactly 200 items is packed using some combination of small and large boxes, with at least one of each type. Which of the following could be the number of large boxes used?',
+    options: [
+      { id: 'A', text: '4' },
+      { id: 'B', text: '7' },
+      { id: 'C', text: '9' },
+      { id: 'D', text: '11' },
+    ],
+    answer: 'A',
+    explanation: 'Let s = small boxes, L = large boxes. Then 8s + 20L = 200, which simplifies to 2s + 5L = 50. For L ≥ 1 and s ≥ 1: s = (50 − 5L)/2. For s to be a positive integer, (50 − 5L) must be positive and even. Since 5L = 5 × L, this expression is even only when L is even (odd × odd = odd; 50 − odd = odd, not divisible by 2). So L must be even. From the choices: L = 4 → s = (50 − 20)/2 = 15 ✓. L = 7 (odd): s = 7.5 ✗. L = 9 (odd): s = 2.5 ✗. L = 11: 5(11) = 55 > 50, s negative ✗. Only L = 4 works.',
+  },
+  {
+    id: 'ALG-042',
+    subject: 'math',
+    domain: 'algebra',
+    skill: 'linear-functions',
+    difficulty: 3,
+    type: 'multiple-choice',
+    stimulus: null,
+    question: 'Function f is linear. f(2) = 7 and f(5) = 16. What is the value of f(0)?',
+    options: [
+      { id: 'A', text: '−1' },
+      { id: 'B', text: '0' },
+      { id: 'C', text: '1' },
+      { id: 'D', text: '3' },
+    ],
+    answer: 'C',
+    explanation: 'Find the slope: m = (16 − 7)/(5 − 2) = 9/3 = 3. Use point-slope: f(x) − 7 = 3(x − 2) → f(x) = 3x + 1. Check: f(2) = 6 + 1 = 7 ✓; f(5) = 15 + 1 = 16 ✓. Therefore f(0) = 3(0) + 1 = 1.',
+  },
+
   // ─── ADVANCED MATH: ADV-012 to ADV-022 ───────────────────────────────────
 
   {
